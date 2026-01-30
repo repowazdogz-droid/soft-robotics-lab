@@ -65,8 +65,9 @@ def create_batch_job(
     conn = _get_conn()
     try:
         _init_db(conn)
+        cursor = conn.cursor()
         created = datetime.utcnow().isoformat() + "Z"
-        conn.execute(
+        cursor.execute(
             "INSERT INTO jobs (id, task_type, status, parameters_schema, created_at) VALUES (?, ?, ?, ?, ?)",
             (job_id, task_type, "pending", json.dumps({"n_trials": n_trials, "sweep": parameters}), created),
         )
@@ -90,14 +91,15 @@ def run_batch_job(
     conn = _get_conn()
     try:
         _init_db(conn)
-        cur = conn.execute("SELECT task_type, parameters_schema FROM jobs WHERE id = ?", (job_id,))
-        row = cur.fetchone()
+        cursor = conn.cursor()
+        cursor.execute("SELECT task_type, parameters_schema FROM jobs WHERE id = ?", (job_id,))
+        row = cursor.fetchone()
         if not row:
             return
         schema = json.loads(row["parameters_schema"] or "{}")
         sweep = schema.get("sweep", {})
         n = n_trials or schema.get("n_trials", 10)
-        conn.execute("UPDATE jobs SET status = ? WHERE id = ?", ("running", job_id))
+        cursor.execute("UPDATE jobs SET status = ? WHERE id = ?", ("running", job_id))
         conn.commit()
 
         from .simulator import Simulator
@@ -121,15 +123,16 @@ def run_batch_job(
                 result = {"error": str(e)}
                 success = 0
                 score = 0.0
-            conn.execute(
+            cursor.execute(
                 "INSERT INTO trials (job_id, parameters_json, result_json, success, score, created_at) VALUES (?, ?, ?, ?, ?, ?)",
                 (job_id, json.dumps(trial_params), json.dumps(result, default=str), success, score, created),
             )
-        conn.execute("UPDATE jobs SET status = ?, completed_at = ? WHERE id = ?", ("completed", datetime.utcnow().isoformat() + "Z", job_id))
+        cursor.execute("UPDATE jobs SET status = ?, completed_at = ? WHERE id = ?", ("completed", datetime.utcnow().isoformat() + "Z", job_id))
         conn.commit()
     except Exception:
         try:
-            conn.execute("UPDATE jobs SET status = ? WHERE id = ?", ("failed", job_id))
+            cursor = conn.cursor()
+            cursor.execute("UPDATE jobs SET status = ? WHERE id = ?", ("failed", job_id))
             conn.commit()
         except Exception:
             pass
@@ -142,15 +145,16 @@ def get_batch_results(job_id: str) -> Dict[str, Any]:
     conn = _get_conn()
     try:
         _init_db(conn)
-        cur = conn.execute("SELECT id, task_type, status, parameters_schema, created_at, completed_at FROM jobs WHERE id = ?", (job_id,))
-        row = cur.fetchone()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, task_type, status, parameters_schema, created_at, completed_at FROM jobs WHERE id = ?", (job_id,))
+        row = cursor.fetchone()
         if not row:
             return {"job_id": job_id, "found": False}
         job = dict(row)
         job["parameters_schema"] = json.loads(job["parameters_schema"]) if job.get("parameters_schema") else {}
-        cur = conn.execute("SELECT id, job_id, parameters_json, result_json, success, score, created_at FROM trials WHERE job_id = ? ORDER BY id", (job_id,))
+        cursor.execute("SELECT id, job_id, parameters_json, result_json, success, score, created_at FROM trials WHERE job_id = ? ORDER BY id", (job_id,))
         trials = []
-        for r in cur.fetchall():
+        for r in cursor.fetchall():
             d = dict(r)
             d["parameters"] = json.loads(d["parameters_json"]) if d.get("parameters_json") else {}
             d["result"] = json.loads(d["result_json"]) if d.get("result_json") else {}
@@ -180,7 +184,8 @@ def list_jobs(limit: int = 50) -> List[Dict[str, Any]]:
     conn = _get_conn()
     try:
         _init_db(conn)
-        cur = conn.execute("SELECT id, task_type, status, created_at, completed_at FROM jobs ORDER BY created_at DESC LIMIT ?", (limit,))
-        return [dict(r) for r in cur.fetchall()]
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, task_type, status, created_at, completed_at FROM jobs ORDER BY created_at DESC LIMIT ?", (limit,))
+        return [dict(r) for r in cursor.fetchall()]
     finally:
         conn.close()

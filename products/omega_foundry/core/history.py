@@ -56,19 +56,20 @@ def save_version(
     conn = _get_conn()
     try:
         _init_db(conn)
-        cur = conn.execute("SELECT current_version FROM designs WHERE id = ?", (design_id,))
-        row = cur.fetchone()
+        cursor = conn.cursor()
+        cursor.execute("SELECT current_version FROM designs WHERE id = ?", (design_id,))
+        row = cursor.fetchone()
         if row:
             version = row["current_version"] + 1
-            conn.execute("UPDATE designs SET name = ?, current_version = ? WHERE id = ?", (name, version, design_id))
+            cursor.execute("UPDATE designs SET name = ?, current_version = ? WHERE id = ?", (name, version, design_id))
         else:
             version = 1
-            conn.execute("INSERT INTO designs (id, name, current_version) VALUES (?, ?, ?)", (design_id, name, version))
+            cursor.execute("INSERT INTO designs (id, name, current_version) VALUES (?, ?, ?)", (design_id, name, version))
 
         from datetime import datetime
         created_at = datetime.utcnow().isoformat() + "Z"
         params_json = json.dumps(params, default=str) if params else None
-        conn.execute(
+        cursor.execute(
             "INSERT INTO versions (design_id, version, mjcf, params_json, created_at, notes) VALUES (?, ?, ?, ?, ?, ?)",
             (design_id, version, mjcf, params_json, created_at, notes or ""),
         )
@@ -83,11 +84,12 @@ def list_versions(design_id: str) -> List[Dict[str, Any]]:
     conn = _get_conn()
     try:
         _init_db(conn)
-        cur = conn.execute(
+        cursor = conn.cursor()
+        cursor.execute(
             "SELECT id, design_id, version, created_at, notes FROM versions WHERE design_id = ? ORDER BY version DESC",
             (design_id,),
         )
-        return [dict(row) for row in cur.fetchall()]
+        return [dict(row) for row in cursor.fetchall()]
     finally:
         conn.close()
 
@@ -97,15 +99,16 @@ def get_version(design_id: str, version: Optional[int] = None) -> Optional[Dict[
     conn = _get_conn()
     try:
         _init_db(conn)
+        cursor = conn.cursor()
         if version is None:
-            cur = conn.execute("SELECT current_version FROM designs WHERE id = ?", (design_id,))
-            row = cur.fetchone()
+            cursor.execute("SELECT current_version FROM designs WHERE id = ?", (design_id,))
+            row = cursor.fetchone()
             version = row["current_version"] if row else 1
-        cur = conn.execute(
+        cursor.execute(
             "SELECT design_id, version, mjcf, params_json, created_at, notes FROM versions WHERE design_id = ? AND version = ?",
             (design_id, version),
         )
-        row = cur.fetchone()
+        row = cursor.fetchone()
         if not row:
             return None
         out = dict(row)
@@ -149,8 +152,9 @@ def get_current_version_number(design_id: str) -> int:
     conn = _get_conn()
     try:
         _init_db(conn)
-        cur = conn.execute("SELECT current_version FROM designs WHERE id = ?", (design_id,))
-        row = cur.fetchone()
+        cursor = conn.cursor()
+        cursor.execute("SELECT current_version FROM designs WHERE id = ?", (design_id,))
+        row = cursor.fetchone()
         return row["current_version"] if row else 0
     finally:
         conn.close()
@@ -161,7 +165,8 @@ def list_designs() -> List[Dict[str, Any]]:
     conn = _get_conn()
     try:
         _init_db(conn)
-        cur = conn.execute("SELECT id, name, current_version FROM designs ORDER BY id")
-        return [dict(row) for row in cur.fetchall()]
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, name, current_version FROM designs ORDER BY id")
+        return [dict(row) for row in cursor.fetchall()]
     finally:
         conn.close()

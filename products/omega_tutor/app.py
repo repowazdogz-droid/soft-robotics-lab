@@ -1,7 +1,7 @@
 """
 OMEGA Tutor — Streamlit chat interface.
 Ask anything. Learn at your level. Zero friction.
-First run: welcome screen (age or Professional/Researcher). Then chat with level-adaptive teaching.
+First run: welcome screen (pick mode: Simple & Fun, Clear & Direct, Technical, Research-Level). Then chat.
 """
 
 import os
@@ -27,6 +27,7 @@ from core.user_profile import (
     save_profile,
     get_current_level,
     get_display_label,
+    PERSONA_CONFIG,
 )
 from core.level_adjust import adjust_level
 try:
@@ -36,10 +37,11 @@ except ImportError:
     progress_tracker = None
     get_review_priority = None
 try:
-    from core.quiz_generator import generate_quiz
+    from core.quiz_generator import generate_quiz, generate_quiz_from_topics
     from core.explain_back import evaluate_explanation
 except ImportError:
     generate_quiz = None
+    generate_quiz_from_topics = None
     evaluate_explanation = None
 try:
     from core.curriculum import curriculum_engine
@@ -80,54 +82,87 @@ if topic:
     topic = topic.replace("+", " ")
 
 
-def _render_welcome_or_change_age(sidebar: bool = False):
-    """Render age/role form. Used for first-time welcome (main) or 'Change age' (sidebar)."""
+STARTER_QUESTIONS = {
+    "soft-robotics-101": "What is soft robotics and why does it matter?",
+    "machine-learning-101": "What is machine learning in simple terms?",
+    "synthetic-biology-101": "What is synthetic biology and what can it do?",
+}
+
+
+def _clear_chat():
+    """Clear chat messages and session scores. Does not reset progress_tracker (learning history)."""
+    st.session_state["messages"] = []
+    st.session_state.pop("quiz_questions", None)
+    st.session_state.pop("quiz_index", None)
+    st.session_state.pop("quiz_answers", None)
+    st.session_state.pop("quiz_topic", None)
+    st.session_state.pop("quiz_mode", None)
+    st.session_state.pop("explain_back_topic", None)
+    st.session_state.pop("explain_back_index", None)
+    st.session_state.pop("explain_back_last_score", None)
+    st.session_state.pop("re_explain", None)
+    st.session_state.pop("pending_starter_question", None)
+    st.session_state.pop("pending_starter_curriculum_id", None)
+
+
+def _save_persona(persona: str):
+    """Save profile with persona, clear chat for fresh start, and rerun."""
     profile = load_profile()
-    current_age = profile.get("age")
-    container = st.sidebar if sidebar else st
-    sk = "_sb" if sidebar else ""
-    if "welcome_role" not in st.session_state:
-        st.session_state["welcome_role"] = None
-    age = container.number_input(
-        "I'm _____ years old",
-        min_value=5,
-        max_value=120,
-        value=int(current_age) if current_age is not None else 10,
-        step=1,
-        key="age_input" + sk,
-    )
-    container.caption("Or choose:")
-    col1, col2 = container.columns(2)
-    with col1:
-        if container.button("Professional", key="role_pro" + sk):
-            st.session_state["welcome_role"] = "professional"
-    with col2:
-        if container.button("Researcher", key="role_res" + sk):
-            st.session_state["welcome_role"] = "researcher"
-    use_role = st.session_state.get("welcome_role")
-    if use_role:
-        container.caption(f"Selected: **{use_role.title()}** — click Get Started to continue.")
-    btn_label = "Save" if sidebar else "Get Started"
-    if container.button(btn_label, type="primary", key="submit_profile" + sk):
-        role_to_save = use_role if use_role else None
-        created = profile.get("created_at") or datetime.now().isoformat()
-        if role_to_save:
-            save_profile({"age": None, "name": profile.get("name"), "role": role_to_save, "created_at": created})
-        else:
-            save_profile({"age": age, "name": profile.get("name"), "role": None, "created_at": created})
-        st.session_state.pop("welcome_role", None)
-        if sidebar:
-            st.session_state["change_age"] = False
-        st.rerun()
-    return age, use_role
+    created = profile.get("created_at") or datetime.now().isoformat()
+    save_profile({"persona": persona, "name": profile.get("name"), "created_at": created})
+    _clear_chat()
+    st.rerun()
+
+
+def _render_welcome_personas():
+    """First-time welcome: 4 persona cards. Click one → save and go to topic picker."""
+    st.title("🎓 OMEGA Tutor")
+    st.markdown("**Pick who you are and start learning:**")
+    st.markdown("---")
+    for pid, config in PERSONA_CONFIG.items():
+        icon = config.get("icon", "")
+        label = config.get("label", "").replace(" Mode", "")
+        tagline = config.get("tagline", "")
+        quote = config.get("quote", "")
+        persona_label = {"kid": "Kid", "student": "Student", "professional": "Professional", "researcher": "Researcher"}.get(pid, "Student")
+        btn_text = f"**{icon} I'm a {persona_label}**\n\n{tagline}\n\n\"{quote}\""
+        if st.button(btn_text, key=f"persona_{pid}", use_container_width=True):
+            _save_persona(pid)
+    st.markdown("---")
+
+
+def _render_topic_picker(level: str):
+    """After persona picked: topic quick-picks + type anything. Click topic → starter question + teach."""
+    st.subheader("What do you want to learn about?")
+    curricula = curriculum_engine.list_curricula() if curriculum_engine else []
+    # Quick-pick buttons: first 3 curricula by default or Soft Robotics, Machine Learning, Synthetic Biology by name
+    picks = [c for c in curricula if c.get("id") in STARTER_QUESTIONS][:3]
+    if not picks:
+        picks = curricula[:3]
+    col1, col2, col3 = st.columns(3)
+    for i, c in enumerate(picks):
+        col = [col1, col2, col3][i % 3]
+        with col:
+            name = c.get("name", c.get("id", ""))
+            short = name.replace(" Fundamentals", "").replace(" 101", "") if name else c.get("id", "")
+            if st.button(f"**{short}**", key=f"topic_pick_{c.get('id', i)}", use_container_width=True):
+                q = STARTER_QUESTIONS.get(c.get("id", ""), f"What is {short} and why does it matter?")
+                st.session_state["selected_curriculum_id"] = c.get("id")
+                st.session_state["pending_starter_curriculum_id"] = c.get("id")
+                st.session_state["pending_starter_question"] = q
+                st.rerun()
+    st.markdown("**Or type anything:**")
+    go_col, _ = st.columns([1, 3])
+    with go_col:
+        custom_q = st.text_input("Question", key="topic_custom_q", placeholder="e.g. How do muscles work?")
+        if st.button("Go", key="topic_go") and custom_q and custom_q.strip():
+            st.session_state["pending_starter_question"] = custom_q.strip()
+            st.rerun()
 
 
 # ----- First-time welcome (no profile) -----
 if not has_profile():
-    st.title("🎓 Welcome to OMEGA Tutor")
-    st.caption("Tell us a bit about you so we can teach at the right level. You won't see this again.")
-    st.markdown("---")
-    _render_welcome_or_change_age(sidebar=False)
+    _render_welcome_personas()
     st.stop()
 
 # ----- Profile exists: show chat -----
@@ -180,15 +215,37 @@ if st.session_state.get("show_exit_summary") and st.session_state.get("exit_summ
 st.title("🎓 OMEGA Tutor")
 st.caption("Ask anything. Learn at your level.")
 
-# Sidebar: Learning as, Change age, API key, backend
-st.sidebar.markdown(f"**Learning as:** {display_label}")
-if st.sidebar.button("Change age", key="btn_change_age"):
-    st.session_state["change_age"] = True
-if st.session_state.get("change_age"):
-    st.sidebar.markdown("---")
-    st.sidebar.caption("Update your age or role:")
-    _render_welcome_or_change_age(sidebar=True)
-    st.sidebar.markdown("---")
+# Sidebar: Persona, Switch, API key, backend
+st.sidebar.markdown(f"**{display_label}**")
+if st.sidebar.button("Switch", key="btn_switch_persona"):
+    st.session_state["show_persona_switch"] = not st.session_state.get("show_persona_switch", False)
+if st.session_state.get("show_persona_switch"):
+    st.sidebar.caption("Pick persona:")
+    for pid in PERSONA_CONFIG:
+        cfg = PERSONA_CONFIG[pid]
+        if st.sidebar.button(f"{cfg.get('icon', '')} {cfg.get('label', '').replace(' Mode', '')}", key=f"switch_{pid}"):
+            _save_persona(pid)
+            st.session_state["show_persona_switch"] = False
+            st.rerun()
+
+if st.sidebar.button("🗑️ Clear Chat", key="btn_clear_chat"):
+    _clear_chat()
+    st.session_state["chat_cleared"] = True
+    st.rerun()
+if st.session_state.get("chat_cleared"):
+    st.sidebar.success("Chat cleared.")
+    st.session_state.pop("chat_cleared", None)
+
+_selected_cid = st.session_state.get("selected_curriculum_id")
+if curriculum_engine and _selected_cid:
+    _curr = curriculum_engine.load_curriculum(_selected_cid) or st.session_state.get("custom_curriculum")
+    if _curr:
+        _prog = curriculum_engine.get_progress(_selected_cid)
+        _pct = _prog.get("percent_complete", 0)
+        st.sidebar.markdown(f"**📚 {_curr.get('name', _selected_cid)}**")
+        st.sidebar.progress(_pct / 100.0)
+        st.sidebar.caption(f"{_pct:.0f}% complete")
+st.sidebar.caption("💡 Ask anything below.")
 
 st.sidebar.markdown("---")
 env_has_key = bool(os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY") or os.environ.get("ANTHROPIC_API_KEY"))
@@ -212,10 +269,31 @@ except Exception:
     backend_label = "⚠️ No backend (start LM Studio or set GEMINI_API_KEY)"
 st.sidebar.caption(backend_label)
 
+# ----- Topic picker (no messages yet) + pending starter question -----
+if "messages" not in st.session_state:
+    st.session_state["messages"] = []
+_messages = st.session_state["messages"]
+if len(_messages) == 0:
+    if st.session_state.get("pending_starter_question"):
+        _q = st.session_state["pending_starter_question"]
+        st.session_state["messages"].append({"role": "user", "content": _q})
+        if _engine:
+            _resp = _engine.teach(_q, level=level)
+            st.session_state["messages"].append({"role": "assistant", "content": _resp.to_markdown(), "level": level})
+        else:
+            st.session_state["messages"].append({"role": "assistant", "content": "**No backend available.** Start LM Studio with a model, or set GEMINI_API_KEY.", "level": level})
+        st.session_state.pop("pending_starter_question", None)
+        st.session_state.pop("pending_starter_curriculum_id", None)
+        st.rerun()
+    else:
+        _render_topic_picker(level)
+        st.sidebar.markdown("---")
+        st.sidebar.caption("💡 Pick a topic above or type your question.")
+        st.stop()
+
 # ----- Voice Mode -----
 _profile = load_profile()
-_voice_age = _profile.get("age")
-_default_voice_on = _voice_age is not None and int(_voice_age) <= 10 if isinstance(_voice_age, (int, float)) else False
+_default_voice_on = _profile.get("persona") == "kid"
 if "voice_input" not in st.session_state:
     st.session_state["voice_input"] = _default_voice_on
 if "voice_output" not in st.session_state:

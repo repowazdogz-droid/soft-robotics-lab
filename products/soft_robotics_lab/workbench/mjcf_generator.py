@@ -79,15 +79,31 @@ def generate_mjcf(design: Dict, config: Optional[MJCFConfig] = None) -> str:
         material = material.value
     material_name = str(material).lower()
 
-    material_props = {
-        "dragonskin_10": {"stiffness": 0.02, "damping": 0.15, "rgba": "0.9 0.85 0.8 1"},
-        "dragonskin_30": {"stiffness": 0.05, "damping": 0.12, "rgba": "0.85 0.8 0.75 1"},
-        "ecoflex_30": {"stiffness": 0.01, "damping": 0.18, "rgba": "0.95 0.9 0.85 1"},
-        "ecoflex_50": {"stiffness": 0.03, "damping": 0.14, "rgba": "0.9 0.85 0.8 1"},
-        "tpu_95a": {"stiffness": 0.15, "damping": 0.08, "rgba": "0.7 0.7 0.75 1"},
-        "silicone_generic": {"stiffness": 0.04, "damping": 0.12, "rgba": "0.88 0.85 0.82 1"},
-    }
-    mat_props = material_props.get(material_name, material_props["silicone_generic"])
+    # Use toe-region material models when available (materials.dragonskin)
+    mat_props = None
+    try:
+        _lab_root = Path(__file__).resolve().parent.parent
+        if str(_lab_root) not in __import__("sys").path:
+            __import__("sys").path.insert(0, str(_lab_root))
+        from materials.dragonskin import get_mjcf_parameters, list_materials
+        if material_name in list_materials():
+            _raw = get_mjcf_parameters(material_name)
+            mat_props = {k: v for k, v in _raw.items() if not k.startswith("_")}
+            if "rgba" not in mat_props:
+                mat_props["rgba"] = "0.9 0.85 0.8 1"
+    except Exception:
+        pass
+
+    if mat_props is None:
+        material_props = {
+            "dragonskin_10": {"stiffness": 0.02, "damping": 0.15, "rgba": "0.9 0.85 0.8 1"},
+            "dragonskin_30": {"stiffness": 0.05, "damping": 0.12, "rgba": "0.85 0.8 0.75 1"},
+            "ecoflex_30": {"stiffness": 0.01, "damping": 0.18, "rgba": "0.95 0.9 0.85 1"},
+            "ecoflex_50": {"stiffness": 0.03, "damping": 0.14, "rgba": "0.9 0.85 0.8 1"},
+            "tpu_95a": {"stiffness": 0.15, "damping": 0.08, "rgba": "0.7 0.7 0.75 1"},
+            "silicone_generic": {"stiffness": 0.04, "damping": 0.12, "rgba": "0.88 0.85 0.82 1"},
+        }
+        mat_props = material_props.get(material_name, material_props["silicone_generic"])
 
     segment_length = finger_length_m / num_segments
     base_radius = finger_width_m / 2

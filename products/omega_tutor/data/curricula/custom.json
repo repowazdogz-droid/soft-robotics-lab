@@ -1,0 +1,40 @@
+{
+  "id": "custom",
+  "name": "Tendons Learning Path",
+  "description": "A structured learning path for understanding tendons, starting from basic anatomy and progressing to specific functions and related topics.",
+  "topics": [
+    {
+      "id": "anatomy-basics",
+      "name": "Anatomy Basics",
+      "prerequisites": []
+    },
+    {
+      "id": "musculoskeletal-system",
+      "name": "Musculoskeletal System Overview",
+      "prerequisites": [
+        "anatomy-basics"
+      ]
+    },
+    {
+      "id": "tendon-structure",
+      "name": "Tendon Structure and Composition",
+      "prerequisites": [
+        "musculoskeletal-system"
+      ]
+    },
+    {
+      "id": "tendon-function",
+      "name": "Function of Tendons in Movement",
+      "prerequisites": [
+        "tendon-structure"
+      ]
+    },
+    {
+      "id": "tendon-disorders",
+      "name": "Common Tendon Disorders and Injuries",
+      "prerequisites": [
+        "tendon-function"
+      ]
+    }
+  ]
+}

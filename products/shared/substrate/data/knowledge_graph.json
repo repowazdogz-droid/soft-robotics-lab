@@ -1,0 +1,145 @@
+{
+  "directed": true,
+  "multigraph": true,
+  "graph": {},
+  "nodes": [
+    {
+      "design_hash": "fbed2ab9acce79d3fe240089eb18aa21b4d77f98a6c93b16036792194954255d",
+      "passed": true,
+      "score": 1.0,
+      "node_type": "Design",
+      "id": "fbed2ab9acce79d3fe240089eb18aa21b4d77f98a6c93b16036792194954255d"
+    },
+    {
+      "passed": true,
+      "score": 1.0,
+      "node_type": "Validation",
+      "id": "VAL-20260130-EFE94"
+    },
+    {
+      "passed": true,
+      "score": 1.0,
+      "node_type": "Validation",
+      "id": "VAL-20260130-1873B"
+    },
+    {
+      "passed": true,
+      "score": 1.0,
+      "node_type": "Validation",
+      "id": "VAL-20260130-811A5"
+    },
+    {
+      "design_hash": "97a95d545ca279dba5932056970a90268558bdb13b9b1613601c8f467698d9bc",
+      "passed": true,
+      "score": 1.0,
+      "node_type": "Design",
+      "id": "97a95d545ca279dba5932056970a90268558bdb13b9b1613601c8f467698d9bc"
+    },
+    {
+      "passed": true,
+      "score": 1.0,
+      "node_type": "Validation",
+      "id": "VAL-20260130-0F2DE"
+    },
+    {
+      "passed": true,
+      "score": 1.0,
+      "node_type": "Validation",
+      "id": "VAL-20260130-8DD66"
+    },
+    {
+      "design_hash": "753f3c46e06709d00e2861bb8e09c3ccbe5fb7b483098804301ec7c8ab979d9b",
+      "passed": true,
+      "score": 1.0,
+      "node_type": "Design",
+      "id": "753f3c46e06709d00e2861bb8e09c3ccbe5fb7b483098804301ec7c8ab979d9b"
+    },
+    {
+      "passed": true,
+      "score": 1.0,
+      "node_type": "Validation",
+      "id": "VAL-20260130-E2C6B"
+    },
+    {
+      "design_id": "ART-20260130-0001",
+      "name": "Pinch Gripper",
+      "domain": "gripper",
+      "node_type": "Design",
+      "id": "ART-20260130-0001"
+    },
+    {
+      "topic": "What is gravity?",
+      "level": "adult",
+      "timestamp": "2026-01-30T20:11:30.459082",
+      "confidence": 1.0,
+      "node_type": "Concept",
+      "id": "what_is_gravity_20260130"
+    },
+    {
+      "topic": "Teach me about Materials Basics",
+      "level": "undergrad",
+      "timestamp": "2026-01-30T20:14:08.695237",
+      "confidence": 1.0,
+      "node_type": "Concept",
+      "id": "teach_me_about_materials_basics_20260130"
+    },
+    {
+      "topic": "What is 2+2?",
+      "level": "adult",
+      "timestamp": "2026-01-30T20:32:06.754955",
+      "confidence": 1.0,
+      "node_type": "Concept",
+      "id": "what_is_22_20260130"
+    }
+  ],
+  "links": [
+    {
+      "passed": true,
+      "score": 1.0,
+      "edge_type": "validates",
+      "source": "VAL-20260130-EFE94",
+      "target": "fbed2ab9acce79d3fe240089eb18aa21b4d77f98a6c93b16036792194954255d",
+      "key": 0
+    },
+    {
+      "passed": true,
+      "score": 1.0,
+      "edge_type": "validates",
+      "source": "VAL-20260130-1873B",
+      "target": "fbed2ab9acce79d3fe240089eb18aa21b4d77f98a6c93b16036792194954255d",
+      "key": 0
+    },
+    {
+      "passed": true,
+      "score": 1.0,
+      "edge_type": "validates",
+      "source": "VAL-20260130-811A5",
+      "target": "fbed2ab9acce79d3fe240089eb18aa21b4d77f98a6c93b16036792194954255d",
+      "key": 0
+    },
+    {
+      "passed": true,
+      "score": 1.0,
+      "edge_type": "validates",
+      "source": "VAL-20260130-0F2DE",
+      "target": "97a95d545ca279dba5932056970a90268558bdb13b9b1613601c8f467698d9bc",
+      "key": 0
+    },
+    {
+      "passed": true,
+      "score": 1.0,
+      "edge_type": "validates",
+      "source": "VAL-20260130-8DD66",
+      "target": "97a95d545ca279dba5932056970a90268558bdb13b9b1613601c8f467698d9bc",
+      "key": 0
+    },
+    {
+      "passed": true,
+      "score": 1.0,
+      "edge_type": "validates",
+      "source": "VAL-20260130-E2C6B",
+      "target": "753f3c46e06709d00e2861bb8e09c3ccbe5fb7b483098804301ec7c8ab979d9b",
+      "key": 0
+    }
+  ]
+}

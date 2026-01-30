@@ -39,6 +39,35 @@ def _call_llm(prompt: str, api_key: Optional[str] = None) -> str:
     return ""
 
 
+def generate_quiz_from_topics(
+    topics: List[str],
+    level: str,
+    n_questions: int = 3,
+    api_key: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Generate n_questions from the given topic list only. Never quizzes on topics user hasn't seen.
+    Distributes questions across topics; if topics is empty uses ["general"].
+    Returns list of {question, options, correct, explanation, topic}.
+    """
+    topics = [t.strip() for t in topics if t.strip()]
+    if not topics:
+        topics = ["general"]
+    level = (level or "adult").strip()
+    n_questions = max(1, min(20, n_questions))
+    result = []
+    per_topic = max(1, n_questions // len(topics))
+    for topic in topics:
+        if len(result) >= n_questions:
+            break
+        want = min(per_topic, n_questions - len(result))
+        qs = generate_quiz(topic, level, n_questions=want, api_key=api_key)
+        for q in qs:
+            q["topic"] = topic
+            result.append(q)
+    return result[:n_questions]
+
+
 def generate_quiz(topic: str, level: str, n_questions: int = 3, api_key: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     Generate n multiple choice questions about topic for level.

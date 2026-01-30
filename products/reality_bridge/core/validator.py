@@ -35,6 +35,16 @@ class ValidationResult:
     metrics: Dict[str, float] = field(default_factory=dict)
 
 
+# Reasonable thresholds for grippers / small mechanisms
+MAX_TOTAL_MASS = 10.0       # kg — grippers shouldn't weigh more
+MIN_TOTAL_MASS = 0.001      # kg — too light is likely an error
+MAX_BODY_MASS = 5.0        # kg — no single body heavier
+MAX_MASS_RATIO = 1000.0    # heaviest/lightest — unbalanced
+MAX_VELOCITY = 100.0        # m/s — unrealistic speed
+MAX_POSITION = 10.0         # m from origin — simulation "explosion"
+FLOOR_Z_TOL = -0.5          # m — bodies below this = falling through floor
+
+
 class PhysicsValidator:
     """Physics validation suite: load, stability, kinematics, dynamics, self-collision, mass."""
 
@@ -153,10 +163,25 @@ class PhysicsValidator:
             nsteps = min(self.STABILITY_STEPS, 2000)
             for _ in range(nsteps):
                 mujoco.mj_step(model, data)
+            errs: List[str] = []
+            # NaN/Inf in position
             if np.any(np.isnan(data.qpos)) or np.any(np.isinf(data.qpos)):
+                errs.append("NaN/Inf in position (qpos)")
+            # Velocities exceeding realistic bounds
+            if model.nv > 0 and np.any(np.abs(data.qvel) > MAX_VELOCITY):
+                errs.append(f"Velocity exceeds {MAX_VELOCITY} m/s")
+            # Bodies falling through floor (worldbody geom "floor" is at z=0; bodies should stay above)
+            xpos = data.xpos  # (nbody, 3)
+            if np.any(xpos[:, 2] < FLOOR_Z_TOL):
+                errs.append("Body below floor (fall-through)")
+            # Simulation explosion: any body > MAX_POSITION from origin
+            dists = np.linalg.norm(xpos, axis=1)
+            if np.any(dists > MAX_POSITION):
+                errs.append(f"Position > {MAX_POSITION} m from origin (explosion)")
+            if errs:
                 return (
-                    TestResult("STABILITY_TEST", False, "Simulation unstable (NaN/Inf)", {"steps": nsteps}),
-                    ["Stability: NaN/Inf in state"],
+                    TestResult("STABILITY_TEST", False, "; ".join(errs), {"steps": nsteps}),
+                    ["Stability: " + e for e in errs],
                     [],
                 )
             return (
@@ -221,23 +246,59 @@ class PhysicsValidator:
 
     def _run_mass_properties(self, model) -> tuple:
         try:
-            mass = np.sum(model.body_mass)
-            if mass <= 0:
+            masses = np.asarray(model.body_mass)
+            total = float(np.sum(masses))
+            # Total mass too low
+            if total < MIN_TOTAL_MASS:
                 return (
-                    TestResult("MASS_PROPERTIES_TEST", False, "Total mass <= 0"),
-                    ["Mass properties: invalid mass"],
+                    TestResult("MASS_PROPERTIES_TEST", False, f"Total mass {total:.4f} kg < {MIN_TOTAL_MASS} kg"),
+                    [f"Mass properties: total mass below {MIN_TOTAL_MASS} kg"],
                     [],
                 )
-            if mass > 1e6:
+            # Total mass too high (unrealistic for gripper)
+            if total > MAX_TOTAL_MASS:
                 return (
-                    TestResult("MASS_PROPERTIES_TEST", False, "Total mass unreasonably large"),
+                    TestResult("MASS_PROPERTIES_TEST", False, f"Total mass {total:.4f} kg exceeds {MAX_TOTAL_MASS} kg"),
+                    [f"Mass properties: total mass {total:.2f} kg exceeds limit {MAX_TOTAL_MASS} kg"],
                     [],
-                    ["Mass properties: very high mass"],
                 )
+            # Any single body too heavy
+            for i, m in enumerate(masses):
+                if m > MAX_BODY_MASS:
+                    return (
+                        TestResult("MASS_PROPERTIES_TEST", False, f"Body {i} mass {m:.4f} kg > {MAX_BODY_MASS} kg"),
+                        [f"Mass properties: body mass {m:.2f} kg exceeds {MAX_BODY_MASS} kg"],
+                        [],
+                    )
+            # Mass ratio (heaviest / lightest) — use positive masses only
+            positive = masses[masses > 0]
+            if len(positive) >= 2:
+                heaviest = float(np.max(positive))
+                lightest = float(np.min(positive))
+                if lightest <= 0:
+                    lightest = np.finfo(float).tiny
+                ratio = heaviest / lightest
+                if ratio > MAX_MASS_RATIO:
+                    return (
+                        TestResult("MASS_PROPERTIES_TEST", False, f"Mass ratio {ratio:.0f} > {MAX_MASS_RATIO}"),
+                        [f"Mass properties: mass ratio {ratio:.0f} exceeds {MAX_MASS_RATIO}"],
+                        [],
+                    )
             return (
-                TestResult("MASS_PROPERTIES_TEST", True, f"Total mass {mass:.4f} kg", {"mass_kg": float(mass)}),
+                TestResult("MASS_PROPERTIES_TEST", True, f"Total mass {total:.4f} kg", {"mass_kg": total}),
                 [],
                 [],
             )
         except Exception as e:
             return TestResult("MASS_PROPERTIES_TEST", False, str(e)), [f"Mass: {e}"], []
+
+
+def validate_design(xml_string: str = None, file_path: str = None) -> Dict[str, Any]:
+    """
+    Convenience: run full validation and return a dict (passed, score, tests, errors, warnings, metrics).
+    For use from scripts and one-liners; API uses PhysicsValidator().validate() + to_dict().
+    """
+    from .reporter import to_dict
+    v = PhysicsValidator()
+    result = v.validate(xml_string=xml_string, file_path=file_path)
+    return to_dict(result)

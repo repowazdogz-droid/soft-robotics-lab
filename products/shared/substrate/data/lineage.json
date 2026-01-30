@@ -1,0 +1,119 @@
+{
+  "nodes": {
+    "VAL-20260130-EFE94": {
+      "id": "VAL-20260130-EFE94",
+      "created": "2026-01-30T19:31:46.197291"
+    },
+    "fbed2ab9acce79d3fe240089eb18aa21b4d77f98a6c93b16036792194954255d": {
+      "id": "fbed2ab9acce79d3fe240089eb18aa21b4d77f98a6c93b16036792194954255d",
+      "created": "2026-01-30T19:31:46.197291"
+    },
+    "VAL-20260130-1873B": {
+      "id": "VAL-20260130-1873B",
+      "created": "2026-01-30T19:31:46.246304"
+    },
+    "VAL-20260130-811A5": {
+      "id": "VAL-20260130-811A5",
+      "created": "2026-01-30T19:32:59.113614"
+    },
+    "VAL-20260130-0F2DE": {
+      "id": "VAL-20260130-0F2DE",
+      "created": "2026-01-30T19:33:10.640298"
+    },
+    "97a95d545ca279dba5932056970a90268558bdb13b9b1613601c8f467698d9bc": {
+      "id": "97a95d545ca279dba5932056970a90268558bdb13b9b1613601c8f467698d9bc",
+      "created": "2026-01-30T19:33:10.640298"
+    },
+    "VAL-20260130-8DD66": {
+      "id": "VAL-20260130-8DD66",
+      "created": "2026-01-30T19:33:11.895762"
+    },
+    "VAL-20260130-E2C6B": {
+      "id": "VAL-20260130-E2C6B",
+      "created": "2026-01-30T19:33:15.772635"
+    },
+    "753f3c46e06709d00e2861bb8e09c3ccbe5fb7b483098804301ec7c8ab979d9b": {
+      "id": "753f3c46e06709d00e2861bb8e09c3ccbe5fb7b483098804301ec7c8ab979d9b",
+      "created": "2026-01-30T19:33:15.772635"
+    },
+    "ART-20260130-0001": {
+      "id": "ART-20260130-0001",
+      "created": "2026-01-30T19:52:17.607676"
+    },
+    "Soft pneumatic": {
+      "id": "Soft pneumatic",
+      "created": "2026-01-30T19:52:17.607676"
+    }
+  },
+  "edges": [
+    {
+      "child_id": "VAL-20260130-EFE94",
+      "parent_id": "fbed2ab9acce79d3fe240089eb18aa21b4d77f98a6c93b16036792194954255d",
+      "method": "validation",
+      "parameters": {
+        "passed": true,
+        "score": 1.0
+      },
+      "timestamp": "2026-01-30T19:31:46.197291"
+    },
+    {
+      "child_id": "VAL-20260130-1873B",
+      "parent_id": "fbed2ab9acce79d3fe240089eb18aa21b4d77f98a6c93b16036792194954255d",
+      "method": "validation",
+      "parameters": {
+        "passed": true,
+        "score": 1.0
+      },
+      "timestamp": "2026-01-30T19:31:46.246304"
+    },
+    {
+      "child_id": "VAL-20260130-811A5",
+      "parent_id": "fbed2ab9acce79d3fe240089eb18aa21b4d77f98a6c93b16036792194954255d",
+      "method": "validation",
+      "parameters": {
+        "passed": true,
+        "score": 1.0
+      },
+      "timestamp": "2026-01-30T19:32:59.113614"
+    },
+    {
+      "child_id": "VAL-20260130-0F2DE",
+      "parent_id": "97a95d545ca279dba5932056970a90268558bdb13b9b1613601c8f467698d9bc",
+      "method": "validation",
+      "parameters": {
+        "passed": true,
+        "score": 1.0
+      },
+      "timestamp": "2026-01-30T19:33:10.640298"
+    },
+    {
+      "child_id": "VAL-20260130-8DD66",
+      "parent_id": "97a95d545ca279dba5932056970a90268558bdb13b9b1613601c8f467698d9bc",
+      "method": "validation",
+      "parameters": {
+        "passed": true,
+        "score": 1.0
+      },
+      "timestamp": "2026-01-30T19:33:11.895762"
+    },
+    {
+      "child_id": "VAL-20260130-E2C6B",
+      "parent_id": "753f3c46e06709d00e2861bb8e09c3ccbe5fb7b483098804301ec7c8ab979d9b",
+      "method": "validation",
+      "parameters": {
+        "passed": true,
+        "score": 1.0
+      },
+      "timestamp": "2026-01-30T19:33:15.772635"
+    },
+    {
+      "child_id": "ART-20260130-0001",
+      "parent_id": "Soft pneumatic",
+      "method": "template",
+      "parameters": {
+        "type": "template"
+      },
+      "timestamp": "2026-01-30T19:52:17.607676"
+    }
+  ]
+}

@@ -15,12 +15,13 @@ _DB_PATH = _DATA / "progress.db"
 
 def _conn():
     _DATA.mkdir(parents=True, exist_ok=True)
-    return sqlite3.connect(str(_DB_PATH), detect_types=sqlite3.PARSE_DECIMAL_TYPES)
+    return sqlite3.connect(str(_DB_PATH), detect_types=sqlite3.PARSE_DECLTYPES)
 
 
 def _init_table():
-    with _conn() as c:
-        c.execute("""
+    with _conn() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS curriculum_progress (
                 curriculum_id TEXT NOT NULL,
                 topic_id TEXT NOT NULL,
@@ -29,13 +30,15 @@ def _init_table():
                 PRIMARY KEY (curriculum_id, topic_id)
             )
         """)
+        conn.commit()
 
 
 def is_topic_complete(curriculum_id: str, topic_id: str) -> bool:
     """True if topic is marked complete for this curriculum."""
     _init_table()
-    with _conn() as c:
-        row = c.execute(
+    with _conn() as conn:
+        cursor = conn.cursor()
+        row = cursor.execute(
             "SELECT 1 FROM curriculum_progress WHERE curriculum_id = ? AND topic_id = ?",
             (curriculum_id, topic_id),
         ).fetchone()
@@ -46,18 +49,21 @@ def mark_topic_complete(curriculum_id: str, topic_id: str, confidence: float = 1
     """Mark topic as complete for curriculum."""
     _init_table()
     now = datetime.now().isoformat()
-    with _conn() as c:
-        c.execute(
+    with _conn() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
             "INSERT OR REPLACE INTO curriculum_progress (curriculum_id, topic_id, completed_at, confidence) VALUES (?, ?, ?, ?)",
             (curriculum_id, topic_id, now, confidence),
         )
+        conn.commit()
 
 
 def get_curriculum_stats(curriculum_id: str) -> Dict[str, Any]:
     """Returns {completed_count, total_count, percent_complete, completed_topic_ids}."""
     _init_table()
-    with _conn() as c:
-        rows = c.execute(
+    with _conn() as conn:
+        cursor = conn.cursor()
+        rows = cursor.execute(
             "SELECT topic_id FROM curriculum_progress WHERE curriculum_id = ?",
             (curriculum_id,),
         ).fetchall()

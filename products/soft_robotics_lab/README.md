@@ -1,180 +1,106 @@
-# Soft Robotics Lab Toolkit
+# OMEGA Soft Robotics Lab
 
-**OMEGA Research Platform — Gripper Design, Analysis & Simulation**
+**A Morphological Computation Toolkit for Soft Actuator Design**
 
-A complete toolkit for designing, analyzing, and simulating soft robotic grippers with physics-validated simulation files.
+## Overview
 
----
+OMEGA Soft Robotics Lab is a hypothesis-driven design and simulation framework for soft robotic grippers. It bridges biological material science with robotic manufacturing through:
+
+- **Embodied Intelligence**: Gripper geometries optimized to handle uncertainty through physical structure, not complex control
+- **Validated Physics**: 100% MJCF validation with antagonistic tendon pairs and non-linear damping gradients
+- **Self-Healing Digital Twin**: Calibration system that updates simulation parameters from physical experiment logs
+- **Multi-Scale Modeling**: From crimp-angle collagen mechanics to macro-scale gripper behavior
+
+## Key Features
+
+### 1. Gripper Zoo
+A library of 50+ validated gripper designs exploring:
+- Pinch vs. wrap gestures
+- Stiffness gradients (proximal → distal)
+- Tendon routing optimization
+- Contact surface geometry
+
+### 2. Material Models
+Pre-calibrated material profiles for:
+- DragonSkin 10/20/30 (Smooth-On silicones)
+- Ecoflex 00-30/00-50
+- Custom TPU blends
+- Hydrogel composites (experimental)
+
+### 3. Sim-to-Real Bridge
+The calibration module (`calibration.py`) enables:
+- Physical test data import
+- Automatic parameter refinement
+- Confidence tracking per material/geometry pair
+- Failure mode classification
+
+### 4. Tactile Sensor Integration
+Pre-allocated mounting sites for:
+- TacTip-style optical tactile sensors
+- Capacitive sensing arrays
+- Strain gauge placement optimization
+
+## Research Applications
+
+This toolkit supports research in:
+- Morphological computation
+- Variable stiffness actuators
+- Bio-hybrid robotics
+- Grasping under uncertainty
+
+## Hypothesis Ledger
+
+Active research hypotheses are tracked with confidence intervals:
+- `HYP-XXXXXXXX`: Hypothesis ID
+- SRFC/VRFC validation status
+- Simulated vs. physical trial results
+
+## Installation
+
+```bash
+pip install -r requirements.txt
+```
 
 ## Quick Start
 
-```bash
-# Install dependencies
-pip install streamlit plotly trimesh mujoco numpy
-
-# Run the app
-streamlit run app.py
-```
-
-Open http://localhost:8501 in your browser.
-
----
-
-## What's Included
-
-### 1. Gripper Design Studio
-Transform grasp gestures into optimized gripper morphologies:
-- **7 gesture types**: pinch, power, wrap, hook, lateral, squeeze, spread
-- **3D interactive preview**
-- **STL export** for 3D printing
-- **Confidence scoring** with uncertainty quantification
-
-### 2. Failure Analysis
-Predict and mitigate failure modes:
-- **Visual risk matrix** (probability × severity)
-- **Top failure modes**: slip, fatigue, damage, etc.
-- **Mitigation recommendations**
-
-### 3. Gripper Zoo (50 Designs)
-Pre-generated, simulation-ready grippers:
-- All validated in MuJoCo (50/50 pass)
-- Multiple formats: **JSON, MJCF, URDF, USD**
-- Covers all gestures, environments, actuator types
-
-### 4. Research Memory
-Track your lab's knowledge:
-- **Notes with tags**
-- **Hypothesis tracking** with confidence over time
-- **Visual dashboard**
-- **Weekly briefs** for lab meetings
-
----
-
-## Physics Features
-
-The MJCF simulation files include production-quality physics:
-
-- **Stiffness gradient** — Base to tip decreasing for compliant fingertips
-- **Damping gradient** — Matched to stiffness for responsive motion
-- **Antagonistic tendons** — Flexor + extensor pairs per finger
-- **Tendon frictionloss** — Simulates cable routing friction
-- **Friction pads** — Flat pads on fingertips for rigid objects
-- **Newton solver** — Stable soft-body simulation
-- **Full sensors** — Joint pos/vel, tendon pos/vel
-
----
-
-## Structure
-
-```
-soft_robotics_lab/
-├── app.py                      # Main Streamlit app
-├── pages/
-│   ├── 1_Gripper_Design.py     # Design studio
-│   ├── 2_Failure_Analysis.py   # Risk analysis
-│   ├── 3_Compare_Designs.py    # Side-by-side comparison
-│   ├── 4_Gripper_Zoo.py        # Browse 50 designs
-│   └── 5_Research_Memory.py    # Notes, hypotheses & briefs
-├── workbench/
-│   ├── motion_to_morphology.py # Core design engine
-│   ├── failure_predictor.py    # Failure mode analysis
-│   ├── gripper_cad.py          # STL generation
-│   ├── mjcf_generator.py      # Physics-correct MJCF
-│   ├── mujoco_validator.py     # Validation suite
-│   └── calibration.py          # Learning from experiments
-├── gripper_zoo/
-│   └── designs/                # 50 pre-generated grippers
-└── research_system/
-    └── research_memory.py      # Knowledge base
-```
-
----
-
-## Usage Examples
-
-### Generate a new gripper
-
 ```python
-from workbench.motion_to_morphology import MotionToMorphology, export_design
+from soft_robotics_lab import GripperDesigner, Calibrator
 
-m2m = MotionToMorphology()
-design = m2m.from_gesture(
+# Design a gripper
+designer = GripperDesigner()
+gripper = designer.create(
+    fingers=2,
     gesture="pinch",
-    aperture=0.05,         # 50mm
-    force_requirement=3.0, # 3N
-    object_compliance=0.3, # Semi-rigid
-    environment="dry"
+    material="dragonskin_10",
+    stiffness_gradient=True
 )
 
-export_design(design, "my_gripper/")
+# Validate physics
+gripper.validate()
+
+# Export for fabrication
+gripper.export_stl("gripper_v1.stl")
 ```
 
-### Run MuJoCo simulation
+*Note: For full design workflow use `workbench.motion_to_morphology.MotionToMorphology` and `workbench.gripper_cad.export_gripper_stl`. Material models: `materials.dragonskin`. Calibration: `calibration.Calibrator`.*
 
-```python
-import mujoco
+## Citation
 
-model = mujoco.MjModel.from_xml_path(
-    "gripper_zoo/designs/gd_20260128_0001/gd_20260128_0001.mjcf"
-)
-data = mujoco.MjData(model)
-
-# Close gripper (activate flexor tendons)
-data.ctrl[0] = 1.0  # finger_0_flexor
-data.ctrl[2] = 1.0  # finger_1_flexor
-
-for _ in range(1000):
-    mujoco.mj_step(model, data)
-```
-
-### Generate STL for 3D printing
-
-```python
-from workbench.gripper_cad import export_gripper_stl
-
-export_gripper_stl(design.to_dict(), "my_gripper.stl")
-```
-
-### Validate MJCF files
-
-```bash
-python workbench/mujoco_validator.py --zoo
-```
-
-### Log experiment results
-
-```bash
-python workbench/calibration.py log --design GD-20260128-0001 --success --task egg_handling
-python workbench/calibration.py stats
-```
-
----
-
-## Validation Results
+If you use this toolkit in your research, please cite:
 
 ```
-MUJOCO VALIDATION REPORT
-========================
-Total designs:  50
-Valid:          50 (100%)
-Loads:          50
-Simulates:      50
-Errors:         0
+@software{omega_soft_robotics_lab,
+  title={OMEGA Soft Robotics Lab: A Morphological Computation Toolkit},
+  author={[Your Name]},
+  year={2026},
+  url={https://github.com/repowazdogz-droid/omega_stack}
+}
 ```
 
----
+## Contact
 
-## Requirements
-
-- Python 3.10+
-- streamlit
-- plotly
-- trimesh
-- mujoco
-- numpy
-
----
+For collaboration inquiries: [your email]
 
 ## License
 
-Research use permitted. Contact for commercial licensing.
+MIT License - See LICENSE file

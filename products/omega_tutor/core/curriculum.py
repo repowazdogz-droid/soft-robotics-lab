@@ -112,6 +112,11 @@ class CurriculumEngine:
         progress = self.get_progress(curriculum_id)
         return progress.get("available", [])[:n]
 
+    def get_completed_topics_for_quiz(self, curriculum_id: str) -> List[Dict[str, Any]]:
+        """Completed topics for this curriculum: [{id, name}, ...]. For quiz source selection."""
+        progress = self.get_progress(curriculum_id)
+        return progress.get("completed", [])
+
     def mark_complete(self, curriculum_id: str, topic_id: str) -> None:
         """Mark topic complete. Uses memory.has_learned for optional auto-detect; we always persist."""
         mark_topic_complete(curriculum_id, topic_id, confidence=1.0)

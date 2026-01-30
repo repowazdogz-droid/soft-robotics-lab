@@ -42,23 +42,25 @@ def init_db() -> None:
     """Create data dir and validations table if not exist. Migrate: add validation_id, error_id, validation_time_ms, artifact_id if missing."""
     _DATA_DIR.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(_DB_PATH) as conn:
-        conn.executescript(_SCHEMA)
+        cursor = conn.cursor()
+        cursor.executescript(_SCHEMA)
         try:
-            conn.execute("ALTER TABLE validations ADD COLUMN validation_id TEXT")
+            cursor.execute("ALTER TABLE validations ADD COLUMN validation_id TEXT")
         except sqlite3.OperationalError:
             pass
         try:
-            conn.execute("ALTER TABLE validations ADD COLUMN error_id TEXT")
+            cursor.execute("ALTER TABLE validations ADD COLUMN error_id TEXT")
         except sqlite3.OperationalError:
             pass
         try:
-            conn.execute("ALTER TABLE validations ADD COLUMN validation_time_ms INTEGER")
+            cursor.execute("ALTER TABLE validations ADD COLUMN validation_time_ms INTEGER")
         except sqlite3.OperationalError:
             pass
         try:
-            conn.execute("ALTER TABLE validations ADD COLUMN artifact_id TEXT")
+            cursor.execute("ALTER TABLE validations ADD COLUMN artifact_id TEXT")
         except sqlite3.OperationalError:
             pass
+        conn.commit()
 
 
 def _hash_mjcf(mjcf_string: str) -> str:
@@ -101,8 +103,9 @@ def log_validation(
     errors_json = json.dumps(errors, default=str)
 
     with sqlite3.connect(_DB_PATH) as conn:
+        cursor = conn.cursor()
         try:
-            conn.execute(
+            cursor.execute(
                 """
                 INSERT INTO validations
                 (validation_id, error_id, timestamp, design_hash, mjcf_size, domain, passed, score, tests_json, metrics_json, errors_json, source, validation_time_ms, artifact_id)
@@ -111,7 +114,7 @@ def log_validation(
                 (vid, eid, timestamp, design_hash, mjcf_size, domain or "", 1 if passed else 0, score, tests_json, metrics_json, errors_json, source or "api", validation_time_ms, artifact_id or ""),
             )
         except sqlite3.OperationalError:
-            conn.execute(
+            cursor.execute(
                 """
                 INSERT INTO validations
                 (validation_id, error_id, timestamp, design_hash, mjcf_size, domain, passed, score, tests_json, metrics_json, errors_json, source)
@@ -119,6 +122,7 @@ def log_validation(
                 """,
                 (vid, eid, timestamp, design_hash, mjcf_size, domain or "", 1 if passed else 0, score, tests_json, metrics_json, errors_json, source or "api"),
             )
+        conn.commit()
     return design_hash, vid
 
 
@@ -126,36 +130,37 @@ def get_stats() -> Dict[str, Any]:
     """Return total count, pass rate, avg score, today/this_week, avg_validation_ms, failure_distribution."""
     with sqlite3.connect(_DB_PATH) as conn:
         conn.row_factory = sqlite3.Row
-        cur = conn.execute("SELECT COUNT(*) AS total FROM validations")
-        total = cur.fetchone()[0]
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) AS total FROM validations")
+        total = cursor.fetchone()[0]
         if total == 0:
             return {
                 "total": 0, "total_validations": 0, "pass_rate": 0.0, "avg_score": 0.0,
                 "avg_validation_ms": None, "today": {"count": 0, "pass_rate": 0.0},
                 "this_week": {"count": 0, "pass_rate": 0.0}, "failure_distribution": {},
             }
-        cur = conn.execute("SELECT SUM(passed) AS passed, AVG(score) AS avg_score FROM validations")
-        row = cur.fetchone()
+        cursor.execute("SELECT SUM(passed) AS passed, AVG(score) AS avg_score FROM validations")
+        row = cursor.fetchone()
         passed = row[0] or 0
         avg_score = float(row[1] or 0)
         avg_ms = None
         today_count = today_passed = week_count = week_passed = 0
         try:
-            cur = conn.execute("SELECT AVG(validation_time_ms) FROM validations WHERE validation_time_ms IS NOT NULL")
-            avg_ms_row = cur.fetchone()
+            cursor.execute("SELECT AVG(validation_time_ms) FROM validations WHERE validation_time_ms IS NOT NULL")
+            avg_ms_row = cursor.fetchone()
             avg_ms = int(avg_ms_row[0]) if avg_ms_row and avg_ms_row[0] is not None else None
         except sqlite3.OperationalError:
             pass
         try:
-            cur = conn.execute("SELECT COUNT(*) AS c, SUM(passed) AS p FROM validations WHERE date(timestamp) = date('now')")
-            today_row = cur.fetchone()
+            cursor.execute("SELECT COUNT(*) AS c, SUM(passed) AS p FROM validations WHERE date(timestamp) = date('now')")
+            today_row = cursor.fetchone()
             today_count = today_row[0] or 0
             today_passed = today_row[1] or 0
         except sqlite3.OperationalError:
             pass
         try:
-            cur = conn.execute("SELECT COUNT(*) AS c, SUM(passed) AS p FROM validations WHERE timestamp >= datetime('now', '-7 days')")
-            week_row = cur.fetchone()
+            cursor.execute("SELECT COUNT(*) AS c, SUM(passed) AS p FROM validations WHERE timestamp >= datetime('now', '-7 days')")
+            week_row = cursor.fetchone()
             week_count = week_row[0] or 0
             week_passed = week_row[1] or 0
         except sqlite3.OperationalError:
@@ -177,17 +182,18 @@ def get_recent_validations(limit: int = 20) -> List[Dict[str, Any]]:
     """Return recent validations (id, validation_id, timestamp, design_hash, artifact_id, passed, score, validation_time_ms)."""
     with sqlite3.connect(_DB_PATH) as conn:
         conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
         try:
-            cur = conn.execute(
+            cursor.execute(
                 "SELECT id, validation_id, timestamp, design_hash, COALESCE(artifact_id, '') AS artifact_id, passed, score, validation_time_ms FROM validations ORDER BY id DESC LIMIT ?",
                 (limit,),
             )
         except sqlite3.OperationalError:
-            cur = conn.execute(
+            cursor.execute(
                 "SELECT id, validation_id, timestamp, design_hash, passed, score FROM validations ORDER BY id DESC LIMIT ?",
                 (limit,),
             )
-        rows = cur.fetchall()
+        rows = cursor.fetchall()
     out = []
     for r in rows:
         d = dict(r)
@@ -209,17 +215,18 @@ def get_validation_history(design_id: str, limit: int = 50) -> List[Dict[str, An
     """Return all validations for a design (by artifact_id or design_hash). design_id can be artifact_id or design_hash."""
     with sqlite3.connect(_DB_PATH) as conn:
         conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
         try:
-            cur = conn.execute(
+            cursor.execute(
                 "SELECT id, validation_id, timestamp, design_hash, artifact_id, passed, score, validation_time_ms, errors_json FROM validations WHERE artifact_id = ? OR design_hash = ? ORDER BY id DESC LIMIT ?",
                 (design_id, design_id, limit),
             )
         except sqlite3.OperationalError:
-            cur = conn.execute(
+            cursor.execute(
                 "SELECT id, validation_id, timestamp, design_hash, passed, score, errors_json FROM validations WHERE design_hash = ? ORDER BY id DESC LIMIT ?",
                 (design_id, limit),
             )
-        rows = cur.fetchall()
+        rows = cursor.fetchall()
     out = []
     for r in rows:
         d = dict(r)
@@ -239,14 +246,15 @@ def get_failure_distribution(limit_days: Optional[int] = None) -> Dict[str, floa
     """Return fraction of failures per failure type (inferred from errors). If limit_days, only recent."""
     with sqlite3.connect(_DB_PATH) as conn:
         conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
         if limit_days:
-            cur = conn.execute(
+            cursor.execute(
                 "SELECT errors_json FROM validations WHERE passed = 0 AND timestamp >= datetime('now', ?)",
                 (f"-{limit_days} days",),
             )
         else:
-            cur = conn.execute("SELECT errors_json FROM validations WHERE passed = 0")
-        rows = cur.fetchall()
+            cursor.execute("SELECT errors_json FROM validations WHERE passed = 0")
+        rows = cursor.fetchall()
     counts: Dict[str, int] = {}
     for r in rows:
         errs = json.loads(r["errors_json"] or "[]")
@@ -269,11 +277,12 @@ def get_failures(limit: int = 50) -> List[Dict[str, Any]]:
     """Return recent failures with errors."""
     with sqlite3.connect(_DB_PATH) as conn:
         conn.row_factory = sqlite3.Row
-        cur = conn.execute(
+        cursor = conn.cursor()
+        cursor.execute(
             "SELECT id, validation_id, error_id, timestamp, design_hash, mjcf_size, domain, score, errors_json, source FROM validations WHERE passed = 0 ORDER BY id DESC LIMIT ?",
             (limit,),
         )
-        rows = cur.fetchall()
+        rows = cursor.fetchall()
     out = []
     for r in rows:
         out.append({
@@ -295,11 +304,12 @@ def get_designs_by_score(min_score: float = 0.9, limit: int = 10) -> List[Dict[s
     """Return high-performing designs (top by score)."""
     with sqlite3.connect(_DB_PATH) as conn:
         conn.row_factory = sqlite3.Row
-        cur = conn.execute(
+        cursor = conn.cursor()
+        cursor.execute(
             "SELECT id, timestamp, design_hash, mjcf_size, domain, passed, score, source FROM validations WHERE score >= ? ORDER BY score DESC, id DESC LIMIT ?",
             (min_score, limit),
         )
-        rows = cur.fetchall()
+        rows = cursor.fetchall()
     out = []
     for r in rows:
         out.append({

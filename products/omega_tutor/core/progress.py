@@ -15,7 +15,7 @@ _DB_PATH = _DATA / "progress.db"
 
 def _conn():
     _DATA.mkdir(parents=True, exist_ok=True)
-    return sqlite3.connect(str(_DB_PATH), detect_types=sqlite3.PARSE_DECIMAL_TYPES)
+    return sqlite3.connect(str(_DB_PATH), detect_types=sqlite3.PARSE_DECLTYPES)
 
 
 def _init_db():
@@ -73,14 +73,18 @@ class ProgressTracker:
 
     def start_session(self) -> int:
         """Start a new session; return session_id."""
-        with _conn() as c:
-            c.execute("INSERT INTO sessions (started_at) VALUES (?)", (datetime.now().isoformat(),))
-            return c.lastrowid or 0
+        with _conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO sessions (started_at) VALUES (?)", (datetime.now().isoformat(),))
+            conn.commit()
+            return cursor.lastrowid or 0
 
     def end_session(self, session_id: int) -> None:
         """Mark session ended and update counts if needed."""
-        with _conn() as c:
-            c.execute("UPDATE sessions SET ended_at = ? WHERE id = ?", (datetime.now().isoformat(), session_id))
+        with _conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute("UPDATE sessions SET ended_at = ? WHERE id = ?", (datetime.now().isoformat(), session_id))
+            conn.commit()
 
     def get_session_start(self, session_id: int) -> Optional[str]:
         """Return session started_at (iso) or None if not found."""
@@ -103,25 +107,29 @@ class ProgressTracker:
         """Record that user learned a topic (first time or review)."""
         topic = (topic or "").strip() or "general"
         now = datetime.now().isoformat()
-        with _conn() as c:
-            row = c.execute("SELECT id, first_learned, times_reviewed FROM topics WHERE name = ?", (topic,)).fetchone()
+        with _conn() as conn:
+            cursor = conn.cursor()
+            row = cursor.execute("SELECT id, first_learned, times_reviewed FROM topics WHERE name = ?", (topic,)).fetchone()
             if row:
-                c.execute(
+                cursor.execute(
                     "UPDATE topics SET last_reviewed = ?, times_reviewed = times_reviewed + 1 WHERE name = ?",
                     (now, topic),
                 )
             else:
-                c.execute(
+                cursor.execute(
                     "INSERT INTO topics (name, first_learned, last_reviewed, times_reviewed, confidence) VALUES (?, ?, ?, 1, 1.0)",
                     (topic, now, now),
                 )
-            c.execute("INSERT INTO streak (date, active) VALUES (?, 1) ON CONFLICT(date) DO NOTHING", (date.today().isoformat(),))
+            cursor.execute("INSERT INTO streak (date, active) VALUES (?, 1) ON CONFLICT(date) DO NOTHING", (date.today().isoformat(),))
+            conn.commit()
 
     def record_question(self, topic: str, correct: bool) -> None:
         """Record a question (e.g. quiz) for a topic."""
         topic = (topic or "").strip() or "general"
-        with _conn() as c:
-            c.execute("INSERT INTO questions (topic, correct, at) VALUES (?, ?, ?)", (topic, 1 if correct else 0, datetime.now().isoformat()))
+        with _conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO questions (topic, correct, at) VALUES (?, ?, ?)", (topic, 1 if correct else 0, datetime.now().isoformat()))
+            conn.commit()
 
     def get_streak(self) -> int:
         """Consecutive days with activity (including today)."""
@@ -221,21 +229,24 @@ class ProgressTracker:
         """Set confidence for a topic (0–1)."""
         topic = (topic or "").strip() or "general"
         confidence = max(0.0, min(1.0, confidence))
-        with _conn() as c:
-            c.execute("UPDATE topics SET confidence = ? WHERE name = ?", (confidence, topic))
+        with _conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute("UPDATE topics SET confidence = ? WHERE name = ?", (confidence, topic))
+            conn.commit()
 
     def schedule_review(self, topic: str, quality: int) -> None:
         """Update SM-2 fields after a quiz/review. quality: 0-5 (0=blackout, 5=perfect)."""
         topic = (topic or "").strip() or "general"
         quality = max(0, min(5, quality))
         from core.spaced_repetition import SM2
-        with _conn() as c:
-            row = c.execute(
+        with _conn() as conn:
+            cursor = conn.cursor()
+            row = cursor.execute(
                 "SELECT repetitions, easiness, sm2_interval FROM topics WHERE name = ?",
                 (topic,),
             ).fetchone()
             if not row:
-                c.execute(
+                cursor.execute(
                     "INSERT INTO topics (name, first_learned, last_reviewed, times_reviewed, confidence, easiness, sm2_interval, next_review, repetitions) VALUES (?, ?, ?, 0, 1.0, 2.5, 1, ?, 0)",
                     (topic, datetime.now().isoformat(), datetime.now().isoformat(), date.today().isoformat()),
                 )
@@ -243,10 +254,11 @@ class ProgressTracker:
             reps, ef, prev_int = row[0] or 0, float(row[1] or 2.5), float(row[2] or 1)
             correct = quality >= 3
             out = SM2.update_card(correct, quality, reps, ef, prev_int)
-            c.execute(
+            cursor.execute(
                 "UPDATE topics SET easiness = ?, sm2_interval = ?, next_review = ?, repetitions = ?, last_reviewed = ? WHERE name = ?",
                 (out["easiness"], out["interval"], out["next_review_date"], out["repetitions"], datetime.now().isoformat(), topic),
             )
+            conn.commit()
 
     def get_due_reviews(self) -> List[Dict[str, Any]]:
         """Topics where next_review <= today (or no next_review set)."""
@@ -257,6 +269,15 @@ class ProgressTracker:
                 (today,),
             ).fetchall()
         return [{"name": r[0], "next_review": r[1], "interval": r[2], "confidence": float(r[3] or 1)} for r in rows]
+
+    def get_quizzable_topics(self, limit: int = 50) -> List[str]:
+        """Topic names the user has learned (from progress). Used for quiz source 'learned' or 'everything'."""
+        with _conn() as c:
+            rows = c.execute(
+                "SELECT name FROM topics ORDER BY COALESCE(last_reviewed, first_learned) DESC LIMIT ?",
+                (limit,),
+            ).fetchall()
+        return [r[0] for r in rows] if rows else []
 
 
 progress_tracker = ProgressTracker()
