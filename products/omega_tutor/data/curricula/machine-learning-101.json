@@ -1,0 +1,19 @@
+{
+  "id": "machine-learning-101",
+  "name": "Machine Learning 101",
+  "description": "From math foundations to training and evaluation",
+  "topics": [
+    {"id": "linear-algebra-basics", "name": "Linear Algebra Basics", "prerequisites": []},
+    {"id": "calculus-basics", "name": "Calculus Basics", "prerequisites": []},
+    {"id": "probability-basics", "name": "Probability Basics", "prerequisites": []},
+    {"id": "supervised-learning", "name": "Supervised Learning", "prerequisites": ["linear-algebra-basics", "probability-basics"]},
+    {"id": "loss-functions", "name": "Loss Functions", "prerequisites": ["calculus-basics", "supervised-learning"]},
+    {"id": "gradient-descent", "name": "Gradient Descent", "prerequisites": ["calculus-basics", "loss-functions"]},
+    {"id": "neural-networks", "name": "Neural Networks", "prerequisites": ["supervised-learning", "gradient-descent"]},
+    {"id": "backpropagation", "name": "Backpropagation", "prerequisites": ["neural-networks", "calculus-basics"]},
+    {"id": "training", "name": "Training and Optimization", "prerequisites": ["backpropagation", "gradient-descent"]},
+    {"id": "regularization", "name": "Regularization", "prerequisites": ["training"]},
+    {"id": "evaluation", "name": "Evaluation and Metrics", "prerequisites": ["supervised-learning"]},
+    {"id": "overfitting", "name": "Overfitting and Generalization", "prerequisites": ["training", "evaluation"]}
+  ]
+}

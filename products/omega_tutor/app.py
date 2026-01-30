@@ -35,6 +35,16 @@ try:
 except ImportError:
     progress_tracker = None
     get_review_priority = None
+try:
+    from core.quiz_generator import generate_quiz
+    from core.explain_back import evaluate_explanation
+except ImportError:
+    generate_quiz = None
+    evaluate_explanation = None
+try:
+    from core.curriculum import curriculum_engine
+except ImportError:
+    curriculum_engine = None
 
 st.set_page_config(page_title="OMEGA Tutor", page_icon="🎓", layout="wide")
 
@@ -163,21 +173,191 @@ if progress_tracker:
         st.sidebar.caption("Progress stats unavailable.")
     if st.sidebar.button("What should I review?"):
         st.session_state["show_review"] = True
+    if st.sidebar.button("🧠 Test Yourself"):
+        st.session_state["quiz_mode"] = True
+        st.session_state.pop("quiz_questions", None)
+        st.session_state.pop("quiz_index", None)
+        st.session_state.pop("quiz_answers", None)
+        st.session_state.pop("quiz_topic", None)
+        st.rerun()
     if st.session_state.get("show_review"):
         st.sidebar.markdown("---")
         st.sidebar.caption("**Due for review**")
         try:
+            sm2_due = progress_tracker.get_due_reviews()
             due = progress_tracker.get_due_for_review()
+            if sm2_due:
+                for d in sm2_due[:3]:
+                    st.sidebar.markdown(f"- {d.get('name', '')} (SM-2 due)")
             if due:
                 for d in due[:5]:
                     st.sidebar.markdown(f"- {d.get('name', '')} (confidence: {d.get('decayed_confidence', 0):.2f})")
-            else:
+            if not sm2_due and not due:
                 st.sidebar.caption("Nothing due. Keep learning!")
             if st.sidebar.button("Close", key="close_review"):
                 st.session_state["show_review"] = False
                 st.rerun()
         except Exception:
             st.sidebar.caption("Review list unavailable.")
+
+# ----- Learning Paths (Curriculum) -----
+if curriculum_engine:
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("**📚 Learning Paths**")
+    st.sidebar.markdown("─────────────────")
+    curricula = curriculum_engine.list_curricula()
+    options = ["— Select a curriculum —"] + [f"{c['name']} ({c['topic_count']} topics)" for c in curricula]
+    curriculum_ids = [None] + [c["id"] for c in curricula]
+    sel_idx = st.sidebar.selectbox(
+        "Path",
+        range(len(options)),
+        format_func=lambda i: options[i],
+        key="curriculum_select",
+    )
+    selected_curriculum_id = curriculum_ids[sel_idx] if sel_idx < len(curriculum_ids) else None
+    st.session_state["selected_curriculum_id"] = selected_curriculum_id
+    if st.sidebar.button("+ Create Custom Path", key="custom_curriculum_btn"):
+        st.session_state["show_custom_curriculum"] = True
+    if st.session_state.get("show_custom_curriculum"):
+        st.sidebar.caption("What do you want to learn? (comma-separated topics)")
+        custom_topics = st.sidebar.text_input("Topics", key="custom_topics", placeholder="e.g. tendons, collagen, actuators")
+        if st.sidebar.button("Generate Path", key="gen_path") and custom_topics:
+            topics_list = [t.strip() for t in custom_topics.split(",") if t.strip()]
+            custom = curriculum_engine.generate_custom_curriculum(topics_list, api_key=os.environ.get("GEMINI_API_KEY") or st.session_state.get("api_key"))
+            custom["id"] = "custom"
+            st.session_state["custom_curriculum"] = custom
+            st.session_state["selected_curriculum_id"] = "custom"
+            st.session_state["show_custom_curriculum"] = False
+            try:
+                import json
+                path = Path(__file__).resolve().parent / "data" / "curricula" / "custom.json"
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(json.dumps(custom, indent=2), encoding="utf-8")
+            except Exception:
+                pass
+            st.rerun()
+        if st.sidebar.button("Cancel", key="cancel_custom"):
+            st.session_state["show_custom_curriculum"] = False
+            st.rerun()
+
+# ----- Quiz Mode -----
+if st.session_state.get("quiz_mode") and progress_tracker and generate_quiz:
+    st.subheader("🧠 Quiz Time!")
+    if "quiz_questions" not in st.session_state or not st.session_state["quiz_questions"]:
+        due = progress_tracker.get_due_reviews()
+        recent = progress_tracker.get_recent_topics(5)
+        topics = [d["name"] for d in due[:3]] if due else [r["topic"] for r in recent[:3]]
+        if not topics:
+            topics = ["general"]
+        quiz_topic = topics[0]
+        st.session_state["quiz_topic"] = quiz_topic
+        try:
+            st.session_state["quiz_questions"] = generate_quiz(quiz_topic, level, n_questions=3, api_key=os.environ.get("GEMINI_API_KEY") or st.session_state.get("api_key"))
+        except Exception:
+            st.session_state["quiz_questions"] = []
+        st.session_state["quiz_index"] = 0
+        st.session_state["quiz_answers"] = []
+        if not st.session_state["quiz_questions"]:
+            st.session_state["quiz_questions"] = []
+        st.rerun()
+    qs = st.session_state.get("quiz_questions", [])
+    if not qs:
+        st.caption("No quiz questions could be generated. Try learning a topic first.")
+        if st.button("Back to Learning", key="quiz_back_empty"):
+            st.session_state["quiz_mode"] = False
+            st.session_state.pop("quiz_questions", None)
+            st.session_state.pop("quiz_index", None)
+            st.session_state.pop("quiz_answers", None)
+            st.session_state.pop("quiz_topic", None)
+            st.rerun()
+        st.stop()
+    idx = st.session_state.get("quiz_index", 0)
+    quiz_topic = st.session_state.get("quiz_topic", "")
+    if idx < len(qs):
+        q = qs[idx]
+        st.markdown(f"**Question {idx + 1} of {len(qs)}:**")
+        st.markdown(q.get("question", ""))
+        options = q.get("options", ["A", "B", "C", "D"])
+        correct_letter = str(q.get("correct", "A")).upper()
+        choice = st.radio("Choose one:", options, key="quiz_choice", format_func=lambda x: x)
+        if st.button("Submit Answer", key="quiz_submit"):
+            correct_idx = ord(correct_letter) - ord("A") if correct_letter in "ABCD" else 0
+            correct = choice in options and options.index(choice) == correct_idx
+            quality = 5 if correct else (2 if choice else 0)
+            progress_tracker.schedule_review(quiz_topic, quality)
+            progress_tracker.record_question(quiz_topic, correct)
+            st.session_state["quiz_answers"] = st.session_state.get("quiz_answers", []) + [{"correct": correct, "explanation": q.get("explanation", ""), "topic": quiz_topic}]
+            if correct:
+                st.success("✅ Correct!\n\n" + (q.get("explanation") or ""))
+            else:
+                st.error("❌ Not quite. " + (q.get("explanation") or ""))
+            st.session_state["quiz_index"] = idx + 1
+            st.rerun()
+    else:
+        answers = st.session_state.get("quiz_answers", [])
+        correct_count = sum(1 for a in answers if a.get("correct"))
+        total = len(answers)
+        st.markdown("**Quiz Complete!**")
+        st.metric("Score", f"{correct_count}/{total} ({100 * correct_count // total if total else 0}%)")
+        for a in answers:
+            if a.get("correct"):
+                st.success(f"✅ {a.get('topic', '')} - Got it!")
+            else:
+                st.warning(f"❌ {a.get('topic', '')} - Review needed")
+        st.caption("These topics have been scheduled for review.")
+        if st.button("Back to Learning", key="quiz_back"):
+            st.session_state["quiz_mode"] = False
+            st.session_state.pop("quiz_questions", None)
+            st.session_state.pop("quiz_index", None)
+            st.session_state.pop("quiz_answers", None)
+            st.session_state.pop("quiz_topic", None)
+            st.rerun()
+    st.stop()
+
+# ----- Curriculum panel (when a path is selected) -----
+selected_cid = st.session_state.get("selected_curriculum_id")
+if curriculum_engine and selected_cid:
+    curr = curriculum_engine.load_curriculum(selected_cid) or st.session_state.get("custom_curriculum")
+    if curr:
+        progress = curriculum_engine.get_progress(selected_cid)
+        st.subheader(curr.get("name", "Learning Path"))
+        pct = progress.get("percent_complete", 0)
+        st.progress(pct / 100.0)
+        st.caption(f"{pct:.0f}% complete")
+        completed = progress.get("completed", [])
+        available = progress.get("available", [])
+        locked = progress.get("locked", [])
+        for t in completed:
+            st.success(f"✅ {t.get('name', t.get('id', ''))}")
+        for t in available:
+            topic_name = t.get("name", t.get("id", ""))
+            if st.button(f"▶️ Learn: {topic_name}", key=f"learn_{selected_cid}_{t.get('id', '')}"):
+                st.session_state["curriculum_learn"] = {"curriculum_id": selected_cid, "topic_id": t.get("id", ""), "topic_name": topic_name}
+                st.rerun()
+        for t in locked:
+            prereqs = t.get("prerequisites", [])
+            curr_topics = {x.get("id"): x.get("name") for x in (curr.get("topics") or [])}
+            needs = ", ".join(curr_topics.get(p, p) for p in prereqs)
+            st.caption(f"🔒 {t.get('name', t.get('id', ''))} (needs: {needs})")
+        if st.session_state.get("curriculum_learn"):
+            cl = st.session_state["curriculum_learn"]
+            st.info(f"**Learning:** {cl.get('topic_name', '')}. Ask below or click to teach.")
+            if st.button(f"Ask about {cl.get('topic_name', '')}", key="curriculum_ask_btn"):
+                q = f"Teach me about {cl.get('topic_name', '')}"
+                if "messages" not in st.session_state:
+                    st.session_state.messages = []
+                st.session_state.messages.append({"role": "user", "content": q})
+                if _engine:
+                    eng = _engine
+                    resp = eng.teach(q, level=level)
+                    st.session_state.messages.append({"role": "assistant", "content": resp.to_markdown(), "level": level})
+                curriculum_engine.mark_complete(cl["curriculum_id"], cl["topic_id"])
+                if progress_tracker:
+                    progress_tracker.record_topic(cl.get("topic_name", ""))
+                    progress_tracker.record_question(cl.get("topic_name", ""), True)
+                st.session_state.pop("curriculum_learn", None)
+                st.rerun()
+    st.markdown("---")
 
 # Handle Simpler/Deeper re-explain (before rendering messages)
 if "messages" in st.session_state and "re_explain" in st.session_state:
@@ -229,17 +409,48 @@ for i, msg in enumerate(messages):
             st.caption(f"Explaining at: **{msg_level}** level")
             simpler_next = adjust_level(msg_level, "simpler")
             deeper_next = adjust_level(msg_level, "deeper")
-            btn_col1, btn_col2, _ = st.columns([1, 1, 2])
+            btn_col1, btn_col2, btn_col3, _ = st.columns([1, 1, 1, 2])
             with btn_col1:
                 simpler_clicked = st.button("😕 Simpler", key=f"simpler_{i}", disabled=(simpler_next is None))
             with btn_col2:
                 deeper_clicked = st.button("🔬 Deeper", key=f"deeper_{i}", disabled=(deeper_next is None))
+            with btn_col3:
+                explain_back_clicked = st.button("🧠 Explain it back", key=f"explain_{i}") if st.session_state.get("explain_back_index") != i else False
             if simpler_clicked and simpler_next:
                 st.session_state["re_explain"] = {"direction": "simpler", "msg_index": i}
                 st.rerun()
             if deeper_clicked and deeper_next:
                 st.session_state["re_explain"] = {"direction": "deeper", "msg_index": i}
                 st.rerun()
+            if explain_back_clicked:
+                st.session_state["explain_back_index"] = i
+                st.session_state["explain_back_topic"] = messages[i - 1].get("content", "").strip()[:80] if i > 0 else "this topic"
+                st.rerun()
+            if st.session_state.get("explain_back_index") == i and evaluate_explanation:
+                st.markdown("**Explain it back**")
+                user_exp = st.text_area("Explain in your own words:", key=f"explain_text_{i}", placeholder="What did you learn?")
+                if st.button("Submit", key=f"explain_submit_{i}") and user_exp.strip():
+                    topic_name = st.session_state.get("explain_back_topic", "this topic")
+                    ev = evaluate_explanation(topic_name, user_exp, msg_level, api_key=os.environ.get("GEMINI_API_KEY") or st.session_state.get("api_key"))
+                    st.metric("Score", f"{ev.get('score', 0)}/100")
+                    if ev.get("correct_points"):
+                        st.success("You got right: " + "; ".join(ev["correct_points"][:3]))
+                    if ev.get("missing_points"):
+                        st.info("Also important: " + "; ".join(ev["missing_points"][:3]))
+                    if ev.get("misconceptions"):
+                        st.warning("Watch out: " + "; ".join(ev["misconceptions"][:2]))
+                    st.caption(ev.get("feedback", ""))
+                    if progress_tracker:
+                        delta = (ev.get("score", 50) - 50) / 100.0
+                        try:
+                            from core import memory
+                            memory.update_confidence(topic_name, delta)
+                        except Exception:
+                            pass
+                        progress_tracker.update_topic_confidence(topic_name, ev.get("score", 50) / 100.0)
+                    st.session_state.pop("explain_back_index", None)
+                    st.session_state.pop("explain_back_topic", None)
+                    st.rerun()
 
 if prompt := st.chat_input("What would you like to learn about?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -258,6 +469,11 @@ if prompt := st.chat_input("What would you like to learn about?"):
             progress_tracker.record_question(topic_name, True)
         except Exception:
             pass
+    if curriculum_engine and st.session_state.get("curriculum_learn"):
+        cl = st.session_state["curriculum_learn"]
+        if cl.get("topic_name", "").lower() in prompt.lower() or prompt.lower().strip().startswith("teach me about"):
+            curriculum_engine.mark_complete(cl["curriculum_id"], cl["topic_id"])
+            st.session_state.pop("curriculum_learn", None)
 
 st.sidebar.markdown("---")
 if st.sidebar.button("🔄 New Topic"):

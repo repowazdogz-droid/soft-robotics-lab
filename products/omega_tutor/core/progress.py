@@ -34,7 +34,11 @@ def _init_db():
                 first_learned TEXT NOT NULL,
                 last_reviewed TEXT,
                 times_reviewed INTEGER DEFAULT 0,
-                confidence REAL DEFAULT 1.0
+                confidence REAL DEFAULT 1.0,
+                easiness REAL DEFAULT 2.5,
+                sm2_interval INTEGER DEFAULT 1,
+                next_review TEXT,
+                repetitions INTEGER DEFAULT 0
             );
             CREATE TABLE IF NOT EXISTS questions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,6 +51,17 @@ def _init_db():
                 active INTEGER NOT NULL DEFAULT 1
             );
         """)
+    _migrate_sm2_columns()
+
+
+def _migrate_sm2_columns():
+    """Add SM-2 columns to topics if missing (existing DBs)."""
+    with _conn() as c:
+        for col, typ in [("easiness", "REAL DEFAULT 2.5"), ("sm2_interval", "INTEGER DEFAULT 1"), ("next_review", "TEXT"), ("repetitions", "INTEGER DEFAULT 0")]:
+            try:
+                c.execute(f"ALTER TABLE topics ADD COLUMN {col} {typ}")
+            except sqlite3.OperationalError:
+                pass
 
 
 class ProgressTracker:
@@ -191,6 +206,40 @@ class ProgressTracker:
         confidence = max(0.0, min(1.0, confidence))
         with _conn() as c:
             c.execute("UPDATE topics SET confidence = ? WHERE name = ?", (confidence, topic))
+
+    def schedule_review(self, topic: str, quality: int) -> None:
+        """Update SM-2 fields after a quiz/review. quality: 0-5 (0=blackout, 5=perfect)."""
+        topic = (topic or "").strip() or "general"
+        quality = max(0, min(5, quality))
+        from core.spaced_repetition import SM2
+        with _conn() as c:
+            row = c.execute(
+                "SELECT repetitions, easiness, sm2_interval FROM topics WHERE name = ?",
+                (topic,),
+            ).fetchone()
+            if not row:
+                c.execute(
+                    "INSERT INTO topics (name, first_learned, last_reviewed, times_reviewed, confidence, easiness, sm2_interval, next_review, repetitions) VALUES (?, ?, ?, 0, 1.0, 2.5, 1, ?, 0)",
+                    (topic, datetime.now().isoformat(), datetime.now().isoformat(), date.today().isoformat()),
+                )
+                row = (0, 2.5, 1)
+            reps, ef, prev_int = row[0] or 0, float(row[1] or 2.5), float(row[2] or 1)
+            correct = quality >= 3
+            out = SM2.update_card(correct, quality, reps, ef, prev_int)
+            c.execute(
+                "UPDATE topics SET easiness = ?, sm2_interval = ?, next_review = ?, repetitions = ?, last_reviewed = ? WHERE name = ?",
+                (out["easiness"], out["interval"], out["next_review_date"], out["repetitions"], datetime.now().isoformat(), topic),
+            )
+
+    def get_due_reviews(self) -> List[Dict[str, Any]]:
+        """Topics where next_review <= today (or no next_review set)."""
+        today = date.today().isoformat()
+        with _conn() as c:
+            rows = c.execute(
+                "SELECT name, next_review, sm2_interval, confidence FROM topics WHERE next_review IS NULL OR date(next_review) <= ? ORDER BY next_review ASC",
+                (today,),
+            ).fetchall()
+        return [{"name": r[0], "next_review": r[1], "interval": r[2], "confidence": float(r[3] or 1)} for r in rows]
 
 
 progress_tracker = ProgressTracker()

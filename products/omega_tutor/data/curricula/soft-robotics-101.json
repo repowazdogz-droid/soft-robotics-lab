@@ -1,0 +1,17 @@
+{
+  "id": "soft-robotics-101",
+  "name": "Soft Robotics Fundamentals",
+  "description": "From materials to manipulation",
+  "topics": [
+    {"id": "materials-basics", "name": "Materials Basics", "prerequisites": []},
+    {"id": "silicone-properties", "name": "Silicone Properties", "prerequisites": ["materials-basics"]},
+    {"id": "tendon-mechanics", "name": "Tendon Mechanics", "prerequisites": ["materials-basics"]},
+    {"id": "actuator-types", "name": "Actuator Types", "prerequisites": ["silicone-properties"]},
+    {"id": "pneumatic-actuators", "name": "Pneumatic Actuators", "prerequisites": ["actuator-types"]},
+    {"id": "sensors-soft", "name": "Sensors for Soft Robots", "prerequisites": ["materials-basics"]},
+    {"id": "control-basics", "name": "Control Basics", "prerequisites": ["actuator-types"]},
+    {"id": "gripper-design", "name": "Gripper Design", "prerequisites": ["tendon-mechanics", "actuator-types"]},
+    {"id": "manipulation", "name": "Soft Manipulation", "prerequisites": ["gripper-design", "control-basics"]},
+    {"id": "fabrication", "name": "Fabrication Methods", "prerequisites": ["silicone-properties", "gripper-design"]}
+  ]
+}

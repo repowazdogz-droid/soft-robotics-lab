@@ -1,0 +1,18 @@
+{
+  "id": "synthetic-biology-101",
+  "name": "Synthetic Biology 101",
+  "description": "From DNA to biosensors and metabolic engineering",
+  "topics": [
+    {"id": "dna-rna-basics", "name": "DNA and RNA Basics", "prerequisites": []},
+    {"id": "gene-expression", "name": "Gene Expression", "prerequisites": ["dna-rna-basics"]},
+    {"id": "plasmids", "name": "Plasmids and Vectors", "prerequisites": ["dna-rna-basics"]},
+    {"id": "restriction-enzymes", "name": "Restriction Enzymes and Cloning", "prerequisites": ["plasmids"]},
+    {"id": "crispr", "name": "CRISPR and Gene Editing", "prerequisites": ["gene-expression", "plasmids"]},
+    {"id": "promoters", "name": "Promoters and Regulation", "prerequisites": ["gene-expression"]},
+    {"id": "metabolic-pathways", "name": "Metabolic Pathways", "prerequisites": ["gene-expression"]},
+    {"id": "metabolic-engineering", "name": "Metabolic Engineering", "prerequisites": ["metabolic-pathways", "plasmids"]},
+    {"id": "biosensors", "name": "Biosensors", "prerequisites": ["gene-expression", "promoters"]},
+    {"id": "synthetic-circuits", "name": "Synthetic Genetic Circuits", "prerequisites": ["promoters", "plasmids"]},
+    {"id": "safety-ethics", "name": "Safety and Ethics", "prerequisites": ["crispr", "synthetic-circuits"]}
+  ]
+}
