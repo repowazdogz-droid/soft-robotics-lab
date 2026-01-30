@@ -1,0 +1,29 @@
+{
+  "component": "world_model",
+  "version": "1.0",
+  "assumptions": {
+    "validated_mjcf": true,
+    "scene_components_exist": true
+  },
+  "guarantees": [
+    "scene_composes",
+    "simulation_runs",
+    "video_renders",
+    "run_id_assigned"
+  ],
+  "stop_conditions": [
+    "component_missing",
+    "physics_instability",
+    "render_timeout"
+  ],
+  "input_schema": {
+    "gripper_mjcf": "string",
+    "object_mjcf": "string",
+    "surface_mjcf": "string"
+  },
+  "output_schema": {
+    "run_id": "string",
+    "scene_xml": "string",
+    "success": "boolean"
+  }
+}

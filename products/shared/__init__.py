@@ -1,4 +1,4 @@
-"""Shared OMEGA modules (ID generator, etc.)."""
+"""Shared OMEGA modules (ID generator, contracts, etc.)."""
 from .id_generator import (
     generate_id,
     run_id,
@@ -9,6 +9,7 @@ from .id_generator import (
     error_id,
     bundle_id,
 )
+from .contracts import Contract, ContractStatus, validate_handoff
 
 __all__ = [
     "generate_id",
@@ -19,4 +20,7 @@ __all__ = [
     "decision_id",
     "error_id",
     "bundle_id",
+    "Contract",
+    "ContractStatus",
+    "validate_handoff",
 ]

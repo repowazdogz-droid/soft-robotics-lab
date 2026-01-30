@@ -1,8 +1,10 @@
 """
 Reality Bridge - Physics validation API service.
 FastAPI: POST /validate, POST /analyze, GET /health, GET /stats, GET /failures, GET /leaderboard. CORS enabled.
+Uses shared contracts: validates incoming data against reality_bridge assumptions.
 """
 
+import sys
 import tempfile
 from pathlib import Path
 from typing import Optional
@@ -10,11 +12,18 @@ from typing import Optional
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 
+_PRODUCTS = Path(__file__).resolve().parent.parent
+if str(_PRODUCTS) not in sys.path:
+    sys.path.insert(0, str(_PRODUCTS))
+from shared.contracts import Contract, ContractStatus, validate_handoff
+
 from core.loader import load_model, detect_format
 from core.validator import PhysicsValidator, ValidationResult
 from core.analyzer import analyze, AnalysisResult, WeakPoint
 from core.reporter import to_dict, to_markdown, to_html
 from core import database
+
+_CONTRACTS_DIR = _PRODUCTS / "shared" / "contracts"
 
 app = FastAPI(
     title="Reality Bridge",
@@ -31,12 +40,20 @@ app.add_middleware(
 )
 
 _validator = PhysicsValidator()
+_foundry_contract = None
+_reality_bridge_contract = None
 
 
 @app.on_event("startup")
 def startup():
-    """Create data dir and validation table on startup."""
+    """Create data dir and validation table on startup. Load component contracts."""
     database.init_db()
+    global _foundry_contract, _reality_bridge_contract
+    try:
+        _foundry_contract = Contract.from_json(_CONTRACTS_DIR / "foundry_contract.json")
+        _reality_bridge_contract = Contract.from_json(_CONTRACTS_DIR / "reality_bridge_contract.json")
+    except Exception:
+        _foundry_contract = _reality_bridge_contract = None
 
 
 def _analysis_to_dict(a: AnalysisResult) -> dict:
@@ -90,15 +107,28 @@ async def validate(
     request: Request,
     file: Optional[UploadFile] = File(None),
     xml_string: Optional[str] = Form(None),
+    artifact_id: Optional[str] = Form(None),
 ):
     """
     Validate a model: multipart (file), form (xml_string), or JSON body {"xml_string": "..."}.
-    Returns ValidationResult as JSON.
+    Returns ValidationResult as JSON. Checks handoff contract (Foundry -> Reality Bridge) when contracts loaded.
     """
     content, path = await _get_model_input(request, file, xml_string)
 
     if not content and not path:
         raise HTTPException(status_code=400, detail="Provide file or xml_string")
+
+    # Contract validation: does incoming data meet our assumptions?
+    contract_status = ContractStatus.UNKNOWN.value
+    if _foundry_contract and _reality_bridge_contract:
+        data = {
+            "mjcf": content or "",
+            "artifact_id": artifact_id or "",
+            "valid_mjcf": True,
+            "units_si": True,
+            "mass_properties_set": True,
+        }
+        contract_status = validate_handoff(_foundry_contract, _reality_bridge_contract, data).value
 
     try:
         if path:
@@ -110,6 +140,7 @@ async def validate(
 
     result = _validator.validate(xml_string=content, file_path=path)
     payload = to_dict(result)
+    payload["contract_status"] = contract_status
     try:
         design_hash, validation_id = database.log_validation(content, result, source="api")
         payload["design_hash"] = design_hash

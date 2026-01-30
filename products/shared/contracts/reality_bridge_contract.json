@@ -1,0 +1,30 @@
+{
+  "component": "reality_bridge",
+  "version": "1.0",
+  "assumptions": {
+    "valid_mjcf": true,
+    "units_si": true,
+    "mass_properties_set": true
+  },
+  "guarantees": [
+    "validation_id_assigned",
+    "six_test_suite_run",
+    "results_logged_to_db",
+    "pass_fail_determined"
+  ],
+  "stop_conditions": [
+    "mjcf_parse_error",
+    "simulation_timeout",
+    "physics_instability"
+  ],
+  "input_schema": {
+    "mjcf": "string",
+    "artifact_id": "string"
+  },
+  "output_schema": {
+    "validation_id": "string",
+    "passed": "boolean",
+    "tests": "array",
+    "score": "number"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "component": "foundry",
+  "version": "1.0",
+  "assumptions": {
+    "intent_provided": true,
+    "design_type": ["gripper", "mechanism", "enclosure"]
+  },
+  "guarantees": [
+    "units_si",
+    "valid_mjcf",
+    "no_self_intersection",
+    "mass_properties_set",
+    "artifact_id_assigned"
+  ],
+  "stop_conditions": [
+    "unknown_design_type",
+    "invalid_parameters",
+    "generation_timeout"
+  ],
+  "input_schema": {
+    "intent": "string",
+    "design_type": "string",
+    "parameters": "object"
+  },
+  "output_schema": {
+    "artifact_id": "string",
+    "mjcf": "string",
+    "metadata": "object"
+  }
+}
