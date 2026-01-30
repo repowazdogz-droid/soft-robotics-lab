@@ -1,0 +1,38 @@
+{
+  "id": "research",
+  "name": "Research",
+  "decision_types": [
+    "hypothesis prioritization",
+    "experiment design",
+    "publication strategy",
+    "collaboration / partnership",
+    "resource allocation",
+    "tool / platform choice"
+  ],
+  "stakeholders": [
+    "PI / lab head",
+    "Postdocs / students",
+    "Funders / grants",
+    "Collaborators",
+    "Institution / tech transfer"
+  ],
+  "risks": [
+    "Reproducibility",
+    "Scooping",
+    "Resource overrun",
+    "Personnel turnover",
+    "Scope creep"
+  ],
+  "time_horizons": {
+    "t1": "0–3 months: protocol lock, pilot data, first submissions",
+    "t2": "3–12 months: main experiments, draft manuscript, grant reports",
+    "t3": "1–5 years: publication pipeline, follow-on grants, spin-out options",
+    "t4": "5+ years: field impact, citation trajectory, next programme"
+  },
+  "trade_offs": [
+    "Novelty vs. feasibility",
+    "Single high-impact vs. multiple solid papers",
+    "Open vs. proprietary",
+    "Breadth vs. depth"
+  ]
+}

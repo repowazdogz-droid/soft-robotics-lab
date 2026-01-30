@@ -1,0 +1,39 @@
+{
+  "id": "robotics",
+  "name": "Robotics",
+  "decision_types": [
+    "gripper design",
+    "material selection",
+    "sim-to-real transfer",
+    "fabrication method",
+    "actuator choice",
+    "sensor integration",
+    "control architecture"
+  ],
+  "stakeholders": [
+    "R&D / lab",
+    "Manufacturing / ops",
+    "Quality / validation",
+    "End customer / integrator",
+    "Regulatory / safety"
+  ],
+  "risks": [
+    "Sim-to-real gap",
+    "Material fatigue / creep",
+    "Supply chain for specialty materials",
+    "Certification and compliance",
+    "Integration with existing cells"
+  ],
+  "time_horizons": {
+    "t1": "0–3 months: prototypes, material trials, first bench tests",
+    "t2": "3–12 months: pilot builds, sim-to-real validation, design freeze",
+    "t3": "1–5 years: production ramp, field deployment, iteration",
+    "t4": "5+ years: platform maturity, next-gen materials/actuators"
+  },
+  "trade_offs": [
+    "Compliance vs. performance",
+    "Custom vs. off-the-shelf components",
+    "Speed to market vs. robustness",
+    "Cost vs. repeatability"
+  ]
+}

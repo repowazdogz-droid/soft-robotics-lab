@@ -50,6 +50,22 @@ try:
 except ImportError:
     voice_engine = None
     detect_voice_command = None
+try:
+    from core.session_summary import generate_summary
+except ImportError:
+    generate_summary = None
+try:
+    from core.cognitive_load import (
+        get_cognitive_state,
+        should_show_quiz,
+        should_show_dashboard,
+        is_overwhelmed,
+    )
+except ImportError:
+    get_cognitive_state = None
+    should_show_quiz = None
+    should_show_dashboard = None
+    is_overwhelmed = None
 
 st.set_page_config(page_title="OMEGA Tutor", page_icon="🎓", layout="wide")
 
@@ -117,6 +133,49 @@ if not has_profile():
 # ----- Profile exists: show chat -----
 level = get_current_level()
 display_label = get_display_label()
+
+# ----- Exit summary (frictionless exit) -----
+if st.session_state.get("show_exit_summary") and st.session_state.get("exit_summary"):
+    _sum = st.session_state["exit_summary"]
+    st.subheader("💤 Session Complete")
+    st.markdown("Today you learned:")
+    st.markdown("─────────────────")
+    for t in _sum.get("topics", []):
+        label = t.get("confidence_label", "")
+        name = t.get("name", "")
+        if label == "solid understanding":
+            st.markdown(f"✅ **{name}** (solid understanding)")
+        elif label == "good progress":
+            st.markdown(f"📚 **{name}** (good progress)")
+        else:
+            st.markdown(f"🔄 **{name}** (might need review)")
+    st.markdown("")
+    st.markdown(f"⏱️ Time: {_sum.get('time_minutes', 0)} minutes")
+    st.markdown(f"📊 Topics: {len(_sum.get('topics', []))}")
+    st.markdown("")
+    _next = _sum.get("suggested_next", [])
+    if _next:
+        st.markdown("Next time you could explore:")
+        for n in _next:
+            st.markdown(f"- {n}")
+        st.markdown("")
+    st.markdown(_sum.get("encouragement", "Great session! See you next time. 🌟"))
+    st.markdown("")
+    col1, col2, _ = st.columns([1, 1, 2])
+    with col1:
+        if st.button("Start Fresh", key="exit_start_fresh"):
+            st.session_state.pop("show_exit_summary", None)
+            st.session_state.pop("exit_summary", None)
+            st.session_state.pop("progress_session_id", None)
+            if "messages" in st.session_state:
+                st.session_state["messages"] = []
+            st.rerun()
+    with col2:
+        if st.button("Continue later", key="exit_continue"):
+            st.session_state.pop("show_exit_summary", None)
+            st.session_state.pop("exit_summary", None)
+            st.rerun()
+    st.stop()
 
 st.title("🎓 OMEGA Tutor")
 st.caption("Ask anything. Learn at your level.")
@@ -221,28 +280,31 @@ if voice_engine and st.session_state.get("voice_input") and voice_engine.whisper
 if progress_tracker and "progress_session_id" not in st.session_state:
     st.session_state["progress_session_id"] = progress_tracker.start_session()
 
-# Progress Dashboard
+# Progress Dashboard (cognitive load: hide when deep/overwhelmed)
 if progress_tracker:
     st.sidebar.markdown("---")
-    st.sidebar.markdown("**📊 This Week**")
-    st.sidebar.markdown("─────────────")
-    try:
-        ws = progress_tracker.get_weekly_stats()
-        st.sidebar.metric("Topics learned", ws.get("topics", 0))
-        st.sidebar.metric("Questions", f"{ws.get('questions', 0)} ({ws.get('correct_rate', 0):.0f}% correct)")
-        streak = progress_tracker.get_streak()
-        st.sidebar.metric("Streak", f"{streak} days 🔥" if streak else "0 days")
-        strong = progress_tracker.get_strongest_topics(3)
-        if strong:
-            st.sidebar.caption("💪 Strongest: " + ", ".join(strong[:3]))
-        weak = progress_tracker.get_weakest_topics(3)
-        if weak:
-            st.sidebar.caption("📚 Review: " + ", ".join(weak[:3]))
-    except Exception:
-        st.sidebar.caption("Progress stats unavailable.")
+    _show_dash = should_show_dashboard(st.session_state) if should_show_dashboard else True
+    if _show_dash:
+        st.sidebar.markdown("**📊 This Week**")
+        st.sidebar.markdown("─────────────")
+        try:
+            ws = progress_tracker.get_weekly_stats()
+            st.sidebar.metric("Topics learned", ws.get("topics", 0))
+            st.sidebar.metric("Questions", f"{ws.get('questions', 0)} ({ws.get('correct_rate', 0):.0f}% correct)")
+            streak = progress_tracker.get_streak()
+            st.sidebar.metric("Streak", f"{streak} days 🔥" if streak else "0 days")
+            strong = progress_tracker.get_strongest_topics(3)
+            if strong:
+                st.sidebar.caption("💪 Strongest: " + ", ".join(strong[:3]))
+            weak = progress_tracker.get_weakest_topics(3)
+            if weak:
+                st.sidebar.caption("📚 Review: " + ", ".join(weak[:3]))
+        except Exception:
+            st.sidebar.caption("Progress stats unavailable.")
     if st.sidebar.button("What should I review?"):
         st.session_state["show_review"] = True
-    if st.sidebar.button("🧠 Test Yourself"):
+    _show_quiz_btn = should_show_quiz(st.session_state) if should_show_quiz else True
+    if _show_quiz_btn and st.sidebar.button("🧠 Test Yourself"):
         st.session_state["quiz_mode"] = True
         st.session_state.pop("quiz_questions", None)
         st.session_state.pop("quiz_index", None)
@@ -308,6 +370,26 @@ if curriculum_engine:
         if st.sidebar.button("Cancel", key="cancel_custom"):
             st.session_state["show_custom_curriculum"] = False
             st.rerun()
+
+# ----- Frictionless exit -----
+st.sidebar.markdown("---")
+if st.sidebar.button("💤 That's enough for now", key="btn_exit_session"):
+    _sid = st.session_state.get("progress_session_id")
+    if progress_tracker and _sid is not None:
+        progress_tracker.end_session(_sid)
+    if generate_summary and _sid is not None:
+        try:
+            _summary = generate_summary(_sid, st.session_state.get("selected_curriculum_id"))
+            st.session_state["exit_summary"] = _summary
+            st.session_state["show_exit_summary"] = True
+        except Exception:
+            st.session_state["exit_summary"] = {"topics": [], "time_minutes": 0, "suggested_next": [], "encouragement": "Great session! See you next time. 🌟"}
+            st.session_state["show_exit_summary"] = True
+    else:
+        st.session_state["exit_summary"] = {"topics": [], "time_minutes": 0, "suggested_next": [], "encouragement": "Great session! See you next time. 🌟"}
+        st.session_state["show_exit_summary"] = True
+    st.session_state.pop("progress_session_id", None)
+    st.rerun()
 
 # ----- Quiz Mode -----
 if st.session_state.get("quiz_mode") and progress_tracker and generate_quiz:
@@ -469,6 +551,10 @@ if topic:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Gentler UI when overwhelmed (cognitive load)
+if is_overwhelmed is not None and is_overwhelmed(st.session_state):
+    st.info("Take your time. Want me to explain that differently? Use **Simpler** below or just ask in your own words.")
+
 # Optional: microphone in main area (Streamlit 1.32+)
 if st.session_state.get("voice_input") and voice_engine and voice_engine.whisper_available and getattr(st, "audio_input", None):
     _mic_audio = st.audio_input("Speak to ask")
@@ -541,6 +627,7 @@ for i, msg in enumerate(messages):
                         except Exception:
                             pass
                         progress_tracker.update_topic_confidence(topic_name, ev.get("score", 50) / 100.0)
+                    st.session_state["explain_back_last_score"] = ev.get("score", 50)
                     st.session_state.pop("explain_back_index", None)
                     st.session_state.pop("explain_back_topic", None)
                     st.rerun()
@@ -576,6 +663,7 @@ if prompt is None:
     prompt = st.chat_input("What would you like to learn about?")
 
 if prompt:
+    st.session_state.pop("explain_back_last_score", None)
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)

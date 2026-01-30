@@ -82,6 +82,23 @@ class ProgressTracker:
         with _conn() as c:
             c.execute("UPDATE sessions SET ended_at = ? WHERE id = ?", (datetime.now().isoformat(), session_id))
 
+    def get_session_start(self, session_id: int) -> Optional[str]:
+        """Return session started_at (iso) or None if not found."""
+        with _conn() as c:
+            row = c.execute("SELECT started_at, ended_at FROM sessions WHERE id = ?", (session_id,)).fetchone()
+        return row[0] if row else None
+
+    def get_topics_reviewed_since(self, since_iso: str) -> List[Dict[str, Any]]:
+        """Topics with last_reviewed >= since_iso (or first_learned >= since_iso). Returns [{name, confidence}]."""
+        with _conn() as c:
+            rows = c.execute(
+                """SELECT DISTINCT name, confidence FROM topics
+                   WHERE last_reviewed >= ? OR (last_reviewed IS NULL AND first_learned >= ?)
+                   ORDER BY COALESCE(last_reviewed, first_learned) DESC""",
+                (since_iso, since_iso),
+            ).fetchall()
+        return [{"name": r[0], "confidence": float(r[1] or 1.0)} for r in rows]
+
     def record_topic(self, topic: str) -> None:
         """Record that user learned a topic (first time or review)."""
         topic = (topic or "").strip() or "general"

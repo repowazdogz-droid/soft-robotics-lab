@@ -1,0 +1,39 @@
+{
+  "id": "synthetic_biology",
+  "name": "Synthetic Biology",
+  "decision_types": [
+    "gene selection",
+    "pathway design",
+    "strain optimization",
+    "scale-up strategy",
+    "host organism",
+    "biosensor design",
+    "containment / biocontainment"
+  ],
+  "stakeholders": [
+    "Lab / PI",
+    "Fermentation / process",
+    "Regulatory / biosafety",
+    "IP / legal",
+    "Investors / partners"
+  ],
+  "risks": [
+    "Strain instability",
+    "Scale-up failure",
+    "Regulatory delay",
+    "IP freedom-to-operate",
+    "Contamination / escape"
+  ],
+  "time_horizons": {
+    "t1": "0–3 months: construct design, cloning, first assays",
+    "t2": "3–12 months: strain optimization, small-scale fermentation",
+    "t3": "1–5 years: scale-up, regulatory filing, pilot production",
+    "t4": "5+ years: commercial strain, next-generation chassis"
+  },
+  "trade_offs": [
+    "Titer vs. growth rate",
+    "Single strain vs. consortium",
+    "GMO vs. non-GMO",
+    "Speed vs. regulatory robustness"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "business",
+  "name": "Business",
+  "decision_types": [
+    "pricing",
+    "hiring",
+    "market entry",
+    "partnership",
+    "product prioritization",
+    "channel strategy",
+    "fundraising"
+  ],
+  "stakeholders": [
+    "Leadership",
+    "Sales / GTM",
+    "Engineering / product",
+    "Finance / ops",
+    "Board / investors"
+  ],
+  "risks": [
+    "Market timing",
+    "Competitive response",
+    "Execution capacity",
+    "Cash runway",
+    "Key person dependency"
+  ],
+  "time_horizons": {
+    "t1": "0–3 months: quick wins, pipeline, hiring first key roles",
+    "t2": "3–12 months: product milestones, first revenue, partnership LOIs",
+    "t3": "1–5 years: scale, market position, optionality (M&A, raise)",
+    "t4": "5+ years: category leadership, exit or sustainable growth"
+  },
+  "trade_offs": [
+    "Growth vs. profitability",
+    "Build vs. buy vs. partner",
+    "Speed vs. quality of hire",
+    "Concentration vs. diversification"
+  ]
+}
