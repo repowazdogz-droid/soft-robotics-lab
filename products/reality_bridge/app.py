@@ -21,6 +21,12 @@ from shared.contracts import Contract, ContractStatus, validate_handoff
 from shared.failures import create_failure, handle_exception, FailureCode
 from shared.audit import create_bundle
 from shared.trust import TrustScoreTracker
+try:
+    from shared.substrate import vector_store, knowledge_graph, lineage_graph
+    from shared.substrate.knowledge_graph import NodeType, EdgeType
+except ImportError:
+    vector_store = knowledge_graph = lineage_graph = None
+    NodeType = EdgeType = None
 
 from core.loader import load_model, detect_format
 from core.validator import PhysicsValidator, ValidationResult
@@ -163,6 +169,24 @@ async def validate(
     except Exception:
         payload["design_hash"] = None
         payload["validation_id"] = None
+
+    # Substrate: vector store, lineage, knowledge graph (if available)
+    if vector_store and knowledge_graph and lineage_graph and NodeType and EdgeType:
+        try:
+            aid = artifact_id or payload.get("design_hash") or "unknown"
+            vector_store.add(
+                "designs",
+                content[:50000],
+                {"artifact_id": aid, "passed": result.passed, "score": result.score, "design_hash": payload.get("design_hash")},
+            )
+            if vid:
+                lineage_graph.record(vid, aid, "validation", {"passed": result.passed, "score": result.score})
+            knowledge_graph.add_node(NodeType.Design, aid, {"design_hash": payload.get("design_hash"), "passed": result.passed, "score": result.score})
+            if vid:
+                knowledge_graph.add_node(NodeType.Validation, vid, {"passed": result.passed, "score": result.score})
+                knowledge_graph.add_edge(vid, aid, EdgeType.validates, {"passed": result.passed, "score": result.score})
+        except Exception:
+            pass
 
     # Audit bundle for reproducibility (artifact = MJCF, contract, validation)
     try:

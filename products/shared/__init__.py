@@ -21,6 +21,21 @@ from .tutor_links import get_tutor_link, get_failure_tutor_link
 from .audit import AuditBundle, BundleMetadata, create_bundle
 from .demo_pack import get_demo, get_known_good, get_known_bad, get_known_edge, DEMO_DESCRIPTIONS
 from .trust import TrustMetrics, TrustScoreTracker, get_trust_score, get_trust_metrics
+try:
+    from .substrate import (
+        VectorStore,
+        vector_store,
+        KnowledgeGraph,
+        NodeType,
+        EdgeType,
+        knowledge_graph,
+        LineageGraph,
+        lineage_graph,
+    )
+except ImportError:
+    VectorStore = vector_store = None
+    KnowledgeGraph = NodeType = EdgeType = knowledge_graph = None
+    LineageGraph = lineage_graph = None
 
 __all__ = [
     "generate_id",
@@ -53,4 +68,12 @@ __all__ = [
     "TrustScoreTracker",
     "get_trust_score",
     "get_trust_metrics",
+    "VectorStore",
+    "vector_store",
+    "KnowledgeGraph",
+    "NodeType",
+    "EdgeType",
+    "knowledge_graph",
+    "LineageGraph",
+    "lineage_graph",
 ]

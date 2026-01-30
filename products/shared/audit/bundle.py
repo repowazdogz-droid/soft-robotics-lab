@@ -15,6 +15,11 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from shared.id_generator import bundle_id
 
+try:
+    from shared.substrate import lineage_graph
+except Exception:
+    lineage_graph = None
+
 
 @dataclass
 class BundleMetadata:
@@ -51,6 +56,7 @@ class AuditBundle:
     validation: Optional[Dict[str, Any]] = None
     logs: Optional[str] = None
     video_path: Optional[Path] = None
+    lineage: Optional[Dict[str, Any]] = None
 
     def _write_to_zip(self, zf: zipfile.ZipFile, video_path: Optional[Path] = None) -> None:
         """Write bundle contents to an open ZipFile."""
@@ -62,6 +68,8 @@ class AuditBundle:
             zf.writestr("validation.json", json.dumps(self.validation, indent=2, default=str))
         if self.logs:
             zf.writestr("logs.txt", self.logs)
+        if self.lineage:
+            zf.writestr("lineage.json", json.dumps(self.lineage, indent=2, default=str))
         path = video_path or self.video_path
         if path and Path(path).exists():
             zf.write(path, "video.mp4")
@@ -110,6 +118,10 @@ class AuditBundle:
             if "logs.txt" in zf.namelist():
                 logs = zf.read("logs.txt").decode("utf-8")
 
+            lineage = None
+            if "lineage.json" in zf.namelist():
+                lineage = json.loads(zf.read("lineage.json"))
+
             video_path = None
 
             return cls(
@@ -119,6 +131,7 @@ class AuditBundle:
                 validation=validation,
                 logs=logs,
                 video_path=video_path,
+                lineage=lineage,
             )
 
 
@@ -132,8 +145,14 @@ def create_bundle(
     validation: Dict = None,
     logs: str = None,
     video_path: Path = None,
+    lineage: Dict = None,
 ) -> AuditBundle:
-    """Helper to create an audit bundle."""
+    """Helper to create an audit bundle. If artifact_id given and lineage not provided, fetches lineage subgraph."""
+    if lineage is None and artifact_id and lineage_graph:
+        try:
+            lineage = lineage_graph.get_full_provenance(artifact_id)
+        except Exception:
+            lineage = None
     metadata = BundleMetadata(
         bundle_id=bundle_id(),
         created_at=datetime.now().isoformat(),
@@ -142,7 +161,6 @@ def create_bundle(
         validation_id=validation_id,
         run_id=run_id,
     )
-
     return AuditBundle(
         metadata=metadata,
         artifact=artifact,
@@ -150,4 +168,5 @@ def create_bundle(
         validation=validation,
         logs=logs,
         video_path=video_path,
+        lineage=lineage,
     )

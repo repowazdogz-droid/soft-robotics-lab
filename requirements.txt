@@ -4,6 +4,11 @@
 # Common
 python-dotenv>=1.0.0
 
+# Substrate (shared semantic memory, knowledge graph, lineage)
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+networkx>=3.0
+
 # Optional: uncomment if you run all products from root
 # streamlit>=1.28.0
 # openai>=1.0.0
