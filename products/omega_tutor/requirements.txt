@@ -3,3 +3,9 @@ openai>=1.0.0
 google-generativeai>=0.3.0
 anthropic>=0.5.0
 python-dotenv>=1.0.0
+
+# Optional: voice input/output (OMEGA Tutor)
+# faster-whisper  # voice input (lighter) — pip install faster-whisper
+# openai-whisper  # alternative — pip install openai-whisper
+# edge-tts        # voice output (better quality) — pip install edge-tts
+# pyttsx3         # alternative TTS (offline) — pip install pyttsx3

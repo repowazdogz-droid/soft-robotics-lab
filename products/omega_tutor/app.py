@@ -45,6 +45,11 @@ try:
     from core.curriculum import curriculum_engine
 except ImportError:
     curriculum_engine = None
+try:
+    from core.voice import voice_engine, detect_voice_command
+except ImportError:
+    voice_engine = None
+    detect_voice_command = None
 
 st.set_page_config(page_title="OMEGA Tutor", page_icon="🎓", layout="wide")
 
@@ -147,6 +152,70 @@ except Exception:
     _engine = None
     backend_label = "⚠️ No backend (start LM Studio or set GEMINI_API_KEY)"
 st.sidebar.caption(backend_label)
+
+# ----- Voice Mode -----
+_profile = load_profile()
+_voice_age = _profile.get("age")
+_default_voice_on = _voice_age is not None and int(_voice_age) <= 10 if isinstance(_voice_age, (int, float)) else False
+if "voice_input" not in st.session_state:
+    st.session_state["voice_input"] = _default_voice_on
+if "voice_output" not in st.session_state:
+    st.session_state["voice_output"] = _default_voice_on
+
+st.sidebar.markdown("---")
+st.sidebar.markdown("**🎤 Voice Mode**")
+st.sidebar.markdown("─────────────")
+st.session_state["voice_input"] = st.sidebar.checkbox(
+    "Voice input (speak to ask)",
+    value=st.session_state["voice_input"],
+    key="voice_input_cb",
+)
+st.session_state["voice_output"] = st.sidebar.checkbox(
+    "Voice output (hear responses)",
+    value=st.session_state["voice_output"],
+    key="voice_output_cb",
+)
+
+_voice_selection = "British Female"
+if voice_engine and voice_engine.tts_available:
+    _voices = voice_engine.get_available_voices()
+    if _voices:
+        _voice_options = [v[1] for v in _voices]  # display names
+        _voice_ids = [v[0] for v in _voices]
+        _sel = st.sidebar.selectbox(
+            "Voice",
+            range(len(_voice_options)),
+            format_func=lambda i: _voice_options[i],
+            key="voice_select",
+        )
+        _voice_selection = _voice_ids[_sel] if _sel < len(_voice_ids) else (_voice_ids[0] if _voice_ids else "default")
+else:
+    st.sidebar.caption("Voice output: pip install edge-tts")
+if voice_engine and not voice_engine.whisper_available:
+    st.sidebar.caption("Voice input: pip install faster-whisper")
+
+# Voice input: process uploaded audio or from microphone (st.audio_input if available)
+if voice_engine and st.session_state.get("voice_input") and voice_engine.whisper_available:
+    _audio_upload = st.sidebar.file_uploader("Upload audio", type=["wav", "mp3", "ogg", "webm", "m4a"], key="voice_upload")
+    if _audio_upload is not None:
+        import tempfile
+        _bytes = _audio_upload.read()
+        _ext = Path(_audio_upload.name).suffix if getattr(_audio_upload, "name", None) else ".wav"
+        if not _ext or _ext not in (".wav", ".mp3", ".ogg", ".webm", ".m4a"):
+            _ext = ".wav"
+        with tempfile.NamedTemporaryFile(suffix=_ext, delete=False) as _tf:
+            _tf.write(_bytes)
+            _path = _tf.name
+        try:
+            _text = voice_engine.transcribe(_path)
+            if _text and _text.strip():
+                st.session_state["pending_voice_prompt"] = _text.strip()
+                st.rerun()
+        finally:
+            try:
+                os.unlink(_path)
+            except Exception:
+                pass
 
 # Start progress session once per run/session
 if progress_tracker and "progress_session_id" not in st.session_state:
@@ -400,11 +469,35 @@ if topic:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Optional: microphone in main area (Streamlit 1.32+)
+if st.session_state.get("voice_input") and voice_engine and voice_engine.whisper_available and getattr(st, "audio_input", None):
+    _mic_audio = st.audio_input("Speak to ask")
+    if _mic_audio is not None:
+        import tempfile
+        _mic_bytes = _mic_audio.read()
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as _mtf:
+            _mtf.write(_mic_bytes)
+            _mpath = _mtf.name
+        try:
+            _mtext = voice_engine.transcribe(_mpath)
+            if _mtext and _mtext.strip():
+                st.session_state["pending_voice_prompt"] = _mtext.strip()
+                st.rerun()
+        finally:
+            try:
+                os.unlink(_mpath)
+            except Exception:
+                pass
+
 messages = st.session_state.messages
 for i, msg in enumerate(messages):
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
         if msg.get("role") == "assistant":
+            _tts_audio = st.session_state.get("last_tts_audio")
+            if st.session_state.get("voice_output") and i == st.session_state.get("last_tts_message_idx") and _tts_audio:
+                _fmt = "audio/mp3" if _tts_audio[:3] == b"ID3" else "audio/wav"
+                st.audio(_tts_audio, format=_fmt)
             msg_level = msg.get("level") or level
             st.caption(f"Explaining at: **{msg_level}** level")
             simpler_next = adjust_level(msg_level, "simpler")
@@ -452,7 +545,37 @@ for i, msg in enumerate(messages):
                     st.session_state.pop("explain_back_topic", None)
                     st.rerun()
 
-if prompt := st.chat_input("What would you like to learn about?"):
+# Prompt from chat input or from voice (pending_voice_prompt)
+prompt = None
+if st.session_state.get("pending_voice_prompt"):
+    _p = st.session_state.pop("pending_voice_prompt")
+    if detect_voice_command:
+        _cmd = detect_voice_command(_p)
+        if _cmd == "quiz":
+            st.session_state["quiz_mode"] = True
+            st.session_state.pop("quiz_questions", None)
+            st.session_state.pop("quiz_index", None)
+            st.session_state.pop("quiz_answers", None)
+            st.session_state.pop("quiz_topic", None)
+            st.rerun()
+        elif _cmd == "stop":
+            st.session_state.pop("last_tts_audio", None)
+            st.session_state.pop("last_tts_message_idx", None)
+            st.rerun()
+        elif _cmd in ("simpler", "deeper") and "messages" in st.session_state and st.session_state.messages:
+            _msgs = st.session_state.messages
+            _last_idx = len(_msgs) - 1
+            if _last_idx >= 0 and _msgs[_last_idx].get("role") == "assistant":
+                st.session_state["re_explain"] = {"direction": _cmd, "msg_index": _last_idx}
+                st.rerun()
+        elif _cmd is None:
+            prompt = _p
+    else:
+        prompt = _p
+if prompt is None:
+    prompt = st.chat_input("What would you like to learn about?")
+
+if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -461,7 +584,18 @@ if prompt := st.chat_input("What would you like to learn about?"):
             engine = _engine if _engine is not None else TutorEngine(api_key=api_key or None)
             response = engine.teach(prompt, level=level)
             st.markdown(response.to_markdown())
-    st.session_state.messages.append({"role": "assistant", "content": response.to_markdown(), "level": level})
+    _content = response.to_markdown()
+    st.session_state.messages.append({"role": "assistant", "content": _content, "level": level})
+    # Voice output: generate TTS for this response
+    if st.session_state.get("voice_output") and voice_engine and voice_engine.tts_available:
+        try:
+            _slow = level in ("little", "kid")
+            _tts_bytes = voice_engine.speak(_content, voice=_voice_selection, slow_for_kids=_slow)
+            if _tts_bytes:
+                st.session_state["last_tts_audio"] = _tts_bytes
+                st.session_state["last_tts_message_idx"] = len(st.session_state.messages) - 1
+        except Exception:
+            pass
     if progress_tracker:
         try:
             topic_name = prompt.strip()[:80].replace("\n", " ").strip() or "general"
