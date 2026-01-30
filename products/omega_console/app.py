@@ -1,6 +1,7 @@
 """
 OMEGA Console - Single Entry Point
 """
+import base64
 import streamlit as st
 import requests
 import sys
@@ -45,6 +46,46 @@ def check_service(name: str, port: int = None, path: str = None):
     if path:
         return (products_dir / path).exists()
     return True
+
+
+def _demo_gripper_mjcf() -> str:
+    """Minimal demo MJCF (egg gripper style) for audit bundle export."""
+    return """<?xml version="1.0" encoding="utf-8"?>
+<mujoco model="demo_gripper">
+  <option gravity="0 0 -9.81"/>
+  <worldbody>
+    <body name="base" pos="0 0 0">
+      <geom name="base_geom" type="cylinder" size="0.02 0.01" rgba="0.2 0.2 0.8 1"/>
+      <body name="finger1" pos="0.02 0 0.03">
+        <geom name="f1" type="sphere" size="0.015" rgba="0.8 0.2 0.2 1"/>
+      </body>
+      <body name="finger2" pos="-0.02 0 0.03">
+        <geom name="f2" type="sphere" size="0.015" rgba="0.8 0.2 0.2 1"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>
+"""
+
+
+def _fetch_audit_bundle(mjcf_content: str):
+    """POST MJCF to Reality Bridge /validate; return (zip_bytes, filename) or (None, None)."""
+    try:
+        r = requests.post(
+            "http://localhost:8000/validate",
+            data={"xml_string": mjcf_content},
+            timeout=10,
+        )
+        if r.status_code != 200:
+            return None, None
+        data = r.json()
+        b64 = data.get("bundle_base64")
+        name = data.get("bundle_filename")
+        if not b64 or not name:
+            return None, None
+        return base64.b64decode(b64), name
+    except Exception:
+        return None, None
 
 
 def get_product_status():
@@ -104,6 +145,22 @@ with col2:
     with demo_col3:
         if st.button("⚠️ Known-Edge", use_container_width=True, key="demo_edge"):
             st.session_state["demo_clicked"] = "edge"
+    # Export Audit Bundle: call Reality Bridge with demo MJCF, offer zip download
+    demo_mjcf = _demo_gripper_mjcf()
+    if st.button("📦 Export Audit Bundle", use_container_width=True, key="export_bundle"):
+        st.session_state["export_bundle_clicked"] = True
+    if st.session_state.get("export_bundle_clicked"):
+        bundle_bytes, filename = _fetch_audit_bundle(demo_mjcf)
+        if bundle_bytes and filename:
+            st.download_button(
+                f"Download {filename}",
+                data=bundle_bytes,
+                file_name=filename,
+                mime="application/zip",
+                key="dl_bundle",
+            )
+        else:
+            st.warning("Start Reality Bridge (port 8000) to export a validated audit bundle.")
     # Show result and Tutor link when a demo was clicked
     demo_clicked = st.session_state.get("demo_clicked")
     if demo_clicked == "good":

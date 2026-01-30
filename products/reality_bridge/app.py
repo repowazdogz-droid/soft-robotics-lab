@@ -4,6 +4,7 @@ FastAPI: POST /validate, POST /analyze, GET /health, GET /stats, GET /failures, 
 Uses shared contracts and failure taxonomy: no raw tracebacks to users.
 """
 
+import base64
 import sys
 import tempfile
 from pathlib import Path
@@ -18,6 +19,7 @@ if str(_PRODUCTS) not in sys.path:
     sys.path.insert(0, str(_PRODUCTS))
 from shared.contracts import Contract, ContractStatus, validate_handoff
 from shared.failures import create_failure, handle_exception, FailureCode
+from shared.audit import create_bundle
 
 from core.loader import load_model, detect_format
 from core.validator import PhysicsValidator, ValidationResult
@@ -153,12 +155,32 @@ async def validate(
     payload["success"] = True
     payload["contract_status"] = contract_status
     try:
-        design_hash, validation_id = database.log_validation(content, result, source="api")
+        design_hash, vid = database.log_validation(content, result, source="api")
         payload["design_hash"] = design_hash
-        payload["validation_id"] = validation_id
+        payload["validation_id"] = vid
     except Exception:
         payload["design_hash"] = None
         payload["validation_id"] = None
+
+    # Audit bundle for reproducibility (artifact = MJCF, contract, validation)
+    try:
+        artifact = {"mjcf": content, "design_hash": payload.get("design_hash")}
+        contract_dict = _reality_bridge_contract.to_dict() if _reality_bridge_contract else None
+        bundle = create_bundle(
+            component="reality_bridge",
+            artifact=artifact,
+            artifact_id=artifact_id,
+            validation_id=payload.get("validation_id"),
+            contract=contract_dict,
+            validation=payload,
+        )
+        zip_bytes = bundle.save_to_bytes()
+        payload["bundle_base64"] = base64.b64encode(zip_bytes).decode("ascii")
+        payload["bundle_filename"] = f"audit_bundle_{bundle.metadata.bundle_id}.zip"
+    except Exception:
+        payload["bundle_base64"] = None
+        payload["bundle_filename"] = None
+
     return payload
 
 

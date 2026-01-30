@@ -18,6 +18,7 @@ from .failures import (
     handle_exception,
 )
 from .tutor_links import get_tutor_link, get_failure_tutor_link
+from .audit import AuditBundle, BundleMetadata, create_bundle
 
 __all__ = [
     "generate_id",
@@ -38,4 +39,7 @@ __all__ = [
     "handle_exception",
     "get_tutor_link",
     "get_failure_tutor_link",
+    "AuditBundle",
+    "BundleMetadata",
+    "create_bundle",
 ]
