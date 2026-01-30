@@ -3,44 +3,63 @@
 OMEGA Weekly Review Generator
 =============================
 
-Auto-generates weekly review agenda from active hypotheses and experiments.
+Auto-generates weekly/monthly/quarterly review from active hypotheses and substrate.
 
 Agenda includes:
-- Hypotheses that gained/lost confidence
-- Hypotheses to consider killing
-- Experiments completed
-- Negative results vault additions
-- Cross-domain insights
-- Recommended next experiments
+- Hypotheses updated this week
+- Hypotheses stale (no update in 2+ weeks)
+- Related concepts from knowledge graph
+- Suggested next actions
+- Risks/blockers
+- Kill candidates, strengthened/weakened
 
 Usage:
     python weekly_review.py generate
     python weekly_review.py generate --output review.md
+    python weekly_review.py generate --period monthly
+    python weekly_review.py generate --period quarterly
 """
 
 import sys
 from pathlib import Path
 from datetime import datetime, timedelta
-from typing import List
+from typing import List, Optional
 
 _repo_root = Path(__file__).resolve().parent.parent.parent
+_breakthrough_dir = Path(__file__).resolve().parent
 if str(_repo_root) not in sys.path:
     sys.path.insert(0, str(_repo_root))
+if str(_breakthrough_dir) not in sys.path:
+    sys.path.insert(0, str(_breakthrough_dir))
 
-from products.breakthrough_engine.hypothesis_ledger import HypothesisLedger, HypothesisStatus
+try:
+    from hypothesis_ledger import HypothesisLedger, HypothesisStatus
+except ImportError:
+    from products.breakthrough_engine.hypothesis_ledger import HypothesisLedger, HypothesisStatus
+
+try:
+    from substrate_integration import get_related_concepts_from_graph
+except ImportError:
+    get_related_concepts_from_graph = lambda h: []
 
 
 class WeeklyReviewGenerator:
-    """Generates weekly review agendas."""
+    """Generates weekly/monthly/quarterly review agendas with substrate context."""
 
     def __init__(self):
         self.ledger = HypothesisLedger()
         self.review_period_days = 7
 
-    def generate(self) -> str:
-        """Generate a weekly review agenda."""
+    def generate(self, period: str = "weekly") -> str:
+        """Generate weekly/monthly/quarterly review agenda. period: weekly, monthly, quarterly."""
         now = datetime.now()
-        week_ago = now - timedelta(days=self.review_period_days)
+        if period == "quarterly":
+            self.review_period_days = 90
+        elif period == "monthly":
+            self.review_period_days = 30
+        else:
+            self.review_period_days = 7
+        period_start = now - timedelta(days=self.review_period_days)
 
         all_hypotheses = self.ledger.list()
 
@@ -54,11 +73,23 @@ class WeeklyReviewGenerator:
 
         two_weeks_ago = (now - timedelta(days=14)).isoformat()
         stale = [h for h in active if h.updated_at < two_weeks_ago]
+        updated_this_period = [h for h in all_hypotheses if h.updated_at >= period_start.isoformat()]
+
+        related_concepts = []
+        try:
+            for h in active[:10]:
+                rel = get_related_concepts_from_graph(h.id)
+                for r in rel:
+                    nid = r.get("node_id") or (r.get("node") or {}).get("id", "")
+                    if nid and nid not in related_concepts:
+                        related_concepts.append(nid)
+        except Exception:
+            pass
 
         agenda = f"""
-# OMEGA Weekly Review
+# OMEGA {period.title()} Review
 **Generated:** {now.strftime('%Y-%m-%d %H:%M')}
-**Period:** {week_ago.strftime('%Y-%m-%d')} to {now.strftime('%Y-%m-%d')}
+**Period:** {period_start.strftime('%Y-%m-%d')} to {now.strftime('%Y-%m-%d')}
 
 ---
 
@@ -68,11 +99,26 @@ class WeeklyReviewGenerator:
 |----------|-------|
 | Total Hypotheses | {len(all_hypotheses)} |
 | Active | {len(active)} |
+| Updated this period | {len(updated_this_period)} |
+| Stale (2+ weeks) | {len(stale)} |
 | Strengthened | {len(strengthened)} |
 | Weakened | {len(weakened)} |
 | Killed | {len(killed)} |
 | Falsified | {len(falsified)} |
 
+---
+
+## 📅 Hypotheses Updated This Period
+
+"""
+        if updated_this_period:
+            for h in updated_this_period[:10]:
+                agenda += f"- **{h.id}:** {h.claim[:50]}… (updated {h.updated_at[:10]})\n"
+            agenda += "\n"
+        else:
+            agenda += "*None*\n\n"
+
+        agenda += """
 ---
 
 ## ✅ Hypotheses That Gained Support
@@ -149,6 +195,26 @@ Based on active hypotheses, consider experiments that would:
         agenda += """
 ---
 
+## 🔗 Related Concepts (Knowledge Graph)
+
+"""
+        if related_concepts:
+            agenda += ", ".join(related_concepts[:15]) + "\n\n"
+        else:
+            agenda += "*None linked yet — link hypotheses to concepts in substrate.*\n\n"
+
+        agenda += """
+---
+
+## 🎯 Suggested Next Actions
+
+1. **High confidence:** Translate strengthened hypotheses into experiments or decisions.
+2. **Stale:** Assign owner or design next step for hypotheses with no update in 2+ weeks.
+3. **Kill candidates:** Vote to kill or provide new evidence for hypotheses below 30% confidence.
+4. **Risks/blockers:** Note any SRFC/RED or VRFC/RED that block progress.
+
+---
+
 ## 🔴 Red Team Questions
 
 - What are we overconfident about?
@@ -162,7 +228,7 @@ Based on active hypotheses, consider experiments that would:
 1. [ ] Review strengthened hypotheses - any ready for translation?
 2. [ ] Vote on kill candidates
 3. [ ] Assign owners to stale hypotheses
-4. [ ] Design next week's experiments
+4. [ ] Design next period's experiments
 
 ---
 
@@ -171,12 +237,12 @@ Based on active hypotheses, consider experiments that would:
 
         return agenda
 
-    def save(self, output_path: str = None) -> str:
+    def save(self, output_path: str = None, period: str = "weekly") -> str:
         """Generate and save the review."""
-        agenda = self.generate()
+        agenda = self.generate(period=period)
 
         if output_path is None:
-            output_path = f"weekly_review_{datetime.now().strftime('%Y%m%d')}.md"
+            output_path = f"{period}_review_{datetime.now().strftime('%Y%m%d')}.md"
 
         Path(output_path).write_text(agenda, encoding="utf-8")
         return output_path
@@ -186,17 +252,19 @@ Based on active hypotheses, consider experiments that would:
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="OMEGA Weekly Review Generator")
+    parser = argparse.ArgumentParser(description="OMEGA Weekly/Monthly/Quarterly Review Generator")
     parser.add_argument("command", nargs="?", default="generate", help="Command (generate)")
     parser.add_argument("--output", "-o", help="Output file path")
+    parser.add_argument("--period", "-p", choices=["weekly", "monthly", "quarterly"], default="weekly", help="Review period")
 
     args = parser.parse_args()
 
     generator = WeeklyReviewGenerator()
 
     if args.command == "generate":
+        agenda = generator.generate(period=getattr(args, "period", "weekly"))
         if args.output:
-            path = generator.save(args.output)
-            print(f"Saved to: {path}")
+            Path(args.output).write_text(agenda, encoding="utf-8")
+            print(f"Saved to: {args.output}")
         else:
-            print(generator.generate())
+            print(agenda)

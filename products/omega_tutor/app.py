@@ -673,6 +673,17 @@ if prompt:
             response = engine.teach(prompt, level=level)
             st.markdown(response.to_markdown())
     _content = response.to_markdown()
+    try:
+        _bp = _ROOT.parent / "breakthrough_engine"
+        if _bp.exists() and str(_bp) not in sys.path:
+            sys.path.insert(0, str(_bp))
+        from hypothesis_ledger import HypothesisLedger
+        _ledger = HypothesisLedger()
+        _hyps_about = _ledger.get_active_hypotheses_about(prompt)
+        if _hyps_about:
+            _content += "\n\n---\n*You have an active hypothesis about this: " + ", ".join([f"**{h['id']}**" for h in _hyps_about]) + "*"
+    except Exception:
+        pass
     st.session_state.messages.append({"role": "assistant", "content": _content, "level": level})
     # Voice output: generate TTS for this response
     if st.session_state.get("voice_output") and voice_engine and voice_engine.tts_available:

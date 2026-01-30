@@ -43,8 +43,26 @@ from enum import Enum
 import hashlib
 
 _repo_root = Path(__file__).resolve().parent.parent.parent
+_BREAKTHROUGH_DIR = Path(__file__).resolve().parent
 if str(_repo_root) not in sys.path:
     sys.path.insert(0, str(_repo_root))
+if str(_BREAKTHROUGH_DIR) not in sys.path:
+    sys.path.insert(0, str(_BREAKTHROUGH_DIR))
+
+try:
+    from substrate_integration import (
+        record_to_substrate,
+        find_similar_hypotheses,
+        link_hypothesis_to_concepts,
+        get_hypothesis_lineage,
+        record_lineage_derived,
+    )
+except ImportError:
+    record_to_substrate = lambda h: None
+    find_similar_hypotheses = lambda claim, n=3: []
+    link_hypothesis_to_concepts = lambda hyp_id, concepts: None
+    get_hypothesis_lineage = lambda hyp_id: []
+    record_lineage_derived = lambda c, p, **k: None
 
 
 class HypothesisStatus(Enum):
@@ -288,6 +306,44 @@ class HypothesisLedger:
         conn.commit()
         conn.close()
 
+    def suggest_similar(self, claim: str, n: int = 3) -> List[Dict]:
+        """Search substrate for similar hypotheses before creating. Returns [{id, text, metadata, score}]."""
+        return find_similar_hypotheses(claim, n=n)
+
+    def get_active_hypotheses_about(self, topic: str) -> List[Dict]:
+        """Return active hypotheses related to topic (domain or claim contains topic). For Tutor integration."""
+        active_list = self.list(status=HypothesisStatus.ACTIVE)
+        topic_lower = (topic or "").strip().lower()
+        if not topic_lower:
+            return []
+        out = []
+        for h in active_list:
+            if topic_lower in (h.domain or "").lower() or topic_lower in (h.claim or "").lower():
+                out.append({"id": h.id, "claim": (h.claim or "")[:100]})
+        if not out:
+            similar = find_similar_hypotheses(topic, n=3)
+            for s in similar:
+                hid = s.get("metadata", {}).get("hypothesis_id") or s.get("id", "")
+                if hid:
+                    g = self.get(hid)
+                    if g and g.status == HypothesisStatus.ACTIVE:
+                        out.append({"id": g.id, "claim": (g.claim or "")[:100]})
+        return out[:5]
+
+    def get_history(self, hypothesis_id: str) -> List[Dict]:
+        """Return timeline of updates for a hypothesis. [{timestamp, action, old_value, new_value, reason}]."""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.execute(
+            "SELECT timestamp, action, old_value, new_value, reason FROM history WHERE hypothesis_id = ? ORDER BY timestamp DESC",
+            (hypothesis_id,),
+        )
+        rows = cursor.fetchall()
+        conn.close()
+        return [
+            {"timestamp": r[0], "action": r[1], "old_value": r[2], "new_value": r[3], "reason": r[4]}
+            for r in rows
+        ]
+
     def create(
         self,
         claim: str,
@@ -305,8 +361,13 @@ class HypothesisLedger:
         who_benefits: List[str] = None,
         who_loses: List[str] = None,
         next_step: str = "",
+        parent_hypothesis_id: str = None,
+        concepts: List[str] = None,
     ) -> Hypothesis:
-        """Create a new hypothesis. OMEGA-MAX: horizon, substrates, falsification_cost, etc."""
+        """Create a new hypothesis. OMEGA-MAX: horizon, substrates, falsification_cost, etc. next_step required for active."""
+        next_step = (next_step or "").strip()
+        if not next_step:
+            raise ValueError("next_step is required for active hypotheses")
         h_id = hypothesis_id()
         now = datetime.now().isoformat()
 
@@ -333,11 +394,17 @@ class HypothesisLedger:
             who_benefits=who_benefits or [],
             who_loses=who_loses or [],
             falsification_cost=falsification_cost or "medium",
-            next_step=(next_step or "").strip(),
+            next_step=next_step,
+            parent_hypothesis=parent_hypothesis_id,
         )
 
         self._save_hypothesis(hypothesis)
         self._log_history(h_id, "created", None, claim, "Initial creation")
+        record_to_substrate(hypothesis)
+        if parent_hypothesis_id:
+            record_lineage_derived(h_id, parent_hypothesis_id, {"claim": claim[:200]})
+        if concepts:
+            link_hypothesis_to_concepts(h_id, concepts)
 
         return hypothesis
 
@@ -678,6 +745,10 @@ class HypothesisLedger:
         )
         conn.commit()
         conn.close()
+        try:
+            record_to_substrate(h)
+        except Exception:
+            pass
 
     def _log_history(
         self,
@@ -750,12 +821,43 @@ if __name__ == "__main__":
     kill_parser.add_argument("id", help="Hypothesis ID")
     kill_parser.add_argument("reason", help="Reason for killing")
 
+    search_parser = subparsers.add_parser("search", help="Search similar hypotheses (vector store)")
+    search_parser.add_argument("query", help="Search query (claim or keywords)")
+    search_parser.add_argument("-n", type=int, default=5, help="Number of results")
+
+    graph_parser = subparsers.add_parser("graph", help="Generate hypothesis relationship graph")
+    graph_parser.add_argument("--output", "-o", help="Output path (PNG or HTML)")
+    graph_parser.add_argument("--format", "-f", choices=["png", "html"], default="png")
+
+    related_parser = subparsers.add_parser("related", help="Show related hypotheses for an ID")
+    related_parser.add_argument("id", help="Hypothesis ID")
+
+    migrate_parser = subparsers.add_parser("migrate", help="Migrate existing hypotheses to substrate (one-time)")
+
     args = parser.parse_args()
 
     ledger = HypothesisLedger()
 
     if args.command == "create":
+        next_step_val = getattr(args, "next_step", "") or ""
+        if not next_step_val.strip():
+            print("Error: next_step is required. Use --next-step 'concrete action'")
+            sys.exit(1)
+        similar = ledger.suggest_similar(args.claim, n=3)
+        if similar:
+            try:
+                from rich.console import Console
+                from rich.panel import Panel
+                Console().print(Panel("[dim]Similar hypotheses (consider linking or merging):[/dim] " + ", ".join([str(s.get("metadata", {}).get("hypothesis_id", s.get("id", ""))) for s in similar]), title="Suggestions"))
+            except ImportError:
+                print("Similar hypotheses:", [s.get("metadata", {}).get("hypothesis_id", s.get("id")) for s in similar])
         substrates_list = [s.strip() for s in (getattr(args, "substrates", "") or "").split(",") if s and s.strip()]
+        if not (getattr(args, "falsifiers", None) or []):
+            try:
+                from rich.console import Console
+                Console().print("[yellow]⚠ No falsification strategy — consider adding falsifiers.[/yellow]")
+            except ImportError:
+                print("⚠ No falsification strategy — consider adding falsifiers.")
         h = ledger.create(
             args.claim,
             args.domain,
@@ -765,12 +867,16 @@ if __name__ == "__main__":
             falsification_cost=getattr(args, "falsification_cost", "medium"),
             srfc_status=getattr(args, "srfc", "AMBER"),
             vrfc_status=getattr(args, "vrfc", "AMBER"),
-            next_step=getattr(args, "next_step", "") or "",
+            next_step=next_step_val.strip(),
         )
-        print(f"Created: {h.id}")
-        if h.is_stale():
-            print("⚠ STALE - no next step defined")
-        print(h.to_card())
+        try:
+            from rich.console import Console
+            from rich.panel import Panel
+            Console().print(Panel(f"Created: [bold]{h.id}[/bold]", title="OK"))
+            Console().print(h.to_card())
+        except ImportError:
+            print(f"Created: {h.id}")
+            print(h.to_card())
 
     elif args.command == "list":
         status = HypothesisStatus(args.status) if getattr(args, "status", None) else None
@@ -830,7 +936,97 @@ if __name__ == "__main__":
 
     elif args.command == "kill":
         h = ledger.kill(args.id, args.reason)
-        print(f"Killed {h.id}: {args.reason}")
+        try:
+            from rich.console import Console
+            Console().print(f"[red]Killed[/red] {h.id}: {args.reason}")
+        except ImportError:
+            print(f"Killed {h.id}: {args.reason}")
+
+    elif args.command == "search":
+        similar = ledger.suggest_similar(args.query, n=getattr(args, "n", 5))
+        try:
+            from rich.console import Console
+            from rich.table import Table
+            t = Table(title="Similar hypotheses")
+            t.add_column("ID", style="cyan")
+            t.add_column("Score", style="green")
+            t.add_column("Text", style="white")
+            for s in similar:
+                hid = s.get("metadata", {}).get("hypothesis_id") or s.get("id", "")
+                t.add_row(hid, str(round(s.get("score", 0), 3)), (s.get("text", "") or "")[:60] + "…")
+            Console().print(t)
+        except ImportError:
+            for s in similar:
+                print(s.get("metadata", {}).get("hypothesis_id", s.get("id")), s.get("score"), (s.get("text", "") or "")[:50])
+
+    elif args.command == "graph":
+        hyps = ledger.list()
+        try:
+            from core.visualize import generate_hypothesis_graph, generate_html_graph
+            out_path = getattr(args, "output", None)
+            fmt = getattr(args, "format", "png")
+            if fmt == "png":
+                fig = generate_hypothesis_graph(hyps)
+                if fig:
+                    if out_path:
+                        fig.savefig(out_path)
+                        print("Saved:", out_path)
+                    else:
+                        try:
+                            from rich.console import Console
+                            Console().print("[dim]Graph generated (use -o path.png to save)[/dim]")
+                        except ImportError:
+                            print("Graph generated (use -o path.png to save)")
+                else:
+                    print("Graph unavailable (install matplotlib, networkx)")
+            else:
+                html = generate_html_graph(hyps)
+                if out_path:
+                    Path(out_path).write_text(html, encoding="utf-8")
+                    print("Saved:", out_path)
+                else:
+                    print(html[:500] + "…")
+        except ImportError as e:
+            print("Graph unavailable:", e)
+
+    elif args.command == "related":
+        h = ledger.get(args.id)
+        if not h:
+            print(f"Hypothesis {args.id} not found")
+        else:
+            similar = find_similar_hypotheses(h.claim, n=5)
+            lineage = get_hypothesis_lineage(args.id)
+            try:
+                from rich.console import Console
+                from rich.panel import Panel
+                Console().print(Panel(f"[bold]{h.id}[/bold] — {h.claim[:60]}…", title="Hypothesis"))
+                Console().print("[bold]Similar (vector):[/bold]")
+                for s in similar:
+                    sid = s.get("metadata", {}).get("hypothesis_id") or s.get("id", "")
+                    if sid != h.id:
+                        Console().print(f"  - {sid}")
+                Console().print("[bold]Lineage:[/bold]")
+                for L in lineage:
+                    Console().print(f"  - {L.get('parent_id', '')} → {L.get('method', '')}")
+            except ImportError:
+                print("Similar:", [s.get("metadata", {}).get("hypothesis_id", s.get("id")) for s in similar if s.get("metadata", {}).get("hypothesis_id") != h.id])
+                print("Lineage:", lineage)
+
+    elif args.command == "migrate":
+        all_hyps = ledger.list()
+        try:
+            from rich.progress import Progress, SpinnerColumn, TextColumn
+            from rich.console import Console
+            with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=Console()) as progress:
+                task = progress.add_task("Migrating to substrate…", total=len(all_hyps))
+                for h in all_hyps:
+                    record_to_substrate(h)
+                    progress.advance(task)
+            Console().print(f"[green]Migrated {len(all_hyps)} hypotheses to substrate.[/green]")
+        except ImportError:
+            for h in all_hyps:
+                record_to_substrate(h)
+            print(f"Migrated {len(all_hyps)} hypotheses to substrate.")
 
     else:
         hypotheses = ledger.list(status=HypothesisStatus.ACTIVE)
