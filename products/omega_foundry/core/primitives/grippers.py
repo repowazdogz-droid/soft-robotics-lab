@@ -1,14 +1,21 @@
 """
 Gripper generator - design dict + physics-correct MJCF.
 Cutkosky grasp taxonomy: PINCH, POWER, HOOK, LATERAL, SPHERICAL, TRIPOD.
+Uses shared OMEGA ID: artifact_id() for generated designs.
 """
 
+import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
 import numpy as np
+
+_PRODUCTS = Path(__file__).resolve().parent.parent.parent.parent
+if str(_PRODUCTS) not in sys.path:
+    sys.path.insert(0, str(_PRODUCTS))
+from shared.id_generator import artifact_id
 
 from ..intent_parser import DesignSpec
 
@@ -169,7 +176,7 @@ class GripperGenerator:
             "curl_bias": profile["curl_bias"],
         }
 
-        design_id = f"OF-{datetime.now().strftime('%Y%m%d')}-{self.design_counter:04d}"
+        design_id = artifact_id(suffix=f"{self.design_counter:04d}")
         name = f"{gesture.title()} Gripper"
         if spec.target_object:
             name += f" for {spec.target_object}"

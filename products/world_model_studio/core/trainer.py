@@ -1,9 +1,11 @@
 """
 Trainer - Policy evaluation and training.
 random_policy(n_actions), evaluate_policy(), random_search(), train_loop().
+Uses shared OMEGA ID: run_id() for training runs.
 """
 
 import json
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Callable, Any, Dict, List, Optional
@@ -15,6 +17,11 @@ except ImportError:
     NUMPY_AVAILABLE = False
 
 from .task_builder import compute_reward
+
+_PRODUCTS = Path(__file__).resolve().parent.parent.parent
+if str(_PRODUCTS) not in sys.path:
+    sys.path.insert(0, str(_PRODUCTS))
+from shared.id_generator import run_id as _run_id
 
 _OUTPUTS_ROOT = Path(__file__).resolve().parent.parent / "outputs"
 _LOGS_ROOT = Path(__file__).resolve().parent.parent / "training_logs"
@@ -163,9 +170,9 @@ def train_loop(
     """
     config = config or {}
     _LOGS_ROOT.mkdir(parents=True, exist_ok=True)
-    run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_path = _LOGS_ROOT / f"run_{run_id}.json"
-    result = {"method": method, "run_id": run_id, "config": config}
+    rid = _run_id()
+    log_path = _LOGS_ROOT / f"run_{rid.replace('-', '_')}.json"
+    result = {"method": method, "run_id": rid, "config": config}
     if method == "evaluate_only":
         from .policies import ConstantPolicy
         policy = ConstantPolicy(config.get("actions", [0.0]))

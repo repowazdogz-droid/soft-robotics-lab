@@ -4,6 +4,7 @@ OMEGA Hypothesis Ledger
 =======================
 
 A living, versioned registry of explicit causal hypotheses.
+Uses shared OMEGA ID: hypothesis_id() for HYP- format.
 
 Each hypothesis includes:
 - Precise claim (mechanism, not narrative)
@@ -22,6 +23,14 @@ Usage:
     ledger.add_competing(h.id, "Drug X acts via pathway Z instead")
     ledger.update_confidence(h.id, 0.6, evidence="Experiment 1 results")
 """
+
+import sys
+from pathlib import Path
+
+_PRODUCTS = Path(__file__).resolve().parent.parent
+if str(_PRODUCTS) not in sys.path:
+    sys.path.insert(0, str(_PRODUCTS))
+from shared.id_generator import hypothesis_id
 
 import sys
 import json
@@ -298,7 +307,7 @@ class HypothesisLedger:
         next_step: str = "",
     ) -> Hypothesis:
         """Create a new hypothesis. OMEGA-MAX: horizon, substrates, falsification_cost, etc."""
-        h_id = f"H-{hashlib.md5(claim.encode()).hexdigest()[:8].upper()}"
+        h_id = hypothesis_id()
         now = datetime.now().isoformat()
 
         hypothesis = Hypothesis(

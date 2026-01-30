@@ -1,12 +1,19 @@
 """
 Enclosure generator - box, mount, housing, bracket, rack_mount.
 Params: waterproof, ventilated, mounting_pattern, snap_fit_lid.
+Uses shared OMEGA ID: artifact_id() for generated designs.
 """
 
+import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional
+
+_PRODUCTS = Path(__file__).resolve().parent.parent.parent.parent
+if str(_PRODUCTS) not in sys.path:
+    sys.path.insert(0, str(_PRODUCTS))
+from shared.id_generator import artifact_id
 
 from ..intent_parser import DesignSpec
 
@@ -36,7 +43,7 @@ class EnclosureGenerator:
         mounting_pattern = spec.params.get("mounting_pattern", "M3")
         snap_fit_lid = spec.params.get("snap_fit_lid", False)
 
-        design_id = f"OF-E-{datetime.now().strftime('%Y%m%d')}-{self.design_counter:04d}"
+        design_id = artifact_id(suffix=f"E-{self.design_counter:04d}")
         name = f"{enc_type.replace('_', ' ').title()} Enclosure"
         if enc_type == "rack_mount":
             size_mm = {"x": 482.6, "y": scale_mm, "z": 44.45 * 2}

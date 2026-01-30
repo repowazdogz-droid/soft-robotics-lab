@@ -1,21 +1,29 @@
 """
 Validation logging - SQLite dataset at data/validations.db.
 init_db(), log_validation(), get_stats(), get_failures(), get_designs_by_score().
+Uses shared OMEGA ID: validation_id(), error_id().
 """
 
 import json
 import hashlib
 import sqlite3
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 _DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 _DB_PATH = _DATA_DIR / "validations.db"
+_PRODUCTS = Path(__file__).resolve().parent.parent.parent
+if str(_PRODUCTS) not in sys.path:
+    sys.path.insert(0, str(_PRODUCTS))
+from shared.id_generator import validation_id, error_id
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS validations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    validation_id TEXT,
+    error_id TEXT,
     timestamp TEXT NOT NULL,
     design_hash TEXT NOT NULL,
     mjcf_size INTEGER,
@@ -31,10 +39,18 @@ CREATE TABLE IF NOT EXISTS validations (
 
 
 def init_db() -> None:
-    """Create data dir and validations table if not exist."""
+    """Create data dir and validations table if not exist. Migrate: add validation_id, error_id if missing."""
     _DATA_DIR.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(_DB_PATH) as conn:
         conn.executescript(_SCHEMA)
+        try:
+            conn.execute("ALTER TABLE validations ADD COLUMN validation_id TEXT")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            conn.execute("ALTER TABLE validations ADD COLUMN error_id TEXT")
+        except sqlite3.OperationalError:
+            pass
 
 
 def _hash_mjcf(mjcf_string: str) -> str:
@@ -50,7 +66,7 @@ def log_validation(
     domain: Optional[str] = None,
 ) -> str:
     """
-    Hash MJCF, store validation result. Returns design_hash.
+    Hash MJCF, store validation result. Returns (design_hash, validation_id).
     result: ValidationResult (passed, score, tests, metrics, errors).
     """
     mjcf = (mjcf_string or "").strip()
@@ -63,6 +79,8 @@ def log_validation(
     tests = getattr(result, "tests", {})
     metrics = getattr(result, "metrics", {})
     errors = list(getattr(result, "errors", []))
+    vid = validation_id()
+    eid = error_id("validation_failed") if not passed else None
 
     def _test_to_dict(k: str, v: Any) -> dict:
         if hasattr(v, "name") and hasattr(v, "passed"):
@@ -76,12 +94,12 @@ def log_validation(
         conn.execute(
             """
             INSERT INTO validations
-            (timestamp, design_hash, mjcf_size, domain, passed, score, tests_json, metrics_json, errors_json, source)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (validation_id, error_id, timestamp, design_hash, mjcf_size, domain, passed, score, tests_json, metrics_json, errors_json, source)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (timestamp, design_hash, mjcf_size, domain or "", 1 if passed else 0, score, tests_json, metrics_json, errors_json, source or "api"),
+            (vid, eid, timestamp, design_hash, mjcf_size, domain or "", 1 if passed else 0, score, tests_json, metrics_json, errors_json, source or "api"),
         )
-    return design_hash
+    return design_hash, vid
 
 
 def get_stats() -> Dict[str, Any]:
@@ -108,7 +126,7 @@ def get_failures(limit: int = 50) -> List[Dict[str, Any]]:
     with sqlite3.connect(_DB_PATH) as conn:
         conn.row_factory = sqlite3.Row
         cur = conn.execute(
-            "SELECT id, timestamp, design_hash, mjcf_size, domain, score, errors_json, source FROM validations WHERE passed = 0 ORDER BY id DESC LIMIT ?",
+            "SELECT id, validation_id, error_id, timestamp, design_hash, mjcf_size, domain, score, errors_json, source FROM validations WHERE passed = 0 ORDER BY id DESC LIMIT ?",
             (limit,),
         )
         rows = cur.fetchall()
@@ -116,6 +134,8 @@ def get_failures(limit: int = 50) -> List[Dict[str, Any]]:
     for r in rows:
         out.append({
             "id": r["id"],
+            "validation_id": r["validation_id"],
+            "error_id": r["error_id"],
             "timestamp": r["timestamp"],
             "design_hash": r["design_hash"],
             "mjcf_size": r["mjcf_size"],

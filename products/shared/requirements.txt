@@ -1,0 +1,1 @@
+# Shared OMEGA modules - no extra deps (stdlib only)

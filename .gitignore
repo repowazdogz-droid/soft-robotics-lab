@@ -7,6 +7,7 @@
 !/scripts
 !/docs
 !/products
+# products/shared/ (id_generator etc.) tracked under products/
 
 # Bytecode and caches
 __pycache__/

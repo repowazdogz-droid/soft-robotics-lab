@@ -111,10 +111,12 @@ async def validate(
     result = _validator.validate(xml_string=content, file_path=path)
     payload = to_dict(result)
     try:
-        design_hash = database.log_validation(content, result, source="api")
+        design_hash, validation_id = database.log_validation(content, result, source="api")
         payload["design_hash"] = design_hash
+        payload["validation_id"] = validation_id
     except Exception:
         payload["design_hash"] = None
+        payload["validation_id"] = None
     return payload
 
 
@@ -144,7 +146,7 @@ async def analyze_endpoint(
     a = analyze(model)
     try:
         result = _validator.validate(xml_string=content, file_path=path)
-        database.log_validation(content, result, source="analyze")
+        database.log_validation(content, result, source="analyze")  # returns (design_hash, validation_id)
     except Exception:
         pass
     return _analysis_to_dict(a)

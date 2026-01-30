@@ -23,6 +23,11 @@ from datetime import datetime
 from dataclasses import dataclass, asdict, field
 from typing import List, Dict, Optional, Any
 
+_PRODUCTS = Path(__file__).resolve().parent.parent.parent
+if str(_PRODUCTS) not in sys.path:
+    sys.path.insert(0, str(_PRODUCTS))
+from shared.id_generator import decision_id
+
 _repo_root = Path(__file__).resolve().parent.parent.parent.parent
 if str(_repo_root) not in sys.path:
     sys.path.insert(0, str(_repo_root))
@@ -656,7 +661,7 @@ class DecisionBriefGenerator:
         requires_approval, approval_reason = _assess_approval(overall, srfc, tsrfc, vrfc)
 
         brief = DecisionBrief(
-            id=f"DB-{datetime.now().strftime('%Y%m%d')}-{self.brief_count:04d}",
+            id=decision_id(suffix=f"{self.brief_count:04d}"),
             query=query,
             generated_at=datetime.now().isoformat(),
             params=params,

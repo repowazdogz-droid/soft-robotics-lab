@@ -1,11 +1,19 @@
 """
 Mechanism generator - hinge, four-bar, cam, slider, gear pair, universal joint.
 Full MJCF with joint limits, damping, actuators.
+Uses shared OMEGA ID: artifact_id() for generated designs.
 """
 
+import sys
 from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
 from typing import Dict
+
+_PRODUCTS = Path(__file__).resolve().parent.parent.parent.parent
+if str(_PRODUCTS) not in sys.path:
+    sys.path.insert(0, str(_PRODUCTS))
+from shared.id_generator import artifact_id
 
 from ..intent_parser import DesignSpec
 
@@ -22,7 +30,7 @@ class MechanismGenerator:
         scale = spec.scale
         scale_m = {"small": 0.02, "medium": 0.05, "large": 0.1}.get(scale, 0.05)
 
-        design_id = f"OF-M-{datetime.now().strftime('%Y%m%d')}-{self.design_counter:04d}"
+        design_id = artifact_id(suffix=f"M-{self.design_counter:04d}")
         return {
             "id": design_id,
             "name": f"{mech_type.replace('_', ' ').title()} Mechanism",

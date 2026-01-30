@@ -10,8 +10,12 @@ from pathlib import Path
 from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parent
+PRODUCTS = ROOT.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+if str(PRODUCTS) not in sys.path:
+    sys.path.insert(0, str(PRODUCTS))
+from shared.id_generator import artifact_id
 
 import streamlit as st
 
@@ -88,7 +92,7 @@ def render_scene_builder():
             except Exception as e:
                 st.warning(f"Reality Bridge not reachable: {e}. Start reality_bridge app first.")
 
-    save_path = st.text_input("Save scene to", str(ROOT / "scenes" / "my_scene.xml"))
+    save_path = st.text_input("Save scene to", str(ROOT / "scenes" / f"{artifact_id()}.xml"))
     if st.button("Save Scene") and save_path:
         composer.save(save_path)
         st.success(f"Saved to {save_path}")
