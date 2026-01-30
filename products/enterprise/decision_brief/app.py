@@ -104,10 +104,12 @@ if submitted and question and question.strip():
         rel = getattr(b, "related_knowledge", None) or []
         st.markdown("**Related knowledge:** " + (", ".join(rel[:5]) or "—"))
 
-    with st.expander("VALIDATION"):
+    with st.expander("VALIDATION (Translation Trinity)"):
+        st.caption("**SRFC** = Can it work physically? | **TSRFC** = What does it replace? (workflow) | **VRFC** = Will it survive reality? (evidence, regulation, reimbursement)")
         st.markdown(f"- **SRFC:** {b.srfc_status} — {b.srfc_reason or '—'}")
         st.markdown(f"- **TSRFC:** {b.tsrfc_status} — {b.tsrfc_reason or '—'}")
         st.markdown(f"- **VRFC:** {b.vrfc_status} — {b.vrfc_reason or '—'}")
+        st.caption("Full definitions: products/shared/docs/GLOSSARY.md")
 
     # ----- Export -----
     st.divider()

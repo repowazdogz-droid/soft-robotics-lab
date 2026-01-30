@@ -124,6 +124,7 @@ if st.session_state.get("view_hyp_id"):
         st.subheader(h.id)
         st.markdown(f"**Claim:** {h.claim}")
         st.caption(f"Domain: {h.domain} | Status: {h.status.value} | SRFC: {h.srfc_status} | VRFC: {h.vrfc_status} | Falsification: {h.falsification_cost}")
+        st.caption("SRFC = Can it work? | VRFC = Will it survive reality? (See shared/docs/GLOSSARY.md)")
         st.markdown(f"**Next step:** {h.next_step or '—'}")
         st.markdown(f"**Confidence:** {h.confidence:.0%} ({h.confidence_low:.0%}–{h.confidence_high:.0%})")
         st.markdown("**Who benefits:** " + ", ".join(h.who_benefits or []) or "—")
@@ -170,10 +171,12 @@ if st.session_state.get("view_hyp_id"):
 
 # ----- Hypothesis cards -----
 st.subheader("Hypotheses")
+with st.expander("What is SRFC / VRFC? (Translation Trinity)"):
+    st.caption("**SRFC** = Soft Robotics Feasibility Compiler — *Can it work physically?* (geometry, actuation, materials, safety). **VRFC** = Validation & Risk Feasibility Compiler — *Will it survive reality?* (evidence, regulation, reimbursement, adoption). Full glossary: products/shared/docs/GLOSSARY.md")
 for h in (active + [x for x in all_hyps if x not in active])[:50]:
     with st.container():
         st.markdown(f"**{h.id}** — {h.claim[:80]}{'…' if len(h.claim) > 80 else ''}")
-        st.caption(f"Domain: {h.domain} | Status: {h.status.value} | SRFC: {h.srfc_status} | Falsification: {h.falsification_cost} | Next: {h.next_step[:40] if h.next_step else '—'}")
+        st.caption(f"Domain: {h.domain} | Status: {h.status.value} | SRFC: {h.srfc_status} | VRFC: {h.vrfc_status} | Falsification: {h.falsification_cost} | Next: {h.next_step[:40] if h.next_step else '—'}")
         c1, c2, c3, _ = st.columns([1, 1, 1, 2])
         with c1:
             if st.button("View", key=f"view_{h.id}"):

@@ -97,6 +97,8 @@ def _clear_chat():
     st.session_state.pop("quiz_answers", None)
     st.session_state.pop("quiz_topic", None)
     st.session_state.pop("quiz_mode", None)
+    st.session_state.pop("quiz_state", None)
+    st.session_state.pop("show_quiz_summary", None)
     st.session_state.pop("explain_back_topic", None)
     st.session_state.pop("explain_back_index", None)
     st.session_state.pop("explain_back_last_score", None)
@@ -358,29 +360,41 @@ if voice_engine and st.session_state.get("voice_input") and voice_engine.whisper
 if progress_tracker and "progress_session_id" not in st.session_state:
     st.session_state["progress_session_id"] = progress_tracker.start_session()
 
-# Progress Dashboard (cognitive load: hide when deep/overwhelmed)
+# Your Learning + Progress (clarity: what the system knows)
 if progress_tracker:
     st.sidebar.markdown("---")
+    st.sidebar.markdown("**Your Learning**")
+    st.sidebar.markdown("─────────────")
+    try:
+        quizzable = progress_tracker.get_quizzable_topics(50)
+        due_list = progress_tracker.get_due_reviews()
+        topics_learned = len(quizzable)
+        ready_to_quiz = topics_learned
+        due_count = len(due_list)
+        st.sidebar.metric("Topics learned", topics_learned)
+        st.sidebar.metric("Ready to quiz", ready_to_quiz)
+        st.sidebar.metric("Due for review", due_count)
+        if due_count > 0 and st.sidebar.button("Review due topics", key="btn_review_due"):
+            st.session_state["show_review"] = True
+            st.rerun()
+        if st.sidebar.button("See all topics", key="btn_see_topics"):
+            st.session_state["show_all_topics"] = not st.session_state.get("show_all_topics", False)
+            st.rerun()
+        if st.session_state.get("show_all_topics") and quizzable:
+            st.sidebar.caption(", ".join(quizzable[:15]) + ("..." if len(quizzable) > 15 else ""))
+    except Exception:
+        st.sidebar.caption("Progress unavailable.")
     _show_dash = should_show_dashboard(st.session_state) if should_show_dashboard else True
     if _show_dash:
         st.sidebar.markdown("**📊 This Week**")
         st.sidebar.markdown("─────────────")
         try:
             ws = progress_tracker.get_weekly_stats()
-            st.sidebar.metric("Topics learned", ws.get("topics", 0))
             st.sidebar.metric("Questions", f"{ws.get('questions', 0)} ({ws.get('correct_rate', 0):.0f}% correct)")
             streak = progress_tracker.get_streak()
             st.sidebar.metric("Streak", f"{streak} days 🔥" if streak else "0 days")
-            strong = progress_tracker.get_strongest_topics(3)
-            if strong:
-                st.sidebar.caption("💪 Strongest: " + ", ".join(strong[:3]))
-            weak = progress_tracker.get_weakest_topics(3)
-            if weak:
-                st.sidebar.caption("📚 Review: " + ", ".join(weak[:3]))
         except Exception:
-            st.sidebar.caption("Progress stats unavailable.")
-    if st.sidebar.button("What should I review?"):
-        st.session_state["show_review"] = True
+            pass
     _show_quiz_btn = should_show_quiz(st.session_state) if should_show_quiz else True
     if _show_quiz_btn and st.sidebar.button("🧠 Test Yourself"):
         st.session_state["quiz_mode"] = True
@@ -388,23 +402,49 @@ if progress_tracker:
         st.session_state.pop("quiz_index", None)
         st.session_state.pop("quiz_answers", None)
         st.session_state.pop("quiz_topic", None)
+        st.session_state.pop("quiz_topic_list", None)
+        st.session_state.pop("quiz_source_type", None)
+        st.session_state.pop("quiz_n_questions", None)
         st.rerun()
     if st.session_state.get("show_review"):
         st.sidebar.markdown("---")
-        st.sidebar.caption("**Due for review**")
+        st.sidebar.markdown("**Due for review**")
+        st.sidebar.markdown("─────────────")
         try:
             sm2_due = progress_tracker.get_due_reviews()
             due = progress_tracker.get_due_for_review()
-            if sm2_due:
-                for d in sm2_due[:3]:
-                    st.sidebar.markdown(f"- {d.get('name', '')} (SM-2 due)")
-            if due:
-                for d in due[:5]:
-                    st.sidebar.markdown(f"- {d.get('name', '')} (confidence: {d.get('decayed_confidence', 0):.2f})")
-            if not sm2_due and not due:
+            combined = list({d.get("name", ""): d for d in (sm2_due + due) if d.get("name")}.values())[:10]
+            review_selected = st.session_state.get("review_selected_topic")
+            for i, d in enumerate(combined):
+                name = d.get("name", "")
+                if st.sidebar.button(f"📌 {name}", key=f"review_btn_{i}_{name[:25]}", type="secondary"):
+                    st.session_state["review_selected_topic"] = name if review_selected != name else None
+                    st.rerun()
+                if review_selected == name:
+                    c1, c2 = st.sidebar.columns(2)
+                    with c1:
+                        if c1.button("Quiz me", key=f"review_quiz_{i}_{name[:20]}"):
+                            st.session_state["quiz_mode"] = True
+                            st.session_state["quiz_topic_list"] = [name]
+                            st.session_state["quiz_n_questions"] = 5
+                            st.session_state.pop("quiz_questions", None)
+                            st.session_state.pop("quiz_index", None)
+                            st.session_state.pop("quiz_answers", None)
+                            st.session_state["review_selected_topic"] = None
+                            st.session_state["show_review"] = False
+                            st.rerun()
+                    with c2:
+                        if c2.button("Re-learn", key=f"review_teach_{i}_{name[:20]}"):
+                            st.session_state["pending_starter_question"] = f"Explain {name} again in simple terms."
+                            st.session_state["messages"] = []
+                            st.session_state["review_selected_topic"] = None
+                            st.session_state["show_review"] = False
+                            st.rerun()
+            if not combined:
                 st.sidebar.caption("Nothing due. Keep learning!")
             if st.sidebar.button("Close", key="close_review"):
                 st.session_state["show_review"] = False
+                st.session_state.pop("review_selected_topic", None)
                 st.rerun()
         except Exception:
             st.sidebar.caption("Review list unavailable.")
@@ -470,24 +510,77 @@ if st.sidebar.button("💤 That's enough for now", key="btn_exit_session"):
     st.rerun()
 
 # ----- Quiz Mode -----
-if st.session_state.get("quiz_mode") and progress_tracker and generate_quiz:
-    st.subheader("🧠 Quiz Time!")
-    if "quiz_questions" not in st.session_state or not st.session_state["quiz_questions"]:
-        due = progress_tracker.get_due_reviews()
-        recent = progress_tracker.get_recent_topics(5)
-        topics = [d["name"] for d in due[:3]] if due else [r["topic"] for r in recent[:3]]
-        if not topics:
-            topics = ["general"]
-        quiz_topic = topics[0]
-        st.session_state["quiz_topic"] = quiz_topic
+if st.session_state.get("quiz_mode") and progress_tracker and (generate_quiz or generate_quiz_from_topics):
+    # Setup: show source + n_questions unless we already have quiz_topic_list (e.g. from "Quiz me" on review)
+    quiz_topic_list = st.session_state.get("quiz_topic_list")
+    if ("quiz_questions" not in st.session_state or not st.session_state["quiz_questions"]) and not quiz_topic_list:
+        st.subheader("🧠 Quiz Mode")
+        st.markdown("─────────────")
+        st.markdown("**What do you want to be quizzed on?**")
+        quizzable = progress_tracker.get_quizzable_topics(50)
+        due_list = progress_tracker.get_due_reviews()
+        due_names = [d["name"] for d in due_list]
+        curricula = curriculum_engine.list_curricula() if curriculum_engine else []
+        options = ["Topics I've learned (from chat history)"]
+        option_sources = ["learned"]
+        for c in curricula[:5]:
+            options.append(f"Curriculum: {c.get('name', c.get('id', ''))}")
+            option_sources.append(f"curriculum:{c.get('id', '')}")
+        options.append(f"Topics due for review ({len(due_names)} topics)")
+        option_sources.append("due")
+        options.append("Everything")
+        option_sources.append("everything")
+        idx_sel = st.radio("Source", range(len(options)), format_func=lambda i: options[i], key="quiz_source_radio")
+        source_type = option_sources[idx_sel] if idx_sel < len(option_sources) else "learned"
+        n_opts = [3, 5, 10, 20]
+        n_sel = st.selectbox("How many questions?", n_opts, index=0, key="quiz_n_select")
+        if st.button("Start Quiz", key="quiz_start_btn"):
+            if source_type == "learned":
+                topics = quizzable[:20] if quizzable else ["general"]
+            elif source_type == "due":
+                topics = due_names[:20] if due_names else (quizzable[:5] if quizzable else ["general"])
+            elif source_type == "everything":
+                topics = quizzable[:20] if quizzable else ["general"]
+            elif source_type.startswith("curriculum:"):
+                cid = source_type.split(":", 1)[1]
+                completed = curriculum_engine.get_completed_topics_for_quiz(cid) if curriculum_engine else []
+                topics = [t.get("name", t.get("id", "")) for t in completed] if completed else ["general"]
+            else:
+                topics = quizzable[:20] if quizzable else ["general"]
+            st.session_state["quiz_topic_list"] = topics
+            st.session_state["quiz_n_questions"] = n_sel
+            st.session_state["quiz_source_type"] = source_type
+            try:
+                if generate_quiz_from_topics:
+                    qs = generate_quiz_from_topics(topics, level, n_questions=n_sel, api_key=os.environ.get("GEMINI_API_KEY") or st.session_state.get("api_key"))
+                else:
+                    qs = generate_quiz(topics[0] if topics else "general", level, n_questions=n_sel, api_key=os.environ.get("GEMINI_API_KEY") or st.session_state.get("api_key"))
+                    for q in qs:
+                        q["topic"] = topics[0] if topics else "general"
+                st.session_state["quiz_questions"] = qs
+            except Exception:
+                st.session_state["quiz_questions"] = []
+            st.session_state["quiz_index"] = 0
+            st.session_state["quiz_answers"] = []
+            st.session_state.pop("quiz_show_feedback", None)
+            st.rerun()
+        st.stop()
+    # Generate from quiz_topic_list if we have it but no questions yet
+    if ("quiz_questions" not in st.session_state or not st.session_state["quiz_questions"]) and quiz_topic_list:
+        n_quiz = st.session_state.get("quiz_n_questions", 5)
         try:
-            st.session_state["quiz_questions"] = generate_quiz(quiz_topic, level, n_questions=3, api_key=os.environ.get("GEMINI_API_KEY") or st.session_state.get("api_key"))
+            if generate_quiz_from_topics:
+                qs = generate_quiz_from_topics(quiz_topic_list, level, n_questions=n_quiz, api_key=os.environ.get("GEMINI_API_KEY") or st.session_state.get("api_key"))
+            else:
+                qs = generate_quiz(quiz_topic_list[0], level, n_questions=n_quiz, api_key=os.environ.get("GEMINI_API_KEY") or st.session_state.get("api_key"))
+                for q in qs:
+                    q["topic"] = quiz_topic_list[0]
+            st.session_state["quiz_questions"] = qs
         except Exception:
             st.session_state["quiz_questions"] = []
         st.session_state["quiz_index"] = 0
         st.session_state["quiz_answers"] = []
-        if not st.session_state["quiz_questions"]:
-            st.session_state["quiz_questions"] = []
+        st.session_state.pop("quiz_show_feedback", None)
         st.rerun()
     qs = st.session_state.get("quiz_questions", [])
     if not qs:
@@ -498,50 +591,265 @@ if st.session_state.get("quiz_mode") and progress_tracker and generate_quiz:
             st.session_state.pop("quiz_index", None)
             st.session_state.pop("quiz_answers", None)
             st.session_state.pop("quiz_topic", None)
+            st.session_state.pop("quiz_topic_list", None)
             st.rerun()
         st.stop()
+    st.subheader("🧠 Quiz Time!")
     idx = st.session_state.get("quiz_index", 0)
-    quiz_topic = st.session_state.get("quiz_topic", "")
+    quiz_answers = st.session_state.get("quiz_answers", [])
+    show_feedback = st.session_state.get("quiz_show_feedback", False)
+    # Show feedback for current question (after submit, before continue)
+    if idx < len(qs) and show_feedback and idx < len(quiz_answers):
+        a = quiz_answers[idx]
+        st.markdown(f"**Question {idx + 1} of {len(qs)}**")
+        st.markdown(a.get("question", ""))
+        if a.get("was_correct"):
+            st.success("✅ Correct!")
+            st.markdown(f"**{a.get('correct_answer', '')}**")
+            if a.get("explanation"):
+                st.caption("💡 " + (a["explanation"] or ""))
+            if st.button("Continue to next question", key="quiz_continue"):
+                st.session_state["quiz_show_feedback"] = False
+                st.session_state["quiz_index"] = idx + 1
+                st.rerun()
+        else:
+            st.error("❌ Incorrect")
+            st.markdown(f"**Your answer:** {a.get('user_answer', '')}")
+            st.markdown(f"**Correct answer:** {a.get('correct_answer', '')}")
+            if a.get("explanation"):
+                st.info("💡 " + (a["explanation"] or ""))
+            col_c, col_l = st.columns(2)
+            with col_c:
+                if st.button("Continue", key="quiz_continue"):
+                    st.session_state["quiz_show_feedback"] = False
+                    st.session_state["quiz_index"] = idx + 1
+                    st.rerun()
+            with col_l:
+                if st.button("🎓 Learn more about this", key="quiz_learn_more"):
+                    concept = a.get("topic", "this concept")
+                    st.session_state["quiz_state"] = {
+                        "active": True,
+                        "topic": concept,
+                        "questions": qs,
+                        "current_index": idx + 1,
+                        "results": list(quiz_answers),
+                        "paused_for_learning": True,
+                        "completed": False,
+                    }
+                    st.session_state["pending_starter_question"] = f"Explain {concept} in detail. I got a quiz question wrong about this."
+                    st.session_state["messages"] = []
+                    st.session_state["quiz_mode"] = False
+                    st.session_state.pop("quiz_questions", None)
+                    st.session_state.pop("quiz_index", None)
+                    st.session_state.pop("quiz_answers", None)
+                    st.session_state.pop("quiz_show_feedback", None)
+                    st.rerun()
+        st.stop()
     if idx < len(qs):
         q = qs[idx]
-        st.markdown(f"**Question {idx + 1} of {len(qs)}:**")
+        q_topic = q.get("topic", st.session_state.get("quiz_topic", ""))
+        st.markdown(f"**Question {idx + 1} of {len(qs)}** _(topic: {q_topic})_")
         st.markdown(q.get("question", ""))
         options = q.get("options", ["A", "B", "C", "D"])
         correct_letter = str(q.get("correct", "A")).upper()
+        correct_idx = ord(correct_letter) - ord("A") if correct_letter in "ABCD" else 0
+        correct_answer_text = options[correct_idx] if 0 <= correct_idx < len(options) else ""
         choice = st.radio("Choose one:", options, key="quiz_choice", format_func=lambda x: x)
         if st.button("Submit Answer", key="quiz_submit"):
-            correct_idx = ord(correct_letter) - ord("A") if correct_letter in "ABCD" else 0
             correct = choice in options and options.index(choice) == correct_idx
             quality = 5 if correct else (2 if choice else 0)
-            progress_tracker.schedule_review(quiz_topic, quality)
-            progress_tracker.record_question(quiz_topic, correct)
-            st.session_state["quiz_answers"] = st.session_state.get("quiz_answers", []) + [{"correct": correct, "explanation": q.get("explanation", ""), "topic": quiz_topic}]
-            if correct:
-                st.success("✅ Correct!\n\n" + (q.get("explanation") or ""))
-            else:
-                st.error("❌ Not quite. " + (q.get("explanation") or ""))
-            st.session_state["quiz_index"] = idx + 1
+            progress_tracker.schedule_review(q_topic, quality)
+            progress_tracker.record_question(q_topic, correct)
+            result = {
+                "question": q.get("question", ""),
+                "topic": q_topic,
+                "options": options,
+                "user_answer": choice,
+                "correct_answer": correct_answer_text,
+                "correct_letter": correct_letter,
+                "explanation": q.get("explanation", ""),
+                "was_correct": correct,
+            }
+            st.session_state["quiz_answers"] = st.session_state.get("quiz_answers", []) + [result]
+            st.session_state["quiz_show_feedback"] = True
             st.rerun()
-    else:
-        answers = st.session_state.get("quiz_answers", [])
-        correct_count = sum(1 for a in answers if a.get("correct"))
-        total = len(answers)
-        st.markdown("**Quiz Complete!**")
-        st.metric("Score", f"{correct_count}/{total} ({100 * correct_count // total if total else 0}%)")
-        for a in answers:
-            if a.get("correct"):
-                st.success(f"✅ {a.get('topic', '')} - Got it!")
-            else:
-                st.warning(f"❌ {a.get('topic', '')} - Review needed")
-        st.caption("These topics have been scheduled for review.")
-        if st.button("Back to Learning", key="quiz_back"):
+        st.stop()
+    # Results: all questions answered
+    answers = st.session_state.get("quiz_answers", [])
+    correct_count = sum(1 for a in answers if a.get("was_correct"))
+    total = len(answers)
+    pct = (100 * correct_count // total) if total else 0
+    quiz_topics = list({a.get("topic", "") for a in answers if a.get("topic")})
+    title_topic = quiz_topics[0] if len(quiz_topics) == 1 else "Mixed topics"
+    # Store quiz_state so we can "Return to quiz summary" after learning
+    st.session_state["quiz_state"] = {
+        "active": False,
+        "topic": title_topic,
+        "questions": qs,
+        "current_index": total,
+        "results": list(answers),
+        "paused_for_learning": False,
+        "completed": True,
+        "viewing_summary": False,
+    }
+    st.markdown("**Quiz Complete:** " + (f"_{title_topic}_" if title_topic else ""))
+    st.markdown("─────────────")
+    st.metric("Score", f"{correct_count}/{total} ({pct}%)")
+    wrong_count = 0
+    for i, a in enumerate(answers):
+        q_num = i + 1
+        if a.get("was_correct"):
+            st.success(f"✅ Q{q_num}: {a.get('question', '')[:80]}{'…' if len(a.get('question', '')) > 80 else ''}")
+            st.caption(f"Correct! {a.get('correct_answer', '')}")
+            if a.get("explanation"):
+                st.caption("💡 " + (a["explanation"] or "")[:200] + ("…" if len(a.get("explanation", "")) > 200 else ""))
+        else:
+            wrong_count += 1
+            st.warning(f"❌ Q{q_num}: {a.get('question', '')}")
+            st.caption(f"**Your answer:** {a.get('user_answer', '')} → **Correct:** {a.get('correct_answer', '')}")
+            if a.get("explanation"):
+                st.info("💡 " + (a["explanation"] or ""))
+            learn_col, _ = st.columns([1, 3])
+            with learn_col:
+                if st.button("🎓 Learn more", key=f"final_learn_{i}"):
+                    concept = a.get("topic", "this concept")
+                    st.session_state["quiz_state"] = {**st.session_state["quiz_state"], "viewing_summary": True}
+                    st.session_state["pending_starter_question"] = f"Explain {concept} in detail. I got a quiz question wrong about this."
+                    st.session_state["messages"] = []
+                    st.session_state["quiz_mode"] = False
+                    st.session_state.pop("quiz_questions", None)
+                    st.session_state.pop("quiz_index", None)
+                    st.session_state.pop("quiz_answers", None)
+                    st.session_state.pop("quiz_show_feedback", None)
+                    st.rerun()
+        st.markdown("")
+    st.caption("Topics have been scheduled for review.")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if wrong_count > 0 and st.button("🎓 Review all wrong answers", key="review_all_wrong"):
+            wrong_topics = list({a.get("topic", "this concept") for a in answers if not a.get("was_correct")})
+            st.session_state["quiz_state"] = {**st.session_state["quiz_state"], "viewing_summary": True}
+            st.session_state["pending_starter_question"] = (
+                "I got these quiz questions wrong: " + ", ".join(wrong_topics) + ". Please explain each concept."
+            )
+            st.session_state["messages"] = []
             st.session_state["quiz_mode"] = False
             st.session_state.pop("quiz_questions", None)
             st.session_state.pop("quiz_index", None)
             st.session_state.pop("quiz_answers", None)
+            st.session_state.pop("quiz_show_feedback", None)
+            st.rerun()
+    with col2:
+        if st.button("🔄 Quiz again", key="quiz_again"):
+            st.session_state.pop("quiz_state", None)
+            st.session_state.pop("quiz_questions", None)
+            st.session_state.pop("quiz_index", None)
+            st.session_state.pop("quiz_answers", None)
+            st.session_state.pop("quiz_show_feedback", None)
+            st.session_state.pop("quiz_topic_list", None)
+            st.rerun()
+    with col3:
+        if st.button("← Back to learning", key="quiz_back"):
+            st.session_state["quiz_mode"] = False
+            st.session_state.pop("quiz_questions", None)
+            st.session_state.pop("quiz_index", None)
+            st.session_state.pop("quiz_answers", None)
+            st.session_state.pop("quiz_show_feedback", None)
             st.session_state.pop("quiz_topic", None)
+            st.session_state.pop("quiz_topic_list", None)
+            st.session_state.pop("quiz_source_type", None)
+            st.session_state.pop("quiz_n_questions", None)
+            st.session_state.pop("quiz_state", None)
             st.rerun()
     st.stop()
+
+# ----- Quiz paused / return from learning -----
+_quiz_state = st.session_state.get("quiz_state")
+if _quiz_state and not st.session_state.get("quiz_mode"):
+    if st.session_state.get("show_quiz_summary") and _quiz_state.get("results") is not None:
+        # Re-display quiz summary after "Return to quiz summary"
+        st.subheader("🧠 Quiz Complete: " + (_quiz_state.get("topic") or "Quiz"))
+        st.markdown("─────────────")
+        _results = _quiz_state["results"]
+        _total = len(_results)
+        _correct = sum(1 for a in _results if a.get("was_correct"))
+        _wrong_count = _total - _correct
+        _pct = (100 * _correct // _total) if _total else 0
+        st.metric("Score", f"{_correct}/{_total} ({_pct}%)")
+        for i, a in enumerate(_results):
+            q_num = i + 1
+            if a.get("was_correct"):
+                st.success(f"✅ Q{q_num}: {a.get('question', '')[:80]}{'…' if len(a.get('question', '')) > 80 else ''}")
+                if a.get("explanation"):
+                    st.caption("💡 " + (a["explanation"] or "")[:200] + ("…" if len(a.get("explanation", "")) > 200 else ""))
+            else:
+                st.warning(f"❌ Q{q_num}: {a.get('question', '')}")
+                st.caption(f"**Your answer:** {a.get('user_answer', '')} → **Correct:** {a.get('correct_answer', '')}")
+                if a.get("explanation"):
+                    st.info("💡 " + (a["explanation"] or ""))
+                if st.button("🎓 Learn more", key=f"summary_learn_{i}"):
+                    concept = a.get("topic", "this concept")
+                    st.session_state["quiz_state"] = {**_quiz_state, "viewing_summary": True, "completed": True}
+                    st.session_state["pending_starter_question"] = f"Explain {concept} in detail. I got a quiz question wrong about this."
+                    st.session_state["messages"] = []
+                    st.session_state.pop("show_quiz_summary", None)
+                    st.rerun()
+            st.markdown("")
+        col1, col2, col3, _ = st.columns([1, 1, 1, 2])
+        with col1:
+            if _wrong_count > 0 and st.button("🎓 Review all wrong answers", key="summary_review_all"):
+                wrong_topics = list({a.get("topic", "this concept") for a in _results if not a.get("was_correct")})
+                st.session_state["quiz_state"] = {**_quiz_state, "viewing_summary": True}
+                st.session_state["pending_starter_question"] = (
+                    "I got these quiz questions wrong: " + ", ".join(wrong_topics) + ". Please explain each concept."
+                )
+                st.session_state["messages"] = []
+                st.session_state.pop("show_quiz_summary", None)
+                st.rerun()
+        with col2:
+            if st.button("🔄 Quiz again", key="summary_quiz_again"):
+                st.session_state.pop("quiz_state", None)
+                st.session_state.pop("show_quiz_summary", None)
+                st.session_state["quiz_mode"] = True
+                st.session_state.pop("quiz_questions", None)
+                st.session_state.pop("quiz_index", None)
+                st.session_state.pop("quiz_answers", None)
+                st.rerun()
+        with col3:
+            if st.button("← Back to learning", key="summary_back"):
+                st.session_state.pop("quiz_state", None)
+                st.session_state.pop("show_quiz_summary", None)
+                st.rerun()
+        st.stop()
+    if _quiz_state.get("paused_for_learning"):
+        st.info("**You paused the quiz to learn.** Continue where you left off or start a new quiz.")
+        col1, col2, _ = st.columns([1, 1, 2])
+        with col1:
+            if st.button("Return to quiz", key="return_to_quiz"):
+                qs = _quiz_state.get("questions", [])
+                st.session_state["quiz_questions"] = qs
+                st.session_state["quiz_index"] = _quiz_state.get("current_index", 0)
+                st.session_state["quiz_answers"] = list(_quiz_state.get("results", []))
+                st.session_state["quiz_mode"] = True
+                st.session_state["quiz_state"] = {**_quiz_state, "paused_for_learning": False}
+                st.session_state.pop("quiz_show_feedback", None)
+                st.rerun()
+        with col2:
+            if st.button("Start new quiz", key="start_new_quiz"):
+                st.session_state.pop("quiz_state", None)
+                st.session_state["quiz_mode"] = True
+                st.session_state.pop("quiz_questions", None)
+                st.session_state.pop("quiz_index", None)
+                st.session_state.pop("quiz_answers", None)
+                st.session_state.pop("quiz_topic_list", None)
+                st.rerun()
+        st.markdown("---")
+    elif _quiz_state.get("completed") and _quiz_state.get("viewing_summary"):
+        st.info("**You came from the quiz summary.** Return to see your results again.")
+        if st.button("Return to quiz summary", key="return_to_summary"):
+            st.session_state["show_quiz_summary"] = True
+            st.rerun()
+        st.markdown("---")
 
 # ----- Curriculum panel (when a path is selected) -----
 selected_cid = st.session_state.get("selected_curriculum_id")
@@ -557,7 +865,23 @@ if curriculum_engine and selected_cid:
         available = progress.get("available", [])
         locked = progress.get("locked", [])
         for t in completed:
-            st.success(f"✅ {t.get('name', t.get('id', ''))}")
+            topic_name = t.get("name", t.get("id", ""))
+            st.success(f"✅ {topic_name}")
+            c1, c2 = st.columns(2)
+            with c1:
+                if st.button(f"Quiz this topic", key=f"curr_quiz_{selected_cid}_{t.get('id', '')}"):
+                    st.session_state["quiz_mode"] = True
+                    st.session_state["quiz_topic_list"] = [topic_name]
+                    st.session_state["quiz_n_questions"] = 5
+                    st.session_state.pop("quiz_questions", None)
+                    st.session_state.pop("quiz_index", None)
+                    st.session_state.pop("quiz_answers", None)
+                    st.rerun()
+            with c2:
+                if st.button(f"Review notes", key=f"curr_review_{selected_cid}_{t.get('id', '')}"):
+                    st.session_state["pending_starter_question"] = f"What were the key points of {topic_name}?"
+                    st.session_state["messages"] = []
+                    st.rerun()
         for t in available:
             topic_name = t.get("name", t.get("id", ""))
             if st.button(f"▶️ Learn: {topic_name}", key=f"learn_{selected_cid}_{t.get('id', '')}"):
