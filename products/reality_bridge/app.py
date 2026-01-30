@@ -1,7 +1,7 @@
 """
 Reality Bridge - Physics validation API service.
 FastAPI: POST /validate, POST /analyze, GET /health, GET /stats, GET /failures, GET /leaderboard. CORS enabled.
-Uses shared contracts: validates incoming data against reality_bridge assumptions.
+Uses shared contracts and failure taxonomy: no raw tracebacks to users.
 """
 
 import sys
@@ -9,13 +9,15 @@ import tempfile
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Request
+from fastapi import FastAPI, File, UploadFile, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 _PRODUCTS = Path(__file__).resolve().parent.parent
 if str(_PRODUCTS) not in sys.path:
     sys.path.insert(0, str(_PRODUCTS))
 from shared.contracts import Contract, ContractStatus, validate_handoff
+from shared.failures import create_failure, handle_exception, FailureCode
 
 from core.loader import load_model, detect_format
 from core.validator import PhysicsValidator, ValidationResult
@@ -111,12 +113,16 @@ async def validate(
 ):
     """
     Validate a model: multipart (file), form (xml_string), or JSON body {"xml_string": "..."}.
-    Returns ValidationResult as JSON. Checks handoff contract (Foundry -> Reality Bridge) when contracts loaded.
+    Returns ValidationResult as JSON or structured failure (no raw tracebacks).
     """
     content, path = await _get_model_input(request, file, xml_string)
 
     if not content and not path:
-        raise HTTPException(status_code=400, detail="Provide file or xml_string")
+        failure = create_failure(FailureCode.MISSING_PARAMS, details="Provide file or xml_string")
+        return JSONResponse(
+            status_code=400,
+            content={"success": False, "failure": failure.to_dict(), "message": failure.to_user_message()},
+        )
 
     # Contract validation: does incoming data meet our assumptions?
     contract_status = ContractStatus.UNKNOWN.value
@@ -136,10 +142,15 @@ async def validate(
         else:
             model, _ = load_model(xml_string=content)
     except Exception as e:
-        raise HTTPException(status_code=422, detail=f"Load failed: {e}")
+        failure = handle_exception(e, context="validate")
+        return JSONResponse(
+            status_code=422,
+            content={"success": False, "failure": failure.to_dict(), "message": failure.to_user_message()},
+        )
 
     result = _validator.validate(xml_string=content, file_path=path)
     payload = to_dict(result)
+    payload["success"] = True
     payload["contract_status"] = contract_status
     try:
         design_hash, validation_id = database.log_validation(content, result, source="api")
@@ -159,12 +170,16 @@ async def analyze_endpoint(
 ):
     """
     Analyze a model: weak points, failure modes, suggestions.
-    Same input as /validate. Returns analysis as JSON.
+    Same input as /validate. Returns analysis as JSON or structured failure.
     """
     content, path = await _get_model_input(request, file, xml_string)
 
     if not content and not path:
-        raise HTTPException(status_code=400, detail="Provide file or xml_string")
+        failure = create_failure(FailureCode.MISSING_PARAMS, details="Provide file or xml_string")
+        return JSONResponse(
+            status_code=400,
+            content={"success": False, "failure": failure.to_dict(), "message": failure.to_user_message()},
+        )
 
     try:
         if path:
@@ -172,7 +187,11 @@ async def analyze_endpoint(
         else:
             model, _ = load_model(xml_string=content)
     except Exception as e:
-        raise HTTPException(status_code=422, detail=f"Load failed: {e}")
+        failure = handle_exception(e, context="analyze")
+        return JSONResponse(
+            status_code=422,
+            content={"success": False, "failure": failure.to_dict(), "message": failure.to_user_message()},
+        )
 
     a = analyze(model)
     try:
@@ -180,7 +199,7 @@ async def analyze_endpoint(
         database.log_validation(content, result, source="analyze")  # returns (design_hash, validation_id)
     except Exception:
         pass
-    return _analysis_to_dict(a)
+    return {"success": True, **_analysis_to_dict(a)}
 
 
 @app.get("/stats")
