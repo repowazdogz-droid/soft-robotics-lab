@@ -157,6 +157,9 @@ class Failure:
     details: Optional[str] = None  # Technical details (not shown to user by default)
 
     def to_dict(self):
+        from shared.tutor_links import get_tutor_link
+
+        tutor_link = get_tutor_link(self.tutor_topic) if self.tutor_topic else None
         return {
             "error_id": self.error_id,
             "code": self.code.value,
@@ -164,6 +167,7 @@ class Failure:
             "severity": self.severity.value,
             "actions": self.actions,
             "tutor_topic": self.tutor_topic,
+            "tutor_link": tutor_link,
         }
 
     def to_user_message(self) -> str:

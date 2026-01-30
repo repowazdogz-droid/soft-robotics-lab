@@ -23,6 +23,16 @@ from core import TutorEngine
 
 st.set_page_config(page_title="OMEGA Tutor", page_icon="🎓", layout="wide")
 
+# Query param ?topic= for failure → Tutor auto-links (topic used after level + engine defined)
+try:
+    _params = st.query_params
+    topic = _params.get("topic")
+except AttributeError:
+    _params = st.experimental_get_query_params()
+    topic = (_params.get("topic") or [None])[0]
+if topic:
+    topic = topic.replace("+", " ")
+
 st.title("🎓 OMEGA Tutor")
 st.caption("Ask anything. Learn at your level.")
 
@@ -71,6 +81,20 @@ except Exception:
     _engine = None
     backend_label = "⚠️ No backend (start LM Studio or set GEMINI_API_KEY)"
 st.sidebar.caption(backend_label)
+
+# Topic from ?topic= (e.g. from Console "Learn why" link)
+if topic:
+    st.info(f"You were sent here to learn about: **{topic}**")
+    _topic_q = st.text_input("Ask about this topic (edit if you like):", value=f"Explain {topic} in simple terms", key="topic_q")
+    if st.button("Ask Tutor about this", key="ask_topic") and _topic_q:
+        if "messages" not in st.session_state:
+            st.session_state.messages = []
+        st.session_state.messages.append({"role": "user", "content": _topic_q})
+        _eng = _engine if _engine is not None else TutorEngine(api_key=api_key or None)
+        _resp = _eng.teach(_topic_q, level=level)
+        st.session_state.messages.append({"role": "assistant", "content": _resp.to_markdown()})
+        st.rerun()
+    st.markdown("---")
 
 # Chat interface
 if "messages" not in st.session_state:

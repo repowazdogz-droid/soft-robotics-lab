@@ -9,6 +9,7 @@ from pathlib import Path
 # Add products to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from shared.id_generator import generate_id
+from shared.tutor_links import get_failure_tutor_link
 
 st.set_page_config(
     page_title="OMEGA Console",
@@ -96,13 +97,27 @@ with col2:
     demo_col1, demo_col2, demo_col3 = st.columns(3)
     with demo_col1:
         if st.button("✅ Known-Good", use_container_width=True, key="demo_good"):
-            st.success("Egg gripper - validated, stable, manufacturable")
+            st.session_state["demo_clicked"] = "good"
     with demo_col2:
         if st.button("❌ Known-Bad", use_container_width=True, key="demo_bad"):
-            st.error("Unstable mass - fails physics validation")
+            st.session_state["demo_clicked"] = "bad"
     with demo_col3:
         if st.button("⚠️ Known-Edge", use_container_width=True, key="demo_edge"):
-            st.warning("Self-collision - passes with warnings")
+            st.session_state["demo_clicked"] = "edge"
+    # Show result and Tutor link when a demo was clicked
+    demo_clicked = st.session_state.get("demo_clicked")
+    if demo_clicked == "good":
+        st.success("Egg gripper - validated, stable, manufacturable")
+    elif demo_clicked == "bad":
+        st.error("Unstable mass - fails physics validation")
+        tutor_url = get_failure_tutor_link("PHYSICS_INSTABILITY")
+        if tutor_url:
+            st.link_button("📚 Learn why", tutor_url, type="secondary")
+    elif demo_clicked == "edge":
+        st.warning("Self-collision - passes with warnings")
+        tutor_url = get_failure_tutor_link("GEOMETRY_SELF_INTERSECTION")
+        if tutor_url:
+            st.link_button("📚 Learn why", tutor_url, type="secondary")
 
 st.divider()
 
