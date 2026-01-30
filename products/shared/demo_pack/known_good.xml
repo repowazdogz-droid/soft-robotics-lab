@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<mujoco model="egg_gripper">
+  <compiler angle="radian"/>
+  <option timestep="0.002" gravity="0 0 -9.81"/>
+  
+  <worldbody>
+    <light diffuse=".5 .5 .5" pos="0 0 3" dir="0 0 -1"/>
+    <geom name="floor" type="plane" size="1 1 0.1" rgba=".9 .9 .9 1"/>
+    
+    <body name="base" pos="0 0 0.1">
+      <geom name="base_geom" type="box" size="0.05 0.05 0.02" mass="0.1" rgba="0.3 0.3 0.3 1"/>
+      
+      <body name="finger_left" pos="-0.03 0 0.02">
+        <joint name="finger_left_joint" type="hinge" axis="0 1 0" range="-0.5 0.5"/>
+        <geom name="finger_left_geom" type="capsule" fromto="0 0 0 0 0 0.06" size="0.008" mass="0.02" rgba="0.2 0.6 0.8 1"/>
+      </body>
+      
+      <body name="finger_right" pos="0.03 0 0.02">
+        <joint name="finger_right_joint" type="hinge" axis="0 1 0" range="-0.5 0.5"/>
+        <geom name="finger_right_geom" type="capsule" fromto="0 0 0 0 0 0.06" size="0.008" mass="0.02" rgba="0.2 0.6 0.8 1"/>
+      </body>
+    </body>
+  </worldbody>
+  
+  <actuator>
+    <position name="finger_left_act" joint="finger_left_joint" kp="10"/>
+    <position name="finger_right_act" joint="finger_right_joint" kp="10"/>
+  </actuator>
+</mujoco>

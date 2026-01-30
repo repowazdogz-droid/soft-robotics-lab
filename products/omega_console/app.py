@@ -11,6 +11,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from shared.id_generator import generate_id
 from shared.tutor_links import get_failure_tutor_link
+from shared.demo_pack import get_demo, DEMO_DESCRIPTIONS
+from shared.trust import get_trust_score, get_trust_metrics
 
 st.set_page_config(
     page_title="OMEGA Console",
@@ -48,24 +50,19 @@ def check_service(name: str, port: int = None, path: str = None):
     return True
 
 
-def _demo_gripper_mjcf() -> str:
-    """Minimal demo MJCF (egg gripper style) for audit bundle export."""
-    return """<?xml version="1.0" encoding="utf-8"?>
-<mujoco model="demo_gripper">
-  <option gravity="0 0 -9.81"/>
-  <worldbody>
-    <body name="base" pos="0 0 0">
-      <geom name="base_geom" type="cylinder" size="0.02 0.01" rgba="0.2 0.2 0.8 1"/>
-      <body name="finger1" pos="0.02 0 0.03">
-        <geom name="f1" type="sphere" size="0.015" rgba="0.8 0.2 0.2 1"/>
-      </body>
-      <body name="finger2" pos="-0.02 0 0.03">
-        <geom name="f2" type="sphere" size="0.015" rgba="0.8 0.2 0.2 1"/>
-      </body>
-    </body>
-  </worldbody>
-</mujoco>
-"""
+def _validate_demo(mjcf_content: str):
+    """POST MJCF to Reality Bridge /validate; return response dict or None."""
+    try:
+        r = requests.post(
+            "http://localhost:8000/validate",
+            data={"xml_string": mjcf_content},
+            timeout=10,
+        )
+        if r.status_code != 200:
+            return None
+        return r.json()
+    except Exception:
+        return None
 
 
 def _fetch_audit_bundle(mjcf_content: str):
@@ -103,10 +100,18 @@ def get_product_status():
 # --- UI ---
 st.title("🎯 OMEGA Console")
 
-# Trust Score (placeholder for now)
+# Trust Score and metrics
 col1, col2, col3 = st.columns([2, 1, 1])
 with col1:
-    st.metric("Trust Score", "—/100", help="Calculated after Trust Release")
+    trust_score = get_trust_score()
+    st.metric("Trust Score", f"{trust_score}/100", help="System trustworthiness (0-100)")
+    with st.expander("Trust score breakdown"):
+        metrics = get_trust_metrics()
+        weights = {"first_run_success": "30%", "zero_traceback_rate": "20%", "reproducibility_rate": "20%", "failure_clarity_rate": "20%", "uptime_rate": "10%"}
+        for k in ["first_run_success", "zero_traceback_rate", "reproducibility_rate", "failure_clarity_rate", "uptime_rate"]:
+            v = metrics.get(k, 0)
+            label = k.replace("_", " ").title()
+            st.metric(label, f"{v:.1f}%", help=f"Weight: {weights.get(k, '')}")
 with col2:
     st.metric("Validations", "—", help="Total validations in Reality Bridge")
 with col3:
@@ -135,22 +140,39 @@ Click a product below to begin.
 
 with col2:
     st.markdown("**📦 Demo Pack**")
-    demo_col1, demo_col2, demo_col3 = st.columns(3)
-    with demo_col1:
-        if st.button("✅ Known-Good", use_container_width=True, key="demo_good"):
-            st.session_state["demo_clicked"] = "good"
-    with demo_col2:
-        if st.button("❌ Known-Bad", use_container_width=True, key="demo_bad"):
-            st.session_state["demo_clicked"] = "bad"
-    with demo_col3:
-        if st.button("⚠️ Known-Edge", use_container_width=True, key="demo_edge"):
-            st.session_state["demo_clicked"] = "edge"
-    # Export Audit Bundle: call Reality Bridge with demo MJCF, offer zip download
-    demo_mjcf = _demo_gripper_mjcf()
+    for key in ("good", "bad", "edge"):
+        info = DEMO_DESCRIPTIONS[key]
+        with st.expander(f"{'✅' if key == 'good' else '❌' if key == 'bad' else '⚠️'} {info['name']}", expanded=False):
+            st.markdown(info["description"])
+            st.caption(f"**Expected:** {info['expected']}")
+            if st.button("Validate This", key=f"validate_{key}", use_container_width=True):
+                result = _validate_demo(get_demo(key))
+                st.session_state[f"validation_{key}"] = result if result is not None else {"success": False, "message": "Reality Bridge not running"}
+            res = st.session_state.get(f"validation_{key}")
+            if res is not None:
+                if res.get("success"):
+                    passed = res.get("passed", False)
+                    score = res.get("score", 0)
+                    st.metric("Result", "Pass" if passed else "Fail", f"Score: {score:.2f}")
+                    if res.get("errors"):
+                        st.error("Errors: " + "; ".join(res["errors"][:3]))
+                    if res.get("warnings"):
+                        st.warning("Warnings: " + "; ".join(res["warnings"][:3]))
+                    if not passed and key == "bad":
+                        tutor_url = get_failure_tutor_link("PHYSICS_INSTABILITY")
+                        if tutor_url:
+                            st.link_button("📚 Learn why", tutor_url, type="secondary")
+                    if res.get("warnings") and key == "edge":
+                        tutor_url = get_failure_tutor_link("GEOMETRY_SELF_INTERSECTION")
+                        if tutor_url:
+                            st.link_button("📚 Learn why", tutor_url, type="secondary")
+                else:
+                    st.error(res.get("message", "Validation failed"))
+    # Export Audit Bundle: use known-good gripper
     if st.button("📦 Export Audit Bundle", use_container_width=True, key="export_bundle"):
         st.session_state["export_bundle_clicked"] = True
     if st.session_state.get("export_bundle_clicked"):
-        bundle_bytes, filename = _fetch_audit_bundle(demo_mjcf)
+        bundle_bytes, filename = _fetch_audit_bundle(get_demo("good"))
         if bundle_bytes and filename:
             st.download_button(
                 f"Download {filename}",
@@ -161,20 +183,6 @@ with col2:
             )
         else:
             st.warning("Start Reality Bridge (port 8000) to export a validated audit bundle.")
-    # Show result and Tutor link when a demo was clicked
-    demo_clicked = st.session_state.get("demo_clicked")
-    if demo_clicked == "good":
-        st.success("Egg gripper - validated, stable, manufacturable")
-    elif demo_clicked == "bad":
-        st.error("Unstable mass - fails physics validation")
-        tutor_url = get_failure_tutor_link("PHYSICS_INSTABILITY")
-        if tutor_url:
-            st.link_button("📚 Learn why", tutor_url, type="secondary")
-    elif demo_clicked == "edge":
-        st.warning("Self-collision - passes with warnings")
-        tutor_url = get_failure_tutor_link("GEOMETRY_SELF_INTERSECTION")
-        if tutor_url:
-            st.link_button("📚 Learn why", tutor_url, type="secondary")
 
 st.divider()
 

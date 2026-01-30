@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<mujoco model="unstable_gripper">
+  <compiler angle="radian"/>
+  <option timestep="0.002" gravity="0 0 -9.81"/>
+  
+  <worldbody>
+    <light diffuse=".5 .5 .5" pos="0 0 3" dir="0 0 -1"/>
+    <geom name="floor" type="plane" size="1 1 0.1" rgba=".9 .9 .9 1"/>
+    
+    <body name="base" pos="0 0 0.1">
+      <geom name="base_geom" type="box" size="0.02 0.02 0.01" mass="0.001" rgba="0.3 0.3 0.3 1"/>
+      
+      <body name="finger_heavy" pos="0 0 0.01">
+        <joint name="finger_joint" type="hinge" axis="0 1 0" range="-1.5 1.5" damping="0"/>
+        <geom name="finger_geom" type="box" size="0.005 0.005 0.1" mass="1000" rgba="0.8 0.2 0.2 1"/>
+      </body>
+    </body>
+  </worldbody>
+  
+  <actuator>
+    <position name="finger_act" joint="finger_joint" kp="1"/>
+  </actuator>
+</mujoco>

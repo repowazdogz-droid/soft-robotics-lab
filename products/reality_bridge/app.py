@@ -20,6 +20,7 @@ if str(_PRODUCTS) not in sys.path:
 from shared.contracts import Contract, ContractStatus, validate_handoff
 from shared.failures import create_failure, handle_exception, FailureCode
 from shared.audit import create_bundle
+from shared.trust import TrustScoreTracker
 
 from core.loader import load_model, detect_format
 from core.validator import PhysicsValidator, ValidationResult
@@ -145,6 +146,7 @@ async def validate(
             model, _ = load_model(xml_string=content)
     except Exception as e:
         failure = handle_exception(e, context="validate")
+        TrustScoreTracker().record_run(had_traceback=False)
         return JSONResponse(
             status_code=422,
             content={"success": False, "failure": failure.to_dict(), "message": failure.to_user_message()},
@@ -181,6 +183,7 @@ async def validate(
         payload["bundle_base64"] = None
         payload["bundle_filename"] = None
 
+    TrustScoreTracker().record_run(had_traceback=False)
     return payload
 
 
@@ -198,6 +201,7 @@ async def analyze_endpoint(
 
     if not content and not path:
         failure = create_failure(FailureCode.MISSING_PARAMS, details="Provide file or xml_string")
+        TrustScoreTracker().record_run(had_traceback=False)
         return JSONResponse(
             status_code=400,
             content={"success": False, "failure": failure.to_dict(), "message": failure.to_user_message()},
@@ -210,6 +214,7 @@ async def analyze_endpoint(
             model, _ = load_model(xml_string=content)
     except Exception as e:
         failure = handle_exception(e, context="analyze")
+        TrustScoreTracker().record_run(had_traceback=False)
         return JSONResponse(
             status_code=422,
             content={"success": False, "failure": failure.to_dict(), "message": failure.to_user_message()},
@@ -221,6 +226,7 @@ async def analyze_endpoint(
         database.log_validation(content, result, source="analyze")  # returns (design_hash, validation_id)
     except Exception:
         pass
+    TrustScoreTracker().record_run(had_traceback=False)
     return {"success": True, **_analysis_to_dict(a)}
 
 
