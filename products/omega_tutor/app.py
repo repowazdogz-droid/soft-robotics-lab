@@ -29,6 +29,12 @@ from core.user_profile import (
     get_display_label,
 )
 from core.level_adjust import adjust_level
+try:
+    from core.progress import progress_tracker
+    from core.knowledge_decay import get_review_priority
+except ImportError:
+    progress_tracker = None
+    get_review_priority = None
 
 st.set_page_config(page_title="OMEGA Tutor", page_icon="🎓", layout="wide")
 
@@ -132,6 +138,47 @@ except Exception:
     backend_label = "⚠️ No backend (start LM Studio or set GEMINI_API_KEY)"
 st.sidebar.caption(backend_label)
 
+# Start progress session once per run/session
+if progress_tracker and "progress_session_id" not in st.session_state:
+    st.session_state["progress_session_id"] = progress_tracker.start_session()
+
+# Progress Dashboard
+if progress_tracker:
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("**📊 This Week**")
+    st.sidebar.markdown("─────────────")
+    try:
+        ws = progress_tracker.get_weekly_stats()
+        st.sidebar.metric("Topics learned", ws.get("topics", 0))
+        st.sidebar.metric("Questions", f"{ws.get('questions', 0)} ({ws.get('correct_rate', 0):.0f}% correct)")
+        streak = progress_tracker.get_streak()
+        st.sidebar.metric("Streak", f"{streak} days 🔥" if streak else "0 days")
+        strong = progress_tracker.get_strongest_topics(3)
+        if strong:
+            st.sidebar.caption("💪 Strongest: " + ", ".join(strong[:3]))
+        weak = progress_tracker.get_weakest_topics(3)
+        if weak:
+            st.sidebar.caption("📚 Review: " + ", ".join(weak[:3]))
+    except Exception:
+        st.sidebar.caption("Progress stats unavailable.")
+    if st.sidebar.button("What should I review?"):
+        st.session_state["show_review"] = True
+    if st.session_state.get("show_review"):
+        st.sidebar.markdown("---")
+        st.sidebar.caption("**Due for review**")
+        try:
+            due = progress_tracker.get_due_for_review()
+            if due:
+                for d in due[:5]:
+                    st.sidebar.markdown(f"- {d.get('name', '')} (confidence: {d.get('decayed_confidence', 0):.2f})")
+            else:
+                st.sidebar.caption("Nothing due. Keep learning!")
+            if st.sidebar.button("Close", key="close_review"):
+                st.session_state["show_review"] = False
+                st.rerun()
+        except Exception:
+            st.sidebar.caption("Review list unavailable.")
+
 # Handle Simpler/Deeper re-explain (before rendering messages)
 if "messages" in st.session_state and "re_explain" in st.session_state:
     re = st.session_state.pop("re_explain")
@@ -161,6 +208,12 @@ if topic:
         _eng = _engine if _engine is not None else TutorEngine(api_key=api_key or None)
         _resp = _eng.teach(_topic_q, level=level)
         st.session_state.messages.append({"role": "assistant", "content": _resp.to_markdown(), "level": level})
+        if progress_tracker:
+            try:
+                progress_tracker.record_topic(_topic_q.strip()[:80].replace("\n", " ") or "general")
+                progress_tracker.record_question(_topic_q.strip()[:80] or "general", True)
+            except Exception:
+                pass
         st.rerun()
     st.markdown("---")
 
@@ -198,6 +251,13 @@ if prompt := st.chat_input("What would you like to learn about?"):
             response = engine.teach(prompt, level=level)
             st.markdown(response.to_markdown())
     st.session_state.messages.append({"role": "assistant", "content": response.to_markdown(), "level": level})
+    if progress_tracker:
+        try:
+            topic_name = prompt.strip()[:80].replace("\n", " ").strip() or "general"
+            progress_tracker.record_topic(topic_name)
+            progress_tracker.record_question(topic_name, True)
+        except Exception:
+            pass
 
 st.sidebar.markdown("---")
 if st.sidebar.button("🔄 New Topic"):
@@ -210,4 +270,9 @@ if st.sidebar.button("📚 Go Deeper") and st.session_state.messages:
         engine = _engine if _engine is not None else TutorEngine(api_key=api_key or None)
         response = engine.deeper(last_topic, level)
         st.session_state.messages.append({"role": "assistant", "content": response.to_markdown(), "level": level})
+        if progress_tracker:
+            try:
+                progress_tracker.record_topic(last_topic.strip()[:80].replace("\n", " ") or "general")
+            except Exception:
+                pass
     st.rerun()

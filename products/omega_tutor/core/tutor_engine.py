@@ -19,6 +19,10 @@ if str(_ROOT) not in sys.path:
 from core.level_adapter import adapt_prompt
 from core.level_prompts import get_level_prompt
 from core.exercise_generator import ExerciseGenerator, Exercise
+try:
+    from core import memory
+except ImportError:
+    memory = None
 
 try:
     from prompts.tutor_system import TUTOR_SYSTEM_PROMPT
@@ -113,6 +117,21 @@ class TutorEngine:
         """
         user_prompt = adapt_prompt(question, level)
         full_system = f"{TUTOR_SYSTEM_PROMPT}\n\nCurrent level instruction: {get_level_prompt(level)}"
+        if memory:
+            try:
+                related = memory.get_related_learning(question, n=3)
+                if related:
+                    context_lines = []
+                    for r in related:
+                        topic = r.get("topic", "")
+                        meta = r.get("metadata", {})
+                        ts = meta.get("timestamp", "")[:10]
+                        lvl = meta.get("level", "")
+                        context_lines.append(f"- User previously learned about **{topic}** at {lvl} level on {ts}")
+                    full_system += "\n\n---\n\nUser's prior learning (reference when relevant):\n" + "\n".join(context_lines)
+                    full_system += "\n\nWhen relevant, say something like: 'Remember when we covered [X]? This builds on that.'"
+            except Exception:
+                pass
         raw = self._call_llm(full_system, user_prompt)
         parsed = self._parse_response(raw, question, level)
         _ex_level = _exercise_level(level)
@@ -122,6 +141,12 @@ class TutorEngine:
                 parsed.exercise = ex.prompt
                 if ex.hint:
                     parsed.exercise += f"\n\n*Hint: {ex.hint}*"
+        if memory:
+            try:
+                topic_name = question.strip()[:80].replace("\n", " ").strip() or "general"
+                memory.record_learning(topic_name, level, parsed.explanation + "\n\n" + parsed.example)
+            except Exception:
+                pass
         return parsed
 
     def follow_up(self, original_question: str, follow_up: str, level: str) -> TeachingResponse:
