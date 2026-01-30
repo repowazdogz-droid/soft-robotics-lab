@@ -16,13 +16,28 @@ _ROOT = Path(__file__).resolve().parent.parent
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from core.level_adapter import adapt_prompt, LEVEL_PROMPTS
+from core.level_adapter import adapt_prompt
+from core.level_prompts import get_level_prompt
 from core.exercise_generator import ExerciseGenerator, Exercise
 
 try:
     from prompts.tutor_system import TUTOR_SYSTEM_PROMPT
 except ImportError:
     TUTOR_SYSTEM_PROMPT = "You are a helpful tutor. Explain clearly. Use examples."
+
+
+def _exercise_level(level: str) -> Optional[str]:
+    """Map profile level to exercise-generator level (child, teen, adult, expert, researcher)."""
+    key = (level or "adult").lower().strip()
+    if key in ("little", "kid"):
+        return "child"
+    if key in ("teen", "sixth_form"):
+        return "teen"
+    if key in ("undergrad", "adult", "senior"):
+        return "adult"
+    if key in ("expert", "researcher"):
+        return key
+    return "adult"
 
 
 @dataclass
@@ -97,11 +112,12 @@ class TutorEngine:
         - explanation, example, exercise (optional), follow_ups, sources (expert/researcher)
         """
         user_prompt = adapt_prompt(question, level)
-        full_system = f"{TUTOR_SYSTEM_PROMPT}\n\nCurrent level instruction: {LEVEL_PROMPTS.get(level.lower(), LEVEL_PROMPTS['adult']).strip()}"
+        full_system = f"{TUTOR_SYSTEM_PROMPT}\n\nCurrent level instruction: {get_level_prompt(level)}"
         raw = self._call_llm(full_system, user_prompt)
         parsed = self._parse_response(raw, question, level)
-        if level.lower() in ("child", "teen", "adult", "expert", "researcher") and len(question.split()) > 3:
-            ex = self.exercise_gen.generate(question[:200], level)
+        _ex_level = _exercise_level(level)
+        if _ex_level and len(question.split()) > 3:
+            ex = self.exercise_gen.generate(question[:200], _ex_level)
             if ex.prompt and "Configure" not in ex.prompt:
                 parsed.exercise = ex.prompt
                 if ex.hint:
@@ -112,7 +128,7 @@ class TutorEngine:
         """Handles 'wait, what's X?' type questions in context of original."""
         context = f"Previously the learner asked: {original_question}\n\nNow they ask a follow-up: {follow_up}\n\nAnswer the follow-up in context. Keep it concise but complete."
         user_prompt = adapt_prompt(context, level)
-        full_system = f"{TUTOR_SYSTEM_PROMPT}\n\nCurrent level: {level}."
+        full_system = f"{TUTOR_SYSTEM_PROMPT}\n\nCurrent level instruction: {get_level_prompt(level)}"
         raw = self._call_llm(full_system, user_prompt)
         return self._parse_response(raw, follow_up, level)
 
