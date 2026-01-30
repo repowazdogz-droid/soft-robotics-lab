@@ -1,0 +1,12 @@
+{
+  "name": "Planetary gear",
+  "description": "Planetary (epicyclic) gear mechanism. Compact gear reduction.",
+  "parameters": {
+    "scale": { "default": "medium", "options": ["small", "medium", "large"], "description": "Scale" }
+  },
+  "spec_defaults": {
+    "domain": "mechanism",
+    "scale": "medium",
+    "params": { "type": "gear_pair" }
+  }
+}

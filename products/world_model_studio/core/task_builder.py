@@ -17,6 +17,11 @@ MOVE_TO = "move_to"
 PICK_EGG = "pick_egg"
 PICK_BOX = "pick_box"
 HOLD = "hold"
+PICK_AND_PLACE = "pick_and_place"
+SORT = "sort"
+STACK = "stack"
+INSERT = "insert"
+POUR = "pour"
 
 _TASKS_ROOT = Path(__file__).resolve().parent.parent / "tasks"
 
@@ -144,6 +149,105 @@ class TaskBuilder:
             goal=PLACE,
             target_object=target_object,
             success_criteria={"target_pos": target_pos or [0.0, 0.0, 0.15], "tolerance": 0.05},
+            max_steps=max_steps,
+            reward_type=reward_type,
+        )
+
+    @staticmethod
+    def pick_and_place_task(
+        scene_path: str,
+        target_object: str = "object_box",
+        height_threshold: float = 0.1,
+        target_pos: Optional[list] = None,
+        max_steps: int = 500,
+        reward_type: str = "sparse",
+    ) -> TaskDefinition:
+        """Grasp object, move to target zone."""
+        return TaskDefinition(
+            name="pick_and_place",
+            scene_path=scene_path,
+            goal=PICK_AND_PLACE,
+            target_object=target_object,
+            success_criteria={
+                "object_z_min": height_threshold,
+                "min_height": height_threshold,
+                "target_pos": target_pos or [0.15, 0.0, 0.08],
+                "tolerance": 0.05,
+            },
+            max_steps=max_steps,
+            reward_type=reward_type,
+        )
+
+    @staticmethod
+    def sort_task(
+        scene_path: str,
+        target_object: str = "object_box1",
+        max_steps: int = 500,
+        reward_type: str = "sparse",
+    ) -> TaskDefinition:
+        """Separate objects by type/color (success = lift target)."""
+        return TaskDefinition(
+            name="sort",
+            scene_path=scene_path,
+            goal=SORT,
+            target_object=target_object,
+            success_criteria={"min_height": 0.12, "object_z_min": 0.12},
+            max_steps=max_steps,
+            reward_type=reward_type,
+        )
+
+    @staticmethod
+    def stack_task(
+        scene_path: str,
+        target_object: str = "object_box",
+        stack_height: float = 0.12,
+        max_steps: int = 500,
+        reward_type: str = "sparse",
+    ) -> TaskDefinition:
+        """Stack object vertically (success = object above height)."""
+        return TaskDefinition(
+            name="stack",
+            scene_path=scene_path,
+            goal=STACK,
+            target_object=target_object,
+            success_criteria={"min_height": stack_height, "object_z_min": stack_height},
+            max_steps=max_steps,
+            reward_type=reward_type,
+        )
+
+    @staticmethod
+    def insert_task(
+        scene_path: str,
+        target_object: str = "object_peg",
+        max_steps: int = 500,
+        reward_type: str = "sparse",
+    ) -> TaskDefinition:
+        """Insert peg into hole (precision). Success = peg near hole."""
+        return TaskDefinition(
+            name="insert",
+            scene_path=scene_path,
+            goal=INSERT,
+            target_object=target_object,
+            success_criteria={"target_pos": [-0.05, 0.0, 0.06], "tolerance": 0.02},
+            max_steps=max_steps,
+            reward_type=reward_type,
+        )
+
+    @staticmethod
+    def pour_task(
+        scene_path: str,
+        target_object: str = "object_box",
+        hold_steps: int = 50,
+        max_steps: int = 500,
+        reward_type: str = "sparse",
+    ) -> TaskDefinition:
+        """Pour from container (hold + tilt). Simplified: hold object."""
+        return TaskDefinition(
+            name="pour",
+            scene_path=scene_path,
+            goal=POUR,
+            target_object=target_object,
+            success_criteria={"hold_steps": hold_steps, "min_height": 0.06},
             max_steps=max_steps,
             reward_type=reward_type,
         )

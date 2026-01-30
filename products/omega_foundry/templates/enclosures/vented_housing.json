@@ -1,0 +1,13 @@
+{
+  "name": "Vented housing",
+  "description": "Vented enclosure for thermal management. Airflow-friendly.",
+  "parameters": {
+    "scale": { "default": "medium", "options": ["small", "medium", "large"], "description": "Size scale" },
+    "ventilated": { "default": true, "description": "Include ventilation" }
+  },
+  "spec_defaults": {
+    "domain": "enclosure",
+    "scale": "medium",
+    "params": { "type": "housing", "ventilated": true }
+  }
+}

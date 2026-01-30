@@ -186,12 +186,12 @@ class Simulator:
             return 0.0
         criteria = getattr(self._task, "success_criteria", {}) or {}
         z_min = float(criteria.get("min_height") or criteria.get("object_z_min", 0.0))
-        if z_min and self._task.goal in ("pick", "lift", "pick_egg", "pick_box", "hold"):
+        if z_min and self._task.goal in ("pick", "lift", "pick_egg", "pick_box", "hold", "pick_and_place", "sort", "stack", "pour"):
             qpos = self._data.qpos
             if self._model.nq >= 7:
                 object_z = float(qpos[2])
                 return 1.0 if object_z >= z_min else 0.0
-        if self._task.goal == "place" and "target_pos" in criteria:
+        if self._task.goal in ("place", "pick_and_place", "insert") and "target_pos" in criteria:
             target = np.array(criteria["target_pos"], dtype=np.float64)
             tol = float(criteria.get("tolerance", 0.05))
             if self._model.nq >= 7:
@@ -206,9 +206,14 @@ class Simulator:
             return False
         criteria = getattr(self._task, "success_criteria", {}) or {}
         z_min = float(criteria.get("min_height") or criteria.get("object_z_min", 0.0))
-        if z_min and self._task.goal in ("pick", "lift", "pick_egg", "pick_box", "hold"):
+        if z_min and self._task.goal in ("pick", "lift", "pick_egg", "pick_box", "hold", "pick_and_place", "sort", "stack", "pour"):
             if self._model.nq >= 7:
                 return float(self._data.qpos[2]) >= z_min
+        if self._task.goal in ("place", "pick_and_place", "insert") and "target_pos" in criteria:
+            target = np.array(criteria["target_pos"], dtype=np.float64)
+            tol = float(criteria.get("tolerance", 0.05))
+            if self._model.nq >= 7:
+                return np.linalg.norm(self._data.qpos[:3] - target) <= tol
         return False
 
     @property

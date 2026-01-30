@@ -1,0 +1,12 @@
+{
+  "name": "Slider-crank",
+  "description": "Slider-crank mechanism. Converts rotary motion to reciprocating linear motion.",
+  "parameters": {
+    "scale": { "default": "medium", "options": ["small", "medium", "large"], "description": "Scale" }
+  },
+  "spec_defaults": {
+    "domain": "mechanism",
+    "scale": "medium",
+    "params": { "type": "slider" }
+  }
+}

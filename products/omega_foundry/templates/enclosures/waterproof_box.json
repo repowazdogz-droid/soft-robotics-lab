@@ -1,0 +1,13 @@
+{
+  "name": "Waterproof box",
+  "description": "Sealed waterproof enclosure. IP-rated style, gasket-ready.",
+  "parameters": {
+    "scale": { "default": "medium", "options": ["small", "medium", "large"], "description": "Size scale" },
+    "mounting_pattern": { "default": "M3", "options": ["M3", "M4", "1/4-20"], "description": "Mounting holes" }
+  },
+  "spec_defaults": {
+    "domain": "enclosure",
+    "scale": "medium",
+    "params": { "type": "box", "waterproof": true }
+  }
+}

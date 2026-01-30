@@ -1,0 +1,13 @@
+{
+  "name": "Sensor mount",
+  "description": "Enclosure or mount for sensors. Compact, optional cable pass-through.",
+  "parameters": {
+    "scale": { "default": "small", "options": ["small", "medium", "large"], "description": "Size scale" },
+    "mounting_pattern": { "default": "M3", "options": ["M3", "M4"], "description": "Mounting holes" }
+  },
+  "spec_defaults": {
+    "domain": "enclosure",
+    "scale": "small",
+    "params": { "type": "mount" }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Soft pneumatic",
+  "description": "Soft pneumatic actuator gripper. Compliant, good for fragile or irregular objects.",
+  "parameters": {
+    "num_fingers": { "default": 2, "min": 2, "max": 4, "unit": "", "description": "Number of fingers" },
+    "scale": { "default": "medium", "options": ["small", "medium", "large"], "description": "Size scale" },
+    "force_requirement": { "default": "gentle", "options": ["gentle", "medium", "strong"], "description": "Force level" }
+  },
+  "spec_defaults": {
+    "domain": "gripper",
+    "scale": "medium",
+    "material": "silicone",
+    "params": { "num_fingers": 2, "gesture": "pinch", "force_requirement": "gentle" }
+  }
+}

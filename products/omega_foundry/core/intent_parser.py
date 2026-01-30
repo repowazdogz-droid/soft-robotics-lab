@@ -2,8 +2,11 @@
 Intent Parser - Natural language to DesignSpec.
 Detects domain (gripper/mechanism/enclosure), scale, material, params,
 dimensions, force, environment, target object.
+Enhanced: optional LLM parse (LM Studio -> Gemini) for object_type, grasp_type, size, material, special_features.
 """
 
+import json
+import os
 import re
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
@@ -270,3 +273,82 @@ class IntentParser:
             if "snap" in text or "lid" in text:
                 params["snap_fit_lid"] = True
         return params
+
+    def parse_enhanced(self, text: str, use_llm: bool = True) -> DesignSpec:
+        """
+        Parse with optional LLM enrichment (LM Studio -> Gemini -> rule-based fallback).
+        Extracts object_type, grasp_type, size, material, special_features. Returns DesignSpec.
+        """
+        text = (text or "").strip()
+        if not text:
+            return DesignSpec(domain="gripper", scale="medium", material=None, params={}, target_object=None, raw_intent="")
+
+        if use_llm:
+            intent = _call_llm_intent(text)
+            if intent:
+                domain = intent.get("domain", "gripper")
+                if domain not in ("gripper", "mechanism", "enclosure"):
+                    domain = "gripper"
+                scale = intent.get("scale", "medium")
+                if scale not in ("small", "medium", "large"):
+                    scale = "medium"
+                return DesignSpec(
+                    domain=domain,
+                    scale=scale,
+                    material=intent.get("material"),
+                    params=dict(intent.get("params") or {}),
+                    target_object=intent.get("target_object"),
+                    raw_intent=intent.get("raw_intent", text),
+                )
+        return self.parse(text)
+
+
+def _call_llm_intent(text: str) -> Optional[Dict]:
+    """Try LM Studio then Gemini to parse design intent JSON. Cache and fallback to None."""
+    _cache: Dict[str, Dict] = {}
+    key = text[:1500]
+    if key in _cache:
+        return _cache[key]
+    prompt = f'''Parse this design intent into JSON. Respond with ONLY a valid JSON object (no markdown). Keys: "domain" (gripper|mechanism|enclosure), "scale" (small|medium|large), "material" (optional), "target_object" (optional), "params" (object: num_fingers, gesture, type, waterproof, ventilated, force_requirement, dimensions_mm, etc.), "raw_intent" (short summary).
+Intent: "{text}"'''
+    def _parse(s: str) -> Optional[Dict]:
+        if not s:
+            return None
+        s = s.strip()
+        if "```" in s:
+            parts = s.split("```")
+            if len(parts) > 1:
+                s = parts[1]
+                if s.startswith("json"):
+                    s = s[4:]
+        try:
+            out = json.loads(s)
+            return out if isinstance(out, dict) else None
+        except Exception:
+            return None
+    try:
+        from openai import OpenAI
+        client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
+        r = client.chat.completions.create(model="local-model", messages=[{"role": "user", "content": prompt}], max_tokens=1024)
+        t = (r.choices[0].message.content or "").strip()
+        out = _parse(t)
+        if out and out.get("domain") in ("gripper", "mechanism", "enclosure"):
+            _cache[key] = out
+            return out
+    except Exception:
+        pass
+    try:
+        api_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+        if api_key:
+            import google.generativeai as genai
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            response = model.generate_content(prompt)
+            if response and response.text:
+                out = _parse(response.text.strip())
+                if out and out.get("domain") in ("gripper", "mechanism", "enclosure"):
+                    _cache[key] = out
+                    return out
+    except Exception:
+        pass
+    return None

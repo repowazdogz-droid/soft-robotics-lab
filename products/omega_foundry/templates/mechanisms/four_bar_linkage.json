@@ -1,0 +1,12 @@
+{
+  "name": "Four-bar linkage",
+  "description": "Four-bar linkage mechanism. Converts rotary motion to controlled output path.",
+  "parameters": {
+    "scale": { "default": "medium", "options": ["small", "medium", "large"], "description": "Link scale (m)" }
+  },
+  "spec_defaults": {
+    "domain": "mechanism",
+    "scale": "medium",
+    "params": { "type": "four_bar_linkage" }
+  }
+}

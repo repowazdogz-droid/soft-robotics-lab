@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mujoco model="bin_picking">
+  <compiler angle="radian" autolimits="true"/>
+  <option timestep="0.002" gravity="0 0 -9.81"/>
+  <worldbody>
+    <geom name="ground" type="plane" size="1 1 0.1" condim="3"/>
+    <light name="main" pos="0.5 0.5 1.2" dir="0 0 -1" directional="true"/>
+    <camera name="main" pos="0.800 0.600 0.500" fovy="60" mode="fixed"/>
+    <body name="surface_bin" pos="0 0 0"><geom name="bin_geom" type="box" size="0.15 0.15 0.08" pos="0 0 0.04" rgba="0.4 0.35 0.5 1" condim="3"/></body>
+    <body name="object_box1" pos="-0.02 0 0.06"><freejoint name="box1_joint"/><geom name="box1_geom" type="box" size="0.025 0.025 0.025" mass="0.08" rgba="0.8 0.4 0.2 1"/></body>
+    <body name="object_sphere1" pos="0.02 0.02 0.06"><freejoint name="sphere1_joint"/><geom name="sphere1_geom" type="sphere" size="0.02" mass="0.05" rgba="0.2 0.6 0.9 1"/></body>
+    <body name="object_cylinder1" pos="0 -0.02 0.065"><freejoint name="cyl1_joint"/><geom name="cylinder1_geom" type="cylinder" size="0.02 0.03" mass="0.06" rgba="0.5 0.7 0.3 1"/></body>
+  </worldbody>
+  <contact/>
+</mujoco>

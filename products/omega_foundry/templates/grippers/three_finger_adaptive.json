@@ -1,0 +1,15 @@
+{
+  "name": "Three-finger adaptive",
+  "description": "Three-finger adaptive gripper for varied object shapes. Tripod or spherical grasp.",
+  "parameters": {
+    "num_fingers": { "default": 3, "min": 3, "max": 3, "unit": "", "description": "Number of fingers" },
+    "gesture": { "default": "tripod", "options": ["tripod", "spherical"], "description": "Grasp type" },
+    "scale": { "default": "medium", "options": ["small", "medium", "large"], "description": "Size scale" }
+  },
+  "spec_defaults": {
+    "domain": "gripper",
+    "scale": "medium",
+    "material": "silicone",
+    "params": { "num_fingers": 3, "gesture": "tripod", "force_requirement": "medium" }
+  }
+}

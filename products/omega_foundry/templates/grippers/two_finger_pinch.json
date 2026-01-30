@@ -1,0 +1,17 @@
+{
+  "name": "Two-finger pinch",
+  "description": "Two-finger pinch gripper for delicate objects (eggs, electronics). Tendon-driven, configurable aperture.",
+  "parameters": {
+    "num_fingers": { "default": 2, "min": 2, "max": 2, "unit": "", "description": "Number of fingers" },
+    "gesture": { "default": "pinch", "options": ["pinch", "lateral"], "description": "Grasp type" },
+    "scale": { "default": "medium", "options": ["small", "medium", "large"], "description": "Size scale" },
+    "target_object": { "default": "eggs", "description": "Target object" }
+  },
+  "spec_defaults": {
+    "domain": "gripper",
+    "scale": "medium",
+    "material": "silicone",
+    "target_object": "eggs",
+    "params": { "num_fingers": 2, "gesture": "pinch", "force_requirement": "gentle" }
+  }
+}

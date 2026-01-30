@@ -1,0 +1,12 @@
+{
+  "name": "Rack mount",
+  "description": "19-inch rack-mount enclosure. Standard 1U/2U style.",
+  "parameters": {
+    "scale": { "default": "medium", "options": ["small", "medium", "large"], "description": "Depth scale" }
+  },
+  "spec_defaults": {
+    "domain": "enclosure",
+    "scale": "medium",
+    "params": { "type": "rack_mount" }
+  }
+}

@@ -1,0 +1,1 @@
+{"task": {"goal": "pick", "target_object": "object_box1", "success_criteria": {"min_height": 0.12}}, "config": {"difficulty": "hard"}}

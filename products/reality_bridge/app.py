@@ -1,16 +1,19 @@
 """
 Reality Bridge - Physics validation API service.
-FastAPI: POST /validate, POST /analyze, GET /health, GET /stats, GET /failures, GET /leaderboard. CORS enabled.
+FastAPI: POST /validate, POST /validate/batch, POST /analyze, GET /health, GET /stats, GET /failures, GET /leaderboard,
+GET /validations/history/{design_id}, POST/DELETE/GET /webhooks. CORS enabled.
 Uses shared contracts and failure taxonomy: no raw tracebacks to users.
 """
 
+import asyncio
 import base64
 import sys
 import tempfile
+import time
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, File, UploadFile, Form, Request
+from fastapi import FastAPI, File, UploadFile, Form, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -33,6 +36,8 @@ from core.validator import PhysicsValidator, ValidationResult
 from core.analyzer import analyze, AnalysisResult, WeakPoint
 from core.reporter import to_dict, to_markdown, to_html
 from core import database
+from core.fix_suggestions import failure_from_validation_result
+from core import webhooks as webhooks_module
 
 _CONTRACTS_DIR = _PRODUCTS / "shared" / "contracts"
 
@@ -158,12 +163,24 @@ async def validate(
             content={"success": False, "failure": failure.to_dict(), "message": failure.to_user_message()},
         )
 
+    t0 = time.perf_counter()
     result = _validator.validate(xml_string=content, file_path=path)
+    validation_time_ms = int((time.perf_counter() - t0) * 1000)
     payload = to_dict(result)
     payload["success"] = True
     payload["contract_status"] = contract_status
+    payload["validation_time_ms"] = validation_time_ms
+    if not result.passed:
+        fail_info = failure_from_validation_result(result)
+        if fail_info:
+            payload["failures"] = [{
+                "code": fail_info["code"],
+                "message": fail_info["message"],
+                "suggestions": fail_info["suggestions"],
+                "tutor_link": fail_info.get("tutor_link"),
+            }]
     try:
-        design_hash, vid = database.log_validation(content, result, source="api")
+        design_hash, vid = database.log_validation(content, result, source="api", validation_time_ms=validation_time_ms, artifact_id=artifact_id)
         payload["design_hash"] = design_hash
         payload["validation_id"] = vid
     except Exception:
@@ -171,22 +188,42 @@ async def validate(
         payload["validation_id"] = None
 
     # Substrate: vector store, lineage, knowledge graph (if available)
+    aid = artifact_id or payload.get("design_hash") or "unknown"
     if vector_store and knowledge_graph and lineage_graph and NodeType and EdgeType:
         try:
-            aid = artifact_id or payload.get("design_hash") or "unknown"
             vector_store.add(
                 "designs",
                 content[:50000],
                 {"artifact_id": aid, "passed": result.passed, "score": result.score, "design_hash": payload.get("design_hash")},
             )
+            vid = payload.get("validation_id")
             if vid:
                 lineage_graph.record(vid, aid, "validation", {"passed": result.passed, "score": result.score})
             knowledge_graph.add_node(NodeType.Design, aid, {"design_hash": payload.get("design_hash"), "passed": result.passed, "score": result.score})
             if vid:
                 knowledge_graph.add_node(NodeType.Validation, vid, {"passed": result.passed, "score": result.score})
                 knowledge_graph.add_edge(vid, aid, EdgeType.validates, {"passed": result.passed, "score": result.score})
+                if not result.passed and payload.get("failures"):
+                    fc = payload["failures"][0].get("code", "UNKNOWN")
+                    if not knowledge_graph.get_node(fc):
+                        knowledge_graph.add_node(NodeType.Concept, fc, {"name": fc})
+                    knowledge_graph.add_edge(vid, fc, EdgeType.related_to, {"reason": "has_failure"})
         except Exception:
             pass
+
+    # Webhooks
+    try:
+        event = "validation_failed" if not result.passed else "validation_completed"
+        asyncio.create_task(webhooks_module.trigger_webhook(event, {
+            "validation_id": payload.get("validation_id"),
+            "artifact_id": aid,
+            "passed": result.passed,
+            "score": result.score,
+            "design_hash": payload.get("design_hash"),
+            "failures": payload.get("failures", []),
+        }))
+    except Exception:
+        pass
 
     # Audit bundle for reproducibility (artifact = MJCF, contract, validation)
     try:
@@ -270,6 +307,100 @@ def get_failures(limit: int = 50):
 def get_leaderboard(limit: int = 10):
     """Top designs by score."""
     return database.get_leaderboard(limit=limit)
+
+
+@app.post("/validate/batch")
+async def validate_batch(request: Request):
+    """
+    Validate multiple designs. Body: {"designs": [{"mjcf": "...", "artifact_id": "..."}, ...]}.
+    Returns { "results": [...], "summary": { "total", "passed", "failed" } }. Triggers batch_completed webhook.
+    """
+    try:
+        body = await request.json()
+        designs = body.get("designs") or []
+    except Exception:
+        return JSONResponse(status_code=400, content={"success": False, "message": "JSON body with 'designs' array required"})
+    if not designs:
+        return JSONResponse(status_code=400, content={"success": False, "message": "designs array must not be empty"})
+    results: List[Dict[str, Any]] = []
+    for i, item in enumerate(designs):
+        content = item.get("mjcf") or item.get("xml_string") or ""
+        artifact_id = item.get("artifact_id") or f"batch-{i}"
+        if not content:
+            results.append({"artifact_id": artifact_id, "success": False, "error": "Missing mjcf/xml_string"})
+            continue
+        try:
+            model, _ = load_model(xml_string=content)
+        except Exception as e:
+            results.append({"artifact_id": artifact_id, "success": False, "error": str(e)})
+            continue
+        t0 = time.perf_counter()
+        result = _validator.validate(xml_string=content, file_path=None)
+        validation_time_ms = int((time.perf_counter() - t0) * 1000)
+        payload = to_dict(result)
+        payload["success"] = True
+        payload["artifact_id"] = artifact_id
+        payload["validation_time_ms"] = validation_time_ms
+        if not result.passed:
+            fail_info = failure_from_validation_result(result)
+            if fail_info:
+                payload["failures"] = [{"code": fail_info["code"], "message": fail_info["message"], "suggestions": fail_info["suggestions"], "tutor_link": fail_info.get("tutor_link")}]
+        try:
+            design_hash, vid = database.log_validation(content, result, source="batch", validation_time_ms=validation_time_ms, artifact_id=artifact_id)
+            payload["design_hash"] = design_hash
+            payload["validation_id"] = vid
+        except Exception:
+            payload["design_hash"] = None
+            payload["validation_id"] = None
+        results.append(payload)
+    summary = {"total": len(results), "passed": sum(1 for r in results if r.get("passed", False)), "failed": sum(1 for r in results if not r.get("passed", True))}
+    try:
+        asyncio.create_task(webhooks_module.trigger_webhook("batch_completed", {"summary": summary, "results_count": len(results)}))
+    except Exception:
+        pass
+    return {"success": True, "results": results, "summary": summary}
+
+
+@app.get("/validations/history/{design_id}")
+def get_validation_history(design_id: str, limit: int = 50):
+    """All validations for a design (by artifact_id or design_hash)."""
+    return database.get_validation_history(design_id, limit=limit)
+
+
+@app.get("/validations/recent")
+def get_recent_validations(limit: int = 20):
+    """Recent validations for dashboard."""
+    return database.get_recent_validations(limit=limit)
+
+
+@app.post("/webhooks")
+async def register_webhook_endpoint(request: Request):
+    """Register a webhook. Body: {"url": "...", "events": ["validation_completed", "validation_failed", "batch_completed"], "secret": "..."}. Returns webhook_id."""
+    try:
+        body = await request.json()
+        url = body.get("url") or ""
+        events = body.get("events") or ["validation_completed", "validation_failed"]
+        secret = body.get("secret")
+    except Exception:
+        return JSONResponse(status_code=400, content={"success": False, "message": "JSON body with url and events required"})
+    if not url:
+        return JSONResponse(status_code=400, content={"success": False, "message": "url required"})
+    wid = webhooks_module.register_webhook(url, events, secret)
+    return {"success": True, "webhook_id": wid}
+
+
+@app.get("/webhooks")
+def list_webhooks_endpoint():
+    """List registered webhooks (id, url, events, active; no secret)."""
+    return {"webhooks": webhooks_module.list_webhooks()}
+
+
+@app.delete("/webhooks/{webhook_id}")
+def remove_webhook_endpoint(webhook_id: str):
+    """Remove webhook by id."""
+    if webhooks_module.remove_webhook(webhook_id):
+        return {"success": True, "message": "Webhook removed"}
+    raise HTTPException(status_code=404, detail="Webhook not found")
 
 
 if __name__ == "__main__":

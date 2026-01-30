@@ -1,0 +1,14 @@
+{
+  "name": "Gecko-inspired (adhesion)",
+  "description": "Gecko-inspired adhesion gripper. Gentle contact, suitable for smooth flat surfaces.",
+  "parameters": {
+    "num_fingers": { "default": 2, "min": 2, "max": 4, "unit": "", "description": "Number of fingers" },
+    "scale": { "default": "small", "options": ["small", "medium", "large"], "description": "Size scale" }
+  },
+  "spec_defaults": {
+    "domain": "gripper",
+    "scale": "small",
+    "material": "silicone",
+    "params": { "num_fingers": 2, "gesture": "pinch", "force_requirement": "gentle" }
+  }
+}

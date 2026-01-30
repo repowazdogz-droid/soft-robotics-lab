@@ -1,0 +1,9 @@
+{
+  "scenes": [
+    {"name": "pick_and_place", "file": "pick_and_place.xml", "description": "Table with object and target zone", "task_type": "pick_and_place", "difficulty": "medium", "compatible_grippers": ["two_finger", "three_finger"]},
+    {"name": "bin_picking", "file": "bin_picking.xml", "description": "Bin with multiple objects", "task_type": "pick", "difficulty": "hard", "compatible_grippers": ["two_finger", "three_finger"]},
+    {"name": "conveyor", "file": "conveyor.xml", "description": "Moving conveyor belt", "task_type": "pick", "difficulty": "medium", "compatible_grippers": ["two_finger"]},
+    {"name": "assembly", "file": "assembly.xml", "description": "Assembly station with parts", "task_type": "insert", "difficulty": "hard", "compatible_grippers": ["two_finger", "three_finger"]},
+    {"name": "inspection", "file": "inspection.xml", "description": "Camera and rotating platform", "task_type": "hold", "difficulty": "easy", "compatible_grippers": ["two_finger"]}
+  ]
+}

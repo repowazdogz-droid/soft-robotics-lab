@@ -1,0 +1,11 @@
+{
+  "webhooks": [
+    {
+      "id": "wh-example",
+      "url": "https://example.com/reality-bridge-hook",
+      "events": ["validation_completed", "validation_failed", "batch_completed"],
+      "secret": "",
+      "active": false
+    }
+  ]
+}

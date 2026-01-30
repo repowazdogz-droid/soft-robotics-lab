@@ -1,0 +1,12 @@
+{
+  "name": "Cam follower",
+  "description": "Cam and follower mechanism. Converts rotation to linear or oscillating motion.",
+  "parameters": {
+    "scale": { "default": "medium", "options": ["small", "medium", "large"], "description": "Scale" }
+  },
+  "spec_defaults": {
+    "domain": "mechanism",
+    "scale": "medium",
+    "params": { "type": "cam_follower" }
+  }
+}
