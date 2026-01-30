@@ -1,0 +1,50 @@
+# Canonical repo: track only these at root (products, scripts, docs, Makefile, README, requirements)
+/*
+!/.gitignore
+!/README.md
+!/Makefile
+!/requirements.txt
+!/scripts
+!/docs
+!/products
+
+# Bytecode and caches
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+
+# Environment and secrets
+.env
+.env.local
+*.env
+
+# Data and DBs (optional: track with git-lfs if needed)
+data/*.db
+**/data/*.db
+*.db
+
+# Logs and training
+training_logs/
+**/training_logs/
+
+# Node (if any frontend tooling)
+node_modules/
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Build and dist
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Virtual envs (optional: some prefer to commit)
+.venv/
+venv/
+env/

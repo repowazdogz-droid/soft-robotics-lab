@@ -1,0 +1,125 @@
+{
+  "id": "GD-20260128-0012",
+  "name": "Power Gripper - Dry - Soft Objects",
+  "created_at": "2026-01-28T22:58:56.440812",
+  "source_gesture": "power",
+  "source_parameters": {
+    "aperture": 0.05,
+    "force_requirement": 5.0,
+    "object_compliance": 0.8,
+    "environment": "dry"
+  },
+  "num_fingers": 4,
+  "finger_designs": [
+    {
+      "length_mm": 75.00000000000001,
+      "width_mm": 11.250000000000002,
+      "thickness_mm": 6.750000000000001,
+      "num_segments": 5,
+      "taper_ratio": 0.7,
+      "material": "ecoflex_0030",
+      "actuator": "pneumatic",
+      "stiffness_gradient": [
+        1.0,
+        0.85,
+        0.7,
+        0.55,
+        0.4
+      ],
+      "tendon_routing": null
+    },
+    {
+      "length_mm": 75.00000000000001,
+      "width_mm": 11.250000000000002,
+      "thickness_mm": 6.750000000000001,
+      "num_segments": 5,
+      "taper_ratio": 0.7,
+      "material": "ecoflex_0030",
+      "actuator": "pneumatic",
+      "stiffness_gradient": [
+        1.0,
+        0.85,
+        0.7,
+        0.55,
+        0.4
+      ],
+      "tendon_routing": null
+    },
+    {
+      "length_mm": 75.00000000000001,
+      "width_mm": 11.250000000000002,
+      "thickness_mm": 6.750000000000001,
+      "num_segments": 5,
+      "taper_ratio": 0.7,
+      "material": "ecoflex_0030",
+      "actuator": "pneumatic",
+      "stiffness_gradient": [
+        1.0,
+        0.85,
+        0.7,
+        0.55,
+        0.4
+      ],
+      "tendon_routing": null
+    },
+    {
+      "length_mm": 75.00000000000001,
+      "width_mm": 11.250000000000002,
+      "thickness_mm": 6.750000000000001,
+      "num_segments": 5,
+      "taper_ratio": 0.7,
+      "material": "ecoflex_0030",
+      "actuator": "pneumatic",
+      "stiffness_gradient": [
+        1.0,
+        0.85,
+        0.7,
+        0.55,
+        0.4
+      ],
+      "tendon_routing": null
+    }
+  ],
+  "palm_radius_mm": 25.0,
+  "palm_thickness_mm": 10.0,
+  "primary_actuator": "pneumatic",
+  "actuation_pressure_kpa": null,
+  "actuation_voltage_v": null,
+  "max_aperture_mm": 50.0,
+  "max_force_n": 7.5,
+  "grasp_speed_mm_per_s": 30.0,
+  "confidence": 0.7,
+  "uncertainty_factors": [
+    "Well-studied grasp type (+10%)",
+    "Extreme compliance - material selection uncertain (-10%)"
+  ],
+  "failure_modes": [
+    {
+      "mode": "Slip on smooth surfaces",
+      "probability": 0.3,
+      "mitigation": "Add textured surface or increase normal force"
+    },
+    {
+      "mode": "Air leak at seal",
+      "probability": 0.2,
+      "mitigation": "Redundant seals, pressure monitoring"
+    },
+    {
+      "mode": "Slow response time",
+      "probability": 0.25,
+      "mitigation": "Smaller chambers, higher flow valves"
+    },
+    {
+      "mode": "Object deformation/damage",
+      "probability": 0.35,
+      "mitigation": "Force limiting, compliance sensing"
+    }
+  ],
+  "tags": [
+    "power",
+    "pneumatic",
+    "dry",
+    "soft"
+  ],
+  "notes": ""
+}

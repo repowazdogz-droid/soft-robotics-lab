@@ -1,0 +1,106 @@
+{
+  "id": "GD-20260128-0017",
+  "name": "Power Gripper - Surgical - Medium Objects",
+  "created_at": "2026-01-28T22:58:56.452131",
+  "source_gesture": "power",
+  "source_parameters": {
+    "aperture": 0.03,
+    "force_requirement": 10.0,
+    "object_compliance": 0.5,
+    "environment": "surgical"
+  },
+  "num_fingers": 3,
+  "finger_designs": [
+    {
+      "length_mm": 45.0,
+      "width_mm": 6.75,
+      "thickness_mm": 4.05,
+      "num_segments": 4,
+      "taper_ratio": 0.7,
+      "material": "dragonskin_10",
+      "actuator": "pneumatic",
+      "stiffness_gradient": [
+        1.0,
+        0.85,
+        0.7,
+        0.55
+      ],
+      "tendon_routing": null
+    },
+    {
+      "length_mm": 45.0,
+      "width_mm": 6.75,
+      "thickness_mm": 4.05,
+      "num_segments": 4,
+      "taper_ratio": 0.7,
+      "material": "dragonskin_10",
+      "actuator": "pneumatic",
+      "stiffness_gradient": [
+        1.0,
+        0.85,
+        0.7,
+        0.55
+      ],
+      "tendon_routing": null
+    },
+    {
+      "length_mm": 45.0,
+      "width_mm": 6.75,
+      "thickness_mm": 4.05,
+      "num_segments": 4,
+      "taper_ratio": 0.7,
+      "material": "dragonskin_10",
+      "actuator": "pneumatic",
+      "stiffness_gradient": [
+        1.0,
+        0.85,
+        0.7,
+        0.55
+      ],
+      "tendon_routing": null
+    }
+  ],
+  "palm_radius_mm": 15.0,
+  "palm_thickness_mm": 10.0,
+  "primary_actuator": "pneumatic",
+  "actuation_pressure_kpa": null,
+  "actuation_voltage_v": null,
+  "max_aperture_mm": 30.0,
+  "max_force_n": 15.0,
+  "grasp_speed_mm_per_s": 30.0,
+  "confidence": 0.75,
+  "uncertainty_factors": [
+    "Well-studied grasp type (+10%)",
+    "Mid-range compliance - good material match (+5%)",
+    "Surgical environment - regulatory uncertainty (-10%)"
+  ],
+  "failure_modes": [
+    {
+      "mode": "Slip on smooth surfaces",
+      "probability": 0.5,
+      "mitigation": "Add textured surface or increase normal force"
+    },
+    {
+      "mode": "Air leak at seal",
+      "probability": 0.2,
+      "mitigation": "Redundant seals, pressure monitoring"
+    },
+    {
+      "mode": "Slow response time",
+      "probability": 0.25,
+      "mitigation": "Smaller chambers, higher flow valves"
+    },
+    {
+      "mode": "Sterilization degradation",
+      "probability": 0.15,
+      "mitigation": "Autoclave-compatible materials"
+    }
+  ],
+  "tags": [
+    "power",
+    "pneumatic",
+    "surgical",
+    "medium"
+  ],
+  "notes": ""
+}

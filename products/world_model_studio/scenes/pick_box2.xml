@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mujoco model="composed_scene">
+  <compiler angle="radian" autolimits="true"/>
+  <option timestep="0.002" gravity="0 0 -9.81"/>
+  <worldbody>
+    <geom name="ground" type="plane" size="1 1 0.1" condim="3"/>
+    <light name="main" pos="0.5 0.5 1.2" dir="0 0 -1" directional="true"/>
+    <camera name="main" pos="0.800 0.600 0.500" fovy="60" mode="fixed"/>
+    <body name="surface_table" pos="0.0000 0.0000 0.0000"><geom name="table_geom" type="box" size="0.4 0.3 0.02" pos="0 0 0.02" rgba="0.5 0.45 0.4 1" condim="3" friction="1.2 0.005 0.0001"/></body>
+    <body name="gripper_large_gripper_base" pos="0.0000 0.0000 0.1500">
+      <joint name="gripper_large_gripper_x" type="slide" axis="1 0 0" range="-0.2 0.2"/>
+      <joint name="gripper_large_gripper_y" type="slide" axis="0 1 0" range="-0.2 0.2"/>
+      <joint name="gripper_large_gripper_z" type="slide" axis="0 0 1" range="-0.1 0.3"/>
+      <body name="gripper_large_gripper" pos="0.0000 0.0000 0.0000">
+            <geom class="palm" name="palm_geom" size="0.0470 0.0050" pos="0 0 0.0050" />
+            <body name="finger_0_base" pos="0.0306 0.0000 0.0100">
+              <joint class="gripper" name="finger_0_base_joint" axis="0 1 0" stiffness="0.0450" damping="0.1080" />
+              <site name="finger_0_site_0" pos="0 0 0.002" size="0.002" />
+              <geom class="gripper" name="finger_0_seg_0" fromto="0 0 0.0020 0 0 0.0335" size="0.0127" />
+              <body name="finger_0_seg_1" pos="0 0 0.0335">
+                <joint class="gripper" name="finger_0_joint_1" axis="0 1 0" stiffness="0.0375" damping="0.0840" />
+                <geom class="gripper" name="finger_0_seg_1_geom" fromto="0 0 0.001 0 0 0.0335" size="0.0113" />
+                <site name="finger_0_site_1" pos="0 0 0.0168" size="0.002" />
+              </body>
+              <body name="finger_0_seg_2" pos="0 0 0.0335">
+                <joint class="gripper" name="finger_0_joint_2" axis="0 1 0" stiffness="0.0300" damping="0.0660" />
+                <geom class="gripper" name="finger_0_seg_2_geom" fromto="0 0 0.001 0 0 0.0335" size="0.0100" />
+                <site name="finger_0_site_2" pos="0 0 0.0168" size="0.002" />
+              </body>
+              <body name="finger_0_seg_3" pos="0 0 0.0335">
+                <joint class="gripper" name="finger_0_joint_3" axis="0 1 0" stiffness="0.0250" damping="0.0540" />
+                <geom class="gripper" name="finger_0_seg_3_geom" fromto="0 0 0.001 0 0 0.0335" size="0.0086" />
+                <site name="finger_0_site_3" pos="0 0 0.0168" size="0.002" />
+              </body>
+            </body>
+            <body name="finger_1_base" pos="0.0000 0.0306 0.0100">
+              <joint class="gripper" name="finger_1_base_joint" axis="0 1 0" stiffness="0.0450" damping="0.1080" />
+              <site name="finger_1_site_0" pos="0 0 0.002" size="0.002" />
+              <geom class="gripper" name="finger_1_seg_0" fromto="0 0 0.0020 0 0 0.0335" size="0.0127" />
+              <body name="finger_1_seg_1" pos="0 0 0.0335">
+                <joint class="gripper" name="finger_1_joint_1" axis="0 1 0" stiffness="0.0375" damping="0.0840" />
+                <geom class="gripper" name="finger_1_seg_1_geom" fromto="0 0 0.001 0 0 0.0335" size="0.0113" />
+                <site name="finger_1_site_1" pos="0 0 0.0168" size="0.002" />
+              </body>
+              <body name="finger_1_seg_2" pos="0 0 0.0335">
+                <joint class="gripper" name="finger_1_joint_2" axis="0 1 0" stiffness="0.0300" damping="0.0660" />
+                <geom class="gripper" name="finger_1_seg_2_geom" fromto="0 0 0.001 0 0 0.0335" size="0.0100" />
+                <site name="finger_1_site_2" pos="0 0 0.0168" size="0.002" />
+              </body>
+              <body name="finger_1_seg_3" pos="0 0 0.0335">
+                <joint class="gripper" name="finger_1_joint_3" axis="0 1 0" stiffness="0.0250" damping="0.0540" />
+                <geom class="gripper" name="finger_1_seg_3_geom" fromto="0 0 0.001 0 0 0.0335" size="0.0086" />
+                <site name="finger_1_site_3" pos="0 0 0.0168" size="0.002" />
+              </body>
+            </body>
+            <body name="finger_2_base" pos="-0.0306 0.0000 0.0100">
+              <joint class="gripper" name="finger_2_base_joint" axis="0 1 0" stiffness="0.0450" damping="0.1080" />
+              <site name="finger_2_site_0" pos="0 0 0.002" size="0.002" />
+              <geom class="gripper" name="finger_2_seg_0" fromto="0 0 0.0020 0 0 0.0335" size="0.0127" />
+              <body name="finger_2_seg_1" pos="0 0 0.0335">
+                <joint class="gripper" name="finger_2_joint_1" axis="0 1 0" stiffness="0.0375" damping="0.0840" />
+                <geom class="gripper" name="finger_2_seg_1_geom" fromto="0 0 0.001 0 0 0.0335" size="0.0113" />
+                <site name="finger_2_site_1" pos="0 0 0.0168" size="0.002" />
+              </body>
+              <body name="finger_2_seg_2" pos="0 0 0.0335">
+                <joint class="gripper" name="finger_2_joint_2" axis="0 1 0" stiffness="0.0300" damping="0.0660" />
+                <geom class="gripper" name="finger_2_seg_2_geom" fromto="0 0 0.001 0 0 0.0335" size="0.0100" />
+                <site name="finger_2_site_2" pos="0 0 0.0168" size="0.002" />
+              </body>
+              <body name="finger_2_seg_3" pos="0 0 0.0335">
+                <joint class="gripper" name="finger_2_joint_3" axis="0 1 0" stiffness="0.0250" damping="0.0540" />
+                <geom class="gripper" name="finger_2_seg_3_geom" fromto="0 0 0.001 0 0 0.0335" size="0.0086" />
+                <site name="finger_2_site_3" pos="0 0 0.0168" size="0.002" />
+              </body>
+            </body>
+            <body name="finger_3_base" pos="-0.0000 -0.0306 0.0100">
+              <joint class="gripper" name="finger_3_base_joint" axis="0 1 0" stiffness="0.0450" damping="0.1080" />
+              <site name="finger_3_site_0" pos="0 0 0.002" size="0.002" />
+              <geom class="gripper" name="finger_3_seg_0" fromto="0 0 0.0020 0 0 0.0335" size="0.0127" />
+              <body name="finger_3_seg_1" pos="0 0 0.0335">
+                <joint class="gripper" name="finger_3_joint_1" axis="0 1 0" stiffness="0.0375" damping="0.0840" />
+                <geom class="gripper" name="finger_3_seg_1_geom" fromto="0 0 0.001 0 0 0.0335" size="0.0113" />
+                <site name="finger_3_site_1" pos="0 0 0.0168" size="0.002" />
+              </body>
+              <body name="finger_3_seg_2" pos="0 0 0.0335">
+                <joint class="gripper" name="finger_3_joint_2" axis="0 1 0" stiffness="0.0300" damping="0.0660" />
+                <geom class="gripper" name="finger_3_seg_2_geom" fromto="0 0 0.001 0 0 0.0335" size="0.0100" />
+                <site name="finger_3_site_2" pos="0 0 0.0168" size="0.002" />
+              </body>
+              <body name="finger_3_seg_3" pos="0 0 0.0335">
+                <joint class="gripper" name="finger_3_joint_3" axis="0 1 0" stiffness="0.0250" damping="0.0540" />
+                <geom class="gripper" name="finger_3_seg_3_geom" fromto="0 0 0.001 0 0 0.0335" size="0.0086" />
+                <site name="finger_3_site_3" pos="0 0 0.0168" size="0.002" />
+              </body>
+            </body>
+          </body>
+    </body>
+    <body name="object_box" pos="0.0000 0.0000 0.0500"><freejoint name="box_joint"/><geom name="box_geom" type="box" size="0.03 0.03 0.03" mass="0.100" rgba="0.8 0.4 0.2 1"/></body>
+  </worldbody>
+  <default>
+    <default class="gripper">
+    <geom type="capsule" condim="4" friction="1.0 0.005 0.0001" rgba="0.85 0.8 0.75 1" margin="0.001" />
+    <joint type="hinge" limited="true" range="-1.57 1.57" stiffness="0.05" damping="0.12" armature="0.001" />
+    </default>
+    <default class="palm"><geom type="cylinder" rgba="0.4 0.4 0.5 1" friction="1.0 0.005 0.0001" />
+    </default>
+  </default>
+  <tendon>
+    <spatial name="finger_0_flexor" limited="true" range="0 0.15" width="0.002" frictionloss="0.1">
+    <site site="finger_0_site_0" />
+    <site site="finger_0_site_1" />
+    <site site="finger_0_site_2" />
+    <site site="finger_0_site_3" />
+    </spatial>
+    <spatial name="finger_0_extensor" limited="true" range="0 0.15" width="0.002" frictionloss="0.1">
+    <site site="finger_0_site_3" />
+    <site site="finger_0_site_2" />
+    <site site="finger_0_site_1" />
+    <site site="finger_0_site_0" />
+    </spatial>
+    <spatial name="finger_1_flexor" limited="true" range="0 0.15" width="0.002" frictionloss="0.1">
+    <site site="finger_1_site_0" />
+    <site site="finger_1_site_1" />
+    <site site="finger_1_site_2" />
+    <site site="finger_1_site_3" />
+    </spatial>
+    <spatial name="finger_1_extensor" limited="true" range="0 0.15" width="0.002" frictionloss="0.1">
+    <site site="finger_1_site_3" />
+    <site site="finger_1_site_2" />
+    <site site="finger_1_site_1" />
+    <site site="finger_1_site_0" />
+    </spatial>
+    <spatial name="finger_2_flexor" limited="true" range="0 0.15" width="0.002" frictionloss="0.1">
+    <site site="finger_2_site_0" />
+    <site site="finger_2_site_1" />
+    <site site="finger_2_site_2" />
+    <site site="finger_2_site_3" />
+    </spatial>
+    <spatial name="finger_2_extensor" limited="true" range="0 0.15" width="0.002" frictionloss="0.1">
+    <site site="finger_2_site_3" />
+    <site site="finger_2_site_2" />
+    <site site="finger_2_site_1" />
+    <site site="finger_2_site_0" />
+    </spatial>
+    <spatial name="finger_3_flexor" limited="true" range="0 0.15" width="0.002" frictionloss="0.1">
+    <site site="finger_3_site_0" />
+    <site site="finger_3_site_1" />
+    <site site="finger_3_site_2" />
+    <site site="finger_3_site_3" />
+    </spatial>
+    <spatial name="finger_3_extensor" limited="true" range="0 0.15" width="0.002" frictionloss="0.1">
+    <site site="finger_3_site_3" />
+    <site site="finger_3_site_2" />
+    <site site="finger_3_site_1" />
+    <site site="finger_3_site_0" />
+    </spatial>
+  </tendon>
+  <actuator>
+    <position name="gripper_large_gripper_x_act" joint="gripper_large_gripper_x" kp="100"/>
+    <position name="gripper_large_gripper_y_act" joint="gripper_large_gripper_y" kp="100"/>
+    <position name="gripper_large_gripper_z_act" joint="gripper_large_gripper_z" kp="100"/>
+    <motor name="finger_0_flexor_motor" tendon="finger_0_flexor" gear="50" ctrllimited="true" ctrlrange="0 1" />
+    <motor name="finger_0_extensor_motor" tendon="finger_0_extensor" gear="25" ctrllimited="true" ctrlrange="0 0.5" />
+    <motor name="finger_1_flexor_motor" tendon="finger_1_flexor" gear="50" ctrllimited="true" ctrlrange="0 1" />
+    <motor name="finger_1_extensor_motor" tendon="finger_1_extensor" gear="25" ctrllimited="true" ctrlrange="0 0.5" />
+    <motor name="finger_2_flexor_motor" tendon="finger_2_flexor" gear="50" ctrllimited="true" ctrlrange="0 1" />
+    <motor name="finger_2_extensor_motor" tendon="finger_2_extensor" gear="25" ctrllimited="true" ctrlrange="0 0.5" />
+    <motor name="finger_3_flexor_motor" tendon="finger_3_flexor" gear="50" ctrllimited="true" ctrlrange="0 1" />
+    <motor name="finger_3_extensor_motor" tendon="finger_3_extensor" gear="25" ctrllimited="true" ctrlrange="0 0.5" />
+  </actuator>
+  <sensor>
+    <jointpos name="finger_0_pos" joint="finger_0_base_joint" />
+    <jointvel name="finger_0_vel" joint="finger_0_base_joint" />
+    <tendonpos name="finger_0_flexor_len" tendon="finger_0_flexor" />
+    <jointpos name="finger_1_pos" joint="finger_1_base_joint" />
+    <jointvel name="finger_1_vel" joint="finger_1_base_joint" />
+    <tendonpos name="finger_1_flexor_len" tendon="finger_1_flexor" />
+    <jointpos name="finger_2_pos" joint="finger_2_base_joint" />
+    <jointvel name="finger_2_vel" joint="finger_2_base_joint" />
+    <tendonpos name="finger_2_flexor_len" tendon="finger_2_flexor" />
+    <jointpos name="finger_3_pos" joint="finger_3_base_joint" />
+    <jointvel name="finger_3_vel" joint="finger_3_base_joint" />
+    <tendonpos name="finger_3_flexor_len" tendon="finger_3_flexor" />
+  </sensor>
+  <contact>
+    <pair name="gripper_object_finger_1_seg_3_geom_box_geom" geom1="finger_1_seg_3_geom" geom2="box_geom" condim="3"/>
+    <pair name="gripper_object_finger_3_seg_2_geom_box_geom" geom1="finger_3_seg_2_geom" geom2="box_geom" condim="3"/>
+    <pair name="gripper_object_finger_3_seg_1_geom_box_geom" geom1="finger_3_seg_1_geom" geom2="box_geom" condim="3"/>
+    <pair name="gripper_object_finger_2_seg_1_geom_box_geom" geom1="finger_2_seg_1_geom" geom2="box_geom" condim="3"/>
+    <pair name="gripper_object_finger_0_seg_2_geom_box_geom" geom1="finger_0_seg_2_geom" geom2="box_geom" condim="3"/>
+    <pair name="gripper_object_finger_0_seg_3_geom_box_geom" geom1="finger_0_seg_3_geom" geom2="box_geom" condim="3"/>
+    <pair name="gripper_object_finger_3_seg_3_geom_box_geom" geom1="finger_3_seg_3_geom" geom2="box_geom" condim="3"/>
+    <pair name="gripper_object_finger_3_seg_0_box_geom" geom1="finger_3_seg_0" geom2="box_geom" condim="3"/>
+    <pair name="gripper_object_finger_1_seg_1_geom_box_geom" geom1="finger_1_seg_1_geom" geom2="box_geom" condim="3"/>
+    <pair name="gripper_object_finger_0_seg_1_geom_box_geom" geom1="finger_0_seg_1_geom" geom2="box_geom" condim="3"/>
+    <pair name="gripper_object_finger_1_seg_0_box_geom" geom1="finger_1_seg_0" geom2="box_geom" condim="3"/>
+    <pair name="gripper_object_finger_1_seg_2_geom_box_geom" geom1="finger_1_seg_2_geom" geom2="box_geom" condim="3"/>
+    <pair name="gripper_object_finger_0_seg_0_box_geom" geom1="finger_0_seg_0" geom2="box_geom" condim="3"/>
+    <pair name="gripper_object_finger_2_seg_2_geom_box_geom" geom1="finger_2_seg_2_geom" geom2="box_geom" condim="3"/>
+    <pair name="gripper_object_finger_2_seg_0_box_geom" geom1="finger_2_seg_0" geom2="box_geom" condim="3"/>
+    <pair name="gripper_object_palm_geom_box_geom" geom1="palm_geom" geom2="box_geom" condim="3"/>
+    <pair name="gripper_object_finger_2_seg_3_geom_box_geom" geom1="finger_2_seg_3_geom" geom2="box_geom" condim="3"/>
+  </contact>
+</mujoco>

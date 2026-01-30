@@ -1,0 +1,164 @@
+{
+  "format": "omega_soft_robotics",
+  "version": "1.0",
+  "design": {
+    "id": "GD-20260128-0047",
+    "name": "Kelp Harvester",
+    "created_at": "2026-01-28T22:58:56.523852",
+    "source_gesture": "wrap",
+    "source_parameters": {
+      "aperture": 0.1,
+      "force_requirement": 5.0,
+      "object_compliance": 0.7,
+      "environment": "wet"
+    },
+    "num_fingers": 3,
+    "finger_designs": [
+      {
+        "length_mm": 150.00000000000003,
+        "width_mm": 22.500000000000004,
+        "thickness_mm": 13.500000000000002,
+        "num_segments": 5,
+        "taper_ratio": 0.7,
+        "material": "dragonskin_10",
+        "actuator": "pneumatic",
+        "stiffness_gradient": [
+          1.0,
+          0.85,
+          0.7,
+          0.55,
+          0.4
+        ],
+        "tendon_routing": null
+      },
+      {
+        "length_mm": 150.00000000000003,
+        "width_mm": 22.500000000000004,
+        "thickness_mm": 13.500000000000002,
+        "num_segments": 5,
+        "taper_ratio": 0.7,
+        "material": "dragonskin_10",
+        "actuator": "pneumatic",
+        "stiffness_gradient": [
+          1.0,
+          0.85,
+          0.7,
+          0.55,
+          0.4
+        ],
+        "tendon_routing": null
+      },
+      {
+        "length_mm": 150.00000000000003,
+        "width_mm": 22.500000000000004,
+        "thickness_mm": 13.500000000000002,
+        "num_segments": 5,
+        "taper_ratio": 0.7,
+        "material": "dragonskin_10",
+        "actuator": "pneumatic",
+        "stiffness_gradient": [
+          1.0,
+          0.85,
+          0.7,
+          0.55,
+          0.4
+        ],
+        "tendon_routing": null
+      }
+    ],
+    "palm_radius_mm": 50.0,
+    "palm_thickness_mm": 10.0,
+    "primary_actuator": "pneumatic",
+    "actuation_pressure_kpa": null,
+    "actuation_voltage_v": null,
+    "max_aperture_mm": 100.0,
+    "max_force_n": 7.5,
+    "grasp_speed_mm_per_s": 30.0,
+    "confidence": 0.7,
+    "uncertainty_factors": [
+      "Less common grasp type - limited validation data",
+      "Mid-range compliance - good material match (+5%)",
+      "Wet environment - friction modeling uncertain (-5%)"
+    ],
+    "failure_modes": [
+      {
+        "mode": "Slip on smooth surfaces",
+        "probability": 0.5,
+        "mitigation": "Add textured surface or increase normal force"
+      },
+      {
+        "mode": "Air leak at seal",
+        "probability": 0.2,
+        "mitigation": "Redundant seals, pressure monitoring"
+      },
+      {
+        "mode": "Slow response time",
+        "probability": 0.25,
+        "mitigation": "Smaller chambers, higher flow valves"
+      },
+      {
+        "mode": "Reduced friction in wet conditions",
+        "probability": 0.4,
+        "mitigation": "Hydrophilic surface treatment"
+      }
+    ],
+    "tags": [
+      "wrap",
+      "pneumatic",
+      "wet"
+    ],
+    "notes": ""
+  },
+  "stage": {
+    "upAxis": "Z",
+    "metersPerUnit": 0.001
+  },
+  "prims": [
+    {
+      "path": "/gripper/palm",
+      "type": "Cylinder",
+      "radius": 50.0,
+      "height": 10.0,
+      "material": "silicone"
+    },
+    {
+      "path": "/gripper/finger_0",
+      "type": "Capsule",
+      "radius": 11.250000000000002,
+      "height": 150.00000000000003,
+      "rotation": [
+        0,
+        0,
+        0.0
+      ],
+      "segments": 5,
+      "material": "dragonskin_10"
+    },
+    {
+      "path": "/gripper/finger_1",
+      "type": "Capsule",
+      "radius": 11.250000000000002,
+      "height": 150.00000000000003,
+      "rotation": [
+        0,
+        0,
+        120.0
+      ],
+      "segments": 5,
+      "material": "dragonskin_10"
+    },
+    {
+      "path": "/gripper/finger_2",
+      "type": "Capsule",
+      "radius": 11.250000000000002,
+      "height": 150.00000000000003,
+      "rotation": [
+        0,
+        0,
+        240.0
+      ],
+      "segments": 5,
+      "material": "dragonskin_10"
+    }
+  ]
+}

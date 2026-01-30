@@ -1,0 +1,166 @@
+{
+  "id": "DB-20260129-0001",
+  "query": "Should we prioritize soft robotics or enterprise tools for Q1?",
+  "generated_at": "2026-01-29T17:59:07.491395",
+  "params": {
+    "horizon": 12,
+    "budget": 250000,
+    "soft_robotics_roi": 0.4,
+    "enterprise_tools_mrr": 50000,
+    "dev_capacity": 0.8
+  },
+  "domains": [
+    "strategy"
+  ],
+  "t1_implications": {
+    "implications": [
+      "Portfolio allocation, quick wins"
+    ],
+    "risks": [
+      "Resource and timeline uncertainty"
+    ],
+    "opportunities": [
+      "Alignment with stated objectives"
+    ]
+  },
+  "t2_implications": {
+    "implications": [
+      "Roadmap commitment, capability build"
+    ],
+    "risks": [
+      "Resource and timeline uncertainty"
+    ],
+    "opportunities": [
+      "Alignment with stated objectives"
+    ]
+  },
+  "t3_implications": {
+    "implications": [
+      "Infrastructure, ecosystems (5-30y)"
+    ],
+    "risks": [
+      "Resource and timeline uncertainty"
+    ],
+    "opportunities": [
+      "Alignment with stated objectives"
+    ]
+  },
+  "t4_implications": {
+    "implications": [
+      "Intergenerational, planetary (30+y)"
+    ],
+    "risks": [
+      "Resource and timeline uncertainty"
+    ],
+    "opportunities": [
+      "Alignment with stated objectives"
+    ]
+  },
+  "who_pays": [
+    "Primary budget owner",
+    "Strategy/PMO"
+  ],
+  "who_benefits": [
+    "Decision sponsor",
+    "End users if adopted"
+  ],
+  "who_loses": [
+    "Alternatives foregone"
+  ],
+  "adoption_barriers": [
+    "Resource constraint",
+    "Organizational alignment",
+    "Portfolio trade-offs"
+  ],
+  "srfc_status": "GREEN",
+  "srfc_reason": "Params sufficient for feasibility check",
+  "tsrfc_status": "AMBER",
+  "tsrfc_reason": "Workflow replacement scope implied by query",
+  "vrfc_status": "AMBER",
+  "vrfc_reason": "Multi-domain strategy requires coordination validation",
+  "trajectories": [
+    {
+      "name": "Conservative",
+      "description": "Minimal change, focus on de-risking and reversible steps.",
+      "probability": 0.4,
+      "trade_offs": [
+        "Lower upside",
+        "Slower time-to-value",
+        "Preserves optionality"
+      ],
+      "failure_modes": [
+        "Opportunity cost",
+        "Competitor move first",
+        "Drift from market"
+      ]
+    },
+    {
+      "name": "Balanced",
+      "description": "Phased commitment with checkpoints and clear go/no-go.",
+      "probability": 0.35,
+      "trade_offs": [
+        "Moderate risk/reward",
+        "Requires discipline",
+        "Adaptable"
+      ],
+      "failure_modes": [
+        "Checkpoint creep",
+        "Resource dilution",
+        "Delayed payoff"
+      ]
+    },
+    {
+      "name": "Aggressive",
+      "description": "Full commitment to chosen direction; fast execution.",
+      "probability": 0.25,
+      "trade_offs": [
+        "Higher upside",
+        "Less reversible",
+        "Requires alignment"
+      ],
+      "failure_modes": [
+        "Overcommit",
+        "Execution gaps",
+        "External shock"
+      ]
+    }
+  ],
+  "substrate_analysis": {
+    "materials": "Decision touches materials; impact derived from query and domain.",
+    "compute": "Compute for control/simulation; materials for end-effector.",
+    "manufacturing": "Assembly and integration; tooling and fixtures.",
+    "coordination": "Cross-domain coordination and resource allocation.",
+    "environment": "Decision touches environment; impact derived from query and domain."
+  },
+  "overall_status": "AMBER",
+  "confidence_drivers": [
+    "Params provided and used for feasibility",
+    "Domain mapping applied"
+  ],
+  "uncertainty_drivers": [
+    "Execution context",
+    "External factors",
+    "Timeline variance"
+  ],
+  "recommended_next_action": "Proceed with phased pilot; set go/no-go checkpoint at 90 days and re-assess.",
+  "requires_approval": true,
+  "approval_reason": "Feasibility or reality check at AMBER; approval recommended.",
+  "audit_trail": [
+    "Parsed query and detected domains: strategy",
+    "Params complete for domain check",
+    "Computed T1-T4 implications (deterministic)",
+    "Computed stakeholders (deterministic)",
+    "Computed SRFC/TSRFC/VRFC (deterministic)",
+    "Aggregated overall status: AMBER",
+    "Computed 3 trajectories (plural futures)",
+    "Computed substrate analysis",
+    "LLM enrichment skipped (unavailable or error)"
+  ],
+  "params_complete": true,
+  "missing_params": [],
+  "llm_enriched_temporal": false,
+  "llm_enriched_stakeholders": false,
+  "llm_enriched_substrate": false,
+  "llm_enriched_recommended_action": false,
+  "llm_unavailable_note": "LLM enrichment unavailable - showing deterministic analysis only"
+}

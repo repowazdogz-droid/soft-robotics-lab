@@ -1,0 +1,12 @@
+# OMEGA Stack — root requirements (minimal for smoke + scripts)
+# Product-specific deps: see products/<name>/requirements.txt
+
+# Common
+python-dotenv>=1.0.0
+
+# Optional: uncomment if you run all products from root
+# streamlit>=1.28.0
+# openai>=1.0.0
+# google-generativeai>=0.3.0
+# mujoco>=3.0.0
+# fastapi>=0.104.0

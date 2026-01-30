@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mujoco model="OF_M_20260129_0001">
+  <compiler angle="radian" autolimits="true"/>
+  <option timestep="0.002"/>
+  <default>
+    <joint damping="0.1" armature="0.001"/>
+    <geom friction="0.5 0.005 0.0001" rgba="0.6 0.6 0.7 1"/>
+  </default>
+  <worldbody>
+    <geom name="ground" type="plane" size="0.5 0.5 0.1" condim="3"/>
+    <light pos="0 0 1" dir="0 0 -1" directional="true"/>
+    <body name="link0" pos="0 0 0.05">
+      <joint name="hinge0" type="hinge" axis="0 1 0" range="-1.57 1.57"/>
+      <geom name="link0_geom" type="capsule" fromto="0 0 0 0 0 0.05" size="0.010000000000000002"/>
+      <body name="link1" pos="0 0 0.05">
+        <joint name="hinge1" type="hinge" axis="0 1 0" range="-1 1"/>
+        <geom name="link1_geom" type="capsule" fromto="0 0 0 0 0 0.05" size="0.0075"/>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <motor name="act0" joint="hinge0" gear="10" ctrllimited="true" ctrlrange="-1 1"/>
+  </actuator>
+  <sensor>
+    <jointpos name="q0" joint="hinge0"/>
+    <jointvel name="dq0" joint="hinge0"/>
+  </sensor>
+</mujoco>

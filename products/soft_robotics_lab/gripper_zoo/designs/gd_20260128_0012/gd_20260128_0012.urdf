@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<robot name="Power_Gripper_-_Dry_-_Soft_Objects">
+
+    <link name="palm_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.0250" length="0.0100"/>
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="0.0250" length="0.0100"/>
+            </geometry>
+        </collision>
+    </link>
+
+    
+    <link name="finger_0_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.0056" length="0.0750"/>
+            </geometry>
+            <origin xyz="0 0 0.0375"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="0.0056" length="0.0750"/>
+            </geometry>
+            <origin xyz="0 0 0.0375"/>
+        </collision>
+    </link>
+
+    <joint name="finger_0_joint" type="revolute">
+        <parent link="palm_link"/>
+        <child link="finger_0_link"/>
+        <origin xyz="0.0250 0.0000 0.0100" rpy="0 0 0.0000"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-1.57" upper="1.57" effort="10" velocity="1"/>
+    </joint>
+
+    <link name="finger_1_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.0056" length="0.0750"/>
+            </geometry>
+            <origin xyz="0 0 0.0375"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="0.0056" length="0.0750"/>
+            </geometry>
+            <origin xyz="0 0 0.0375"/>
+        </collision>
+    </link>
+
+    <joint name="finger_1_joint" type="revolute">
+        <parent link="palm_link"/>
+        <child link="finger_1_link"/>
+        <origin xyz="0.0000 0.0250 0.0100" rpy="0 0 1.5708"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-1.57" upper="1.57" effort="10" velocity="1"/>
+    </joint>
+
+    <link name="finger_2_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.0056" length="0.0750"/>
+            </geometry>
+            <origin xyz="0 0 0.0375"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="0.0056" length="0.0750"/>
+            </geometry>
+            <origin xyz="0 0 0.0375"/>
+        </collision>
+    </link>
+
+    <joint name="finger_2_joint" type="revolute">
+        <parent link="palm_link"/>
+        <child link="finger_2_link"/>
+        <origin xyz="-0.0250 0.0000 0.0100" rpy="0 0 3.1416"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-1.57" upper="1.57" effort="10" velocity="1"/>
+    </joint>
+
+    <link name="finger_3_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.0056" length="0.0750"/>
+            </geometry>
+            <origin xyz="0 0 0.0375"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="0.0056" length="0.0750"/>
+            </geometry>
+            <origin xyz="0 0 0.0375"/>
+        </collision>
+    </link>
+
+    <joint name="finger_3_joint" type="revolute">
+        <parent link="palm_link"/>
+        <child link="finger_3_link"/>
+        <origin xyz="-0.0000 -0.0250 0.0100" rpy="0 0 4.7124"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-1.57" upper="1.57" effort="10" velocity="1"/>
+    </joint>
+
+</robot>

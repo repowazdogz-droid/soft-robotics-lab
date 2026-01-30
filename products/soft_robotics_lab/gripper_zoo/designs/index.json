@@ -1,0 +1,856 @@
+{
+  "generated": "generate_zoo.py",
+  "count": 50,
+  "designs": [
+    {
+      "id": "GD-20260128-0001",
+      "name": "Pinch Gripper - Dry - Rigid Objects",
+      "gesture": "pinch",
+      "environment": "dry",
+      "compliance": "rigid",
+      "confidence": 0.7,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0001\\gd_20260128_0001.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0001\\gd_20260128_0001.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0001\\gd_20260128_0001.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0001\\gd_20260128_0001_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0002",
+      "name": "Pinch Gripper - Dry - Medium Objects",
+      "gesture": "pinch",
+      "environment": "dry",
+      "compliance": "medium",
+      "confidence": 0.85,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0002\\gd_20260128_0002.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0002\\gd_20260128_0002.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0002\\gd_20260128_0002.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0002\\gd_20260128_0002_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0003",
+      "name": "Pinch Gripper - Dry - Soft Objects",
+      "gesture": "pinch",
+      "environment": "dry",
+      "compliance": "soft",
+      "confidence": 0.7,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0003\\gd_20260128_0003.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0003\\gd_20260128_0003.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0003\\gd_20260128_0003.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0003\\gd_20260128_0003_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0004",
+      "name": "Pinch Gripper - Wet - Rigid Objects",
+      "gesture": "pinch",
+      "environment": "wet",
+      "compliance": "rigid",
+      "confidence": 0.6499999999999999,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0004\\gd_20260128_0004.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0004\\gd_20260128_0004.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0004\\gd_20260128_0004.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0004\\gd_20260128_0004_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0005",
+      "name": "Pinch Gripper - Wet - Medium Objects",
+      "gesture": "pinch",
+      "environment": "wet",
+      "compliance": "medium",
+      "confidence": 0.7999999999999999,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0005\\gd_20260128_0005.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0005\\gd_20260128_0005.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0005\\gd_20260128_0005.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0005\\gd_20260128_0005_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0006",
+      "name": "Pinch Gripper - Wet - Soft Objects",
+      "gesture": "pinch",
+      "environment": "wet",
+      "compliance": "soft",
+      "confidence": 0.6499999999999999,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0006\\gd_20260128_0006.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0006\\gd_20260128_0006.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0006\\gd_20260128_0006.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0006\\gd_20260128_0006_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0007",
+      "name": "Pinch Gripper - Surgical - Rigid Objects",
+      "gesture": "pinch",
+      "environment": "surgical",
+      "compliance": "rigid",
+      "confidence": 0.6,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0007\\gd_20260128_0007.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0007\\gd_20260128_0007.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0007\\gd_20260128_0007.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0007\\gd_20260128_0007_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0008",
+      "name": "Pinch Gripper - Surgical - Medium Objects",
+      "gesture": "pinch",
+      "environment": "surgical",
+      "compliance": "medium",
+      "confidence": 0.75,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0008\\gd_20260128_0008.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0008\\gd_20260128_0008.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0008\\gd_20260128_0008.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0008\\gd_20260128_0008_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0009",
+      "name": "Pinch Gripper - Surgical - Soft Objects",
+      "gesture": "pinch",
+      "environment": "surgical",
+      "compliance": "soft",
+      "confidence": 0.6,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0009\\gd_20260128_0009.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0009\\gd_20260128_0009.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0009\\gd_20260128_0009.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0009\\gd_20260128_0009_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0010",
+      "name": "Power Gripper - Dry - Rigid Objects",
+      "gesture": "power",
+      "environment": "dry",
+      "compliance": "rigid",
+      "confidence": 0.7,
+      "num_fingers": 4,
+      "actuator": "pneumatic",
+      "max_force_n": 15.0,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0010\\gd_20260128_0010.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0010\\gd_20260128_0010.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0010\\gd_20260128_0010.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0010\\gd_20260128_0010_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0011",
+      "name": "Power Gripper - Dry - Medium Objects",
+      "gesture": "power",
+      "environment": "dry",
+      "compliance": "medium",
+      "confidence": 0.85,
+      "num_fingers": 4,
+      "actuator": "pneumatic",
+      "max_force_n": 15.0,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0011\\gd_20260128_0011.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0011\\gd_20260128_0011.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0011\\gd_20260128_0011.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0011\\gd_20260128_0011_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0012",
+      "name": "Power Gripper - Dry - Soft Objects",
+      "gesture": "power",
+      "environment": "dry",
+      "compliance": "soft",
+      "confidence": 0.7,
+      "num_fingers": 4,
+      "actuator": "pneumatic",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0012\\gd_20260128_0012.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0012\\gd_20260128_0012.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0012\\gd_20260128_0012.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0012\\gd_20260128_0012_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0013",
+      "name": "Power Gripper - Wet - Rigid Objects",
+      "gesture": "power",
+      "environment": "wet",
+      "compliance": "rigid",
+      "confidence": 0.6499999999999999,
+      "num_fingers": 4,
+      "actuator": "pneumatic",
+      "max_force_n": 15.0,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0013\\gd_20260128_0013.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0013\\gd_20260128_0013.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0013\\gd_20260128_0013.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0013\\gd_20260128_0013_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0014",
+      "name": "Power Gripper - Wet - Medium Objects",
+      "gesture": "power",
+      "environment": "wet",
+      "compliance": "medium",
+      "confidence": 0.7999999999999999,
+      "num_fingers": 4,
+      "actuator": "pneumatic",
+      "max_force_n": 15.0,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0014\\gd_20260128_0014.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0014\\gd_20260128_0014.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0014\\gd_20260128_0014.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0014\\gd_20260128_0014_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0015",
+      "name": "Power Gripper - Wet - Soft Objects",
+      "gesture": "power",
+      "environment": "wet",
+      "compliance": "soft",
+      "confidence": 0.6499999999999999,
+      "num_fingers": 4,
+      "actuator": "pneumatic",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0015\\gd_20260128_0015.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0015\\gd_20260128_0015.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0015\\gd_20260128_0015.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0015\\gd_20260128_0015_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0016",
+      "name": "Power Gripper - Surgical - Rigid Objects",
+      "gesture": "power",
+      "environment": "surgical",
+      "compliance": "rigid",
+      "confidence": 0.6,
+      "num_fingers": 3,
+      "actuator": "pneumatic",
+      "max_force_n": 15.0,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0016\\gd_20260128_0016.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0016\\gd_20260128_0016.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0016\\gd_20260128_0016.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0016\\gd_20260128_0016_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0017",
+      "name": "Power Gripper - Surgical - Medium Objects",
+      "gesture": "power",
+      "environment": "surgical",
+      "compliance": "medium",
+      "confidence": 0.75,
+      "num_fingers": 3,
+      "actuator": "pneumatic",
+      "max_force_n": 15.0,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0017\\gd_20260128_0017.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0017\\gd_20260128_0017.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0017\\gd_20260128_0017.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0017\\gd_20260128_0017_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0018",
+      "name": "Power Gripper - Surgical - Soft Objects",
+      "gesture": "power",
+      "environment": "surgical",
+      "compliance": "soft",
+      "confidence": 0.6,
+      "num_fingers": 3,
+      "actuator": "pneumatic",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0018\\gd_20260128_0018.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0018\\gd_20260128_0018.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0018\\gd_20260128_0018.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0018\\gd_20260128_0018_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0019",
+      "name": "Wrap Gripper - Dry - Rigid Objects",
+      "gesture": "wrap",
+      "environment": "dry",
+      "compliance": "rigid",
+      "confidence": 0.6,
+      "num_fingers": 3,
+      "actuator": "pneumatic",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0019\\gd_20260128_0019.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0019\\gd_20260128_0019.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0019\\gd_20260128_0019.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0019\\gd_20260128_0019_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0020",
+      "name": "Wrap Gripper - Dry - Medium Objects",
+      "gesture": "wrap",
+      "environment": "dry",
+      "compliance": "medium",
+      "confidence": 0.75,
+      "num_fingers": 3,
+      "actuator": "pneumatic",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0020\\gd_20260128_0020.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0020\\gd_20260128_0020.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0020\\gd_20260128_0020.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0020\\gd_20260128_0020_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0021",
+      "name": "Wrap Gripper - Dry - Soft Objects",
+      "gesture": "wrap",
+      "environment": "dry",
+      "compliance": "soft",
+      "confidence": 0.6,
+      "num_fingers": 3,
+      "actuator": "pneumatic",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0021\\gd_20260128_0021.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0021\\gd_20260128_0021.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0021\\gd_20260128_0021.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0021\\gd_20260128_0021_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0022",
+      "name": "Wrap Gripper - Wet - Rigid Objects",
+      "gesture": "wrap",
+      "environment": "wet",
+      "compliance": "rigid",
+      "confidence": 0.5499999999999999,
+      "num_fingers": 3,
+      "actuator": "pneumatic",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0022\\gd_20260128_0022.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0022\\gd_20260128_0022.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0022\\gd_20260128_0022.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0022\\gd_20260128_0022_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0023",
+      "name": "Wrap Gripper - Wet - Medium Objects",
+      "gesture": "wrap",
+      "environment": "wet",
+      "compliance": "medium",
+      "confidence": 0.7,
+      "num_fingers": 3,
+      "actuator": "pneumatic",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0023\\gd_20260128_0023.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0023\\gd_20260128_0023.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0023\\gd_20260128_0023.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0023\\gd_20260128_0023_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0024",
+      "name": "Wrap Gripper - Wet - Soft Objects",
+      "gesture": "wrap",
+      "environment": "wet",
+      "compliance": "soft",
+      "confidence": 0.5499999999999999,
+      "num_fingers": 3,
+      "actuator": "pneumatic",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0024\\gd_20260128_0024.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0024\\gd_20260128_0024.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0024\\gd_20260128_0024.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0024\\gd_20260128_0024_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0025",
+      "name": "Wrap Gripper - Surgical - Rigid Objects",
+      "gesture": "wrap",
+      "environment": "surgical",
+      "compliance": "rigid",
+      "confidence": 0.5,
+      "num_fingers": 3,
+      "actuator": "pneumatic",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0025\\gd_20260128_0025.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0025\\gd_20260128_0025.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0025\\gd_20260128_0025.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0025\\gd_20260128_0025_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0026",
+      "name": "Wrap Gripper - Surgical - Medium Objects",
+      "gesture": "wrap",
+      "environment": "surgical",
+      "compliance": "medium",
+      "confidence": 0.65,
+      "num_fingers": 3,
+      "actuator": "pneumatic",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0026\\gd_20260128_0026.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0026\\gd_20260128_0026.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0026\\gd_20260128_0026.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0026\\gd_20260128_0026_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0027",
+      "name": "Wrap Gripper - Surgical - Soft Objects",
+      "gesture": "wrap",
+      "environment": "surgical",
+      "compliance": "soft",
+      "confidence": 0.5,
+      "num_fingers": 3,
+      "actuator": "pneumatic",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0027\\gd_20260128_0027.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0027\\gd_20260128_0027.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0027\\gd_20260128_0027.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0027\\gd_20260128_0027_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0028",
+      "name": "Hook Gripper - Dry - Rigid Objects",
+      "gesture": "hook",
+      "environment": "dry",
+      "compliance": "rigid",
+      "confidence": 0.6,
+      "num_fingers": 3,
+      "actuator": "tendon",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0028\\gd_20260128_0028.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0028\\gd_20260128_0028.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0028\\gd_20260128_0028.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0028\\gd_20260128_0028_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0029",
+      "name": "Hook Gripper - Dry - Medium Objects",
+      "gesture": "hook",
+      "environment": "dry",
+      "compliance": "medium",
+      "confidence": 0.75,
+      "num_fingers": 3,
+      "actuator": "tendon",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0029\\gd_20260128_0029.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0029\\gd_20260128_0029.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0029\\gd_20260128_0029.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0029\\gd_20260128_0029_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0030",
+      "name": "Hook Gripper - Dry - Soft Objects",
+      "gesture": "hook",
+      "environment": "dry",
+      "compliance": "soft",
+      "confidence": 0.6,
+      "num_fingers": 3,
+      "actuator": "tendon",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0030\\gd_20260128_0030.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0030\\gd_20260128_0030.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0030\\gd_20260128_0030.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0030\\gd_20260128_0030_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0031",
+      "name": "Hook Gripper - Wet - Rigid Objects",
+      "gesture": "hook",
+      "environment": "wet",
+      "compliance": "rigid",
+      "confidence": 0.5499999999999999,
+      "num_fingers": 3,
+      "actuator": "tendon",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0031\\gd_20260128_0031.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0031\\gd_20260128_0031.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0031\\gd_20260128_0031.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0031\\gd_20260128_0031_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0032",
+      "name": "Hook Gripper - Wet - Medium Objects",
+      "gesture": "hook",
+      "environment": "wet",
+      "compliance": "medium",
+      "confidence": 0.7,
+      "num_fingers": 3,
+      "actuator": "tendon",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0032\\gd_20260128_0032.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0032\\gd_20260128_0032.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0032\\gd_20260128_0032.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0032\\gd_20260128_0032_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0033",
+      "name": "Hook Gripper - Wet - Soft Objects",
+      "gesture": "hook",
+      "environment": "wet",
+      "compliance": "soft",
+      "confidence": 0.5499999999999999,
+      "num_fingers": 3,
+      "actuator": "tendon",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0033\\gd_20260128_0033.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0033\\gd_20260128_0033.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0033\\gd_20260128_0033.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0033\\gd_20260128_0033_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0034",
+      "name": "Hook Gripper - Surgical - Rigid Objects",
+      "gesture": "hook",
+      "environment": "surgical",
+      "compliance": "rigid",
+      "confidence": 0.5,
+      "num_fingers": 3,
+      "actuator": "tendon",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0034\\gd_20260128_0034.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0034\\gd_20260128_0034.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0034\\gd_20260128_0034.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0034\\gd_20260128_0034_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0035",
+      "name": "Hook Gripper - Surgical - Medium Objects",
+      "gesture": "hook",
+      "environment": "surgical",
+      "compliance": "medium",
+      "confidence": 0.65,
+      "num_fingers": 3,
+      "actuator": "tendon",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0035\\gd_20260128_0035.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0035\\gd_20260128_0035.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0035\\gd_20260128_0035.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0035\\gd_20260128_0035_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0036",
+      "name": "Hook Gripper - Surgical - Soft Objects",
+      "gesture": "hook",
+      "environment": "surgical",
+      "compliance": "soft",
+      "confidence": 0.5,
+      "num_fingers": 3,
+      "actuator": "tendon",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0036\\gd_20260128_0036.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0036\\gd_20260128_0036.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0036\\gd_20260128_0036.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0036\\gd_20260128_0036_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0037",
+      "name": "Lateral Gripper - Dry - Rigid Objects",
+      "gesture": "lateral",
+      "environment": "dry",
+      "compliance": "rigid",
+      "confidence": 0.6,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0037\\gd_20260128_0037.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0037\\gd_20260128_0037.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0037\\gd_20260128_0037.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0037\\gd_20260128_0037_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0038",
+      "name": "Lateral Gripper - Dry - Medium Objects",
+      "gesture": "lateral",
+      "environment": "dry",
+      "compliance": "medium",
+      "confidence": 0.75,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0038\\gd_20260128_0038.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0038\\gd_20260128_0038.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0038\\gd_20260128_0038.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0038\\gd_20260128_0038_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0039",
+      "name": "Lateral Gripper - Dry - Soft Objects",
+      "gesture": "lateral",
+      "environment": "dry",
+      "compliance": "soft",
+      "confidence": 0.6,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0039\\gd_20260128_0039.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0039\\gd_20260128_0039.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0039\\gd_20260128_0039.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0039\\gd_20260128_0039_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0040",
+      "name": "Lateral Gripper - Wet - Rigid Objects",
+      "gesture": "lateral",
+      "environment": "wet",
+      "compliance": "rigid",
+      "confidence": 0.5499999999999999,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0040\\gd_20260128_0040.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0040\\gd_20260128_0040.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0040\\gd_20260128_0040.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0040\\gd_20260128_0040_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0041",
+      "name": "Lateral Gripper - Wet - Medium Objects",
+      "gesture": "lateral",
+      "environment": "wet",
+      "compliance": "medium",
+      "confidence": 0.7,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0041\\gd_20260128_0041.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0041\\gd_20260128_0041.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0041\\gd_20260128_0041.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0041\\gd_20260128_0041_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0042",
+      "name": "Lateral Gripper - Wet - Soft Objects",
+      "gesture": "lateral",
+      "environment": "wet",
+      "compliance": "soft",
+      "confidence": 0.5499999999999999,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0042\\gd_20260128_0042.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0042\\gd_20260128_0042.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0042\\gd_20260128_0042.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0042\\gd_20260128_0042_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0043",
+      "name": "Lateral Gripper - Surgical - Rigid Objects",
+      "gesture": "lateral",
+      "environment": "surgical",
+      "compliance": "rigid",
+      "confidence": 0.5,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0043\\gd_20260128_0043.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0043\\gd_20260128_0043.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0043\\gd_20260128_0043.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0043\\gd_20260128_0043_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0044",
+      "name": "Lateral Gripper - Surgical - Medium Objects",
+      "gesture": "lateral",
+      "environment": "surgical",
+      "compliance": "medium",
+      "confidence": 0.65,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0044\\gd_20260128_0044.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0044\\gd_20260128_0044.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0044\\gd_20260128_0044.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0044\\gd_20260128_0044_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0045",
+      "name": "Lateral Gripper - Surgical - Soft Objects",
+      "gesture": "lateral",
+      "environment": "surgical",
+      "compliance": "soft",
+      "confidence": 0.5,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0045\\gd_20260128_0045.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0045\\gd_20260128_0045.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0045\\gd_20260128_0045.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0045\\gd_20260128_0045_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0046",
+      "name": "Surgical Micro-Gripper",
+      "gesture": "pinch",
+      "environment": "surgical",
+      "compliance": "soft",
+      "confidence": 0.6,
+      "num_fingers": 2,
+      "actuator": "tendon",
+      "max_force_n": 3.0,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0046\\gd_20260128_0046.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0046\\gd_20260128_0046.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0046\\gd_20260128_0046.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0046\\gd_20260128_0046_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0047",
+      "name": "Kelp Harvester",
+      "gesture": "wrap",
+      "environment": "wet",
+      "compliance": "soft",
+      "confidence": 0.7,
+      "num_fingers": 3,
+      "actuator": "pneumatic",
+      "max_force_n": 7.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0047\\gd_20260128_0047.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0047\\gd_20260128_0047.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0047\\gd_20260128_0047.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0047\\gd_20260128_0047_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0048",
+      "name": "Industrial Pick-and-Place",
+      "gesture": "power",
+      "environment": "dry",
+      "compliance": "rigid",
+      "confidence": 0.85,
+      "num_fingers": 4,
+      "actuator": "pneumatic",
+      "max_force_n": 30.0,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0048\\gd_20260128_0048.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0048\\gd_20260128_0048.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0048\\gd_20260128_0048.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0048\\gd_20260128_0048_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0049",
+      "name": "Egg Handler",
+      "gesture": "squeeze",
+      "environment": "dry",
+      "compliance": "soft",
+      "confidence": 0.6,
+      "num_fingers": 4,
+      "actuator": "jamming",
+      "max_force_n": 4.5,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0049\\gd_20260128_0049.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0049\\gd_20260128_0049.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0049\\gd_20260128_0049.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0049\\gd_20260128_0049_usd.json"
+      }
+    },
+    {
+      "id": "GD-20260128-0050",
+      "name": "Underwater Retrieval",
+      "gesture": "hook",
+      "environment": "wet",
+      "compliance": "medium",
+      "confidence": 0.7,
+      "num_fingers": 3,
+      "actuator": "tendon",
+      "max_force_n": 12.0,
+      "exports": {
+        "json": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0050\\gd_20260128_0050.json",
+        "mjcf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0050\\gd_20260128_0050.mjcf",
+        "urdf": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0050\\gd_20260128_0050.urdf",
+        "usd": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0050\\gd_20260128_0050_usd.json"
+      }
+    }
+  ]
+}

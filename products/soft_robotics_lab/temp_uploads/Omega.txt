@@ -1,0 +1,48 @@
+
+
+### To *use* OmegaStack now
+
+In a terminal:
+
+```bat
+(base) C:\Users\Warren> conda activate compute
+(compute) C:\Users\Warren> cd C:\Users\Warren\OmegaStack
+(compute) C:\Users\Warren\OmegaStack> omega_launch.bat
+```
+
+Then you’ll see the **menu** and can choose:
+
+1 → Status / snapshot
+2 → Topics overview
+3 → Planner / query
+4 → Execution plans
+5 → Devices report
+6 → Futures view
+7 → Research loop
+8 → Full snapshot
+
+
+  * **cursor block** (code to paste / save)
+  * **terminal block** (exact command to run)
+* When I’m **not** sending blocks →
+  You can just use `omega_launch.bat` and explore.
+
+So the only things I ever need from you are:
+
+1. **Paste/save cursor blocks** in the right files
+2. **Run terminal blocks** exactly as given
+3. Occasionally tell me “what you see” if we’re debugging
+
+Omega = architect + operator logic
+You = hands on keyboard when needed.
+
+---
+
+## 4. What’s next on PC path (no action needed yet)
+
+For the **next big phase**, I’ll lead on:
+
+* XR / Vision Pro / Quest 3 bridge
+* Education & emotional-intelligence layer
+* Creative/world-building hooks
+

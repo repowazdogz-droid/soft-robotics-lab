@@ -1,0 +1,1092 @@
+{
+  "summary": {
+    "total": 50,
+    "valid": 50,
+    "valid_pct": 100.0,
+    "loads": 50,
+    "simulates": 50,
+    "total_errors": 0,
+    "total_warnings": 29
+  },
+  "results": [
+    {
+      "design_id": "gd_20260128_0001",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0001\\gd_20260128_0001.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 8,
+        "joints": 6,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.49996376037597656,
+        "steps_per_sec": 200014.49690033382,
+        "position_change": 3.4447217373743447e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0002",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0002\\gd_20260128_0002.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 10,
+        "joints": 8,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 1.0001659393310547,
+        "steps_per_sec": 99983.40882002383,
+        "position_change": 2.5865090249651592e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0003",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0003\\gd_20260128_0003.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 12,
+        "joints": 10,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9996891021728516,
+        "steps_per_sec": 100031.09945146673,
+        "position_change": 2.52965493694827e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0004",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0004\\gd_20260128_0004.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 8,
+        "joints": 6,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9999275207519531,
+        "steps_per_sec": 100007.24845016691,
+        "position_change": 3.4506623038020865e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0005",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0005\\gd_20260128_0005.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 10,
+        "joints": 8,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.5002021789550781,
+        "steps_per_sec": 199919.16110581506,
+        "position_change": 2.5875961032433033e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0006",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0006\\gd_20260128_0006.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 12,
+        "joints": 10,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9999275207519531,
+        "steps_per_sec": 100007.24845016691,
+        "position_change": 2.531119520638718e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0007",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0007\\gd_20260128_0007.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 8,
+        "joints": 6,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.49996376037597656,
+        "steps_per_sec": 200014.49690033382,
+        "position_change": 3.44821456971932e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0008",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0008\\gd_20260128_0008.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 10,
+        "joints": 8,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9999275207519531,
+        "steps_per_sec": 100007.24845016691,
+        "position_change": 2.5871491461289563e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0009",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0009\\gd_20260128_0009.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 12,
+        "joints": 10,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9999275207519531,
+        "steps_per_sec": 100007.24845016691,
+        "position_change": 2.530516215225411e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0010",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0010\\gd_20260128_0010.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 14,
+        "joints": 12,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9999275207519531,
+        "steps_per_sec": 100007.24845016691,
+        "position_change": 1.069543802158831,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0011",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0011\\gd_20260128_0011.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 18,
+        "joints": 16,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.99945068359375,
+        "steps_per_sec": 100054.96183206108,
+        "position_change": 0.8115139804754374,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0012",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0012\\gd_20260128_0012.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 22,
+        "joints": 20,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 1.0001659393310547,
+        "steps_per_sec": 99983.40882002383,
+        "position_change": 0.5806484890222431,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0013",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0013\\gd_20260128_0013.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 14,
+        "joints": 12,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9999275207519531,
+        "steps_per_sec": 100007.24845016691,
+        "position_change": 0.1973828650068137,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0014",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0014\\gd_20260128_0014.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 18,
+        "joints": 16,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 1.0001659393310547,
+        "steps_per_sec": 99983.40882002383,
+        "position_change": 0.12127397576903018,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0015",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0015\\gd_20260128_0015.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 22,
+        "joints": 20,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9999275207519531,
+        "steps_per_sec": 100007.24845016691,
+        "position_change": 0.07412826659914788,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0016",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0016\\gd_20260128_0016.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 11,
+        "joints": 9,
+        "actuators": 3,
+        "sensors": 6,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.49996376037597656,
+        "steps_per_sec": 200014.49690033382,
+        "position_change": 0.5231251874089822,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0017",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0017\\gd_20260128_0017.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 14,
+        "joints": 12,
+        "actuators": 3,
+        "sensors": 6,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9999275207519531,
+        "steps_per_sec": 100007.24845016691,
+        "position_change": 0.3681614277287706,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0018",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0018\\gd_20260128_0018.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 17,
+        "joints": 15,
+        "actuators": 3,
+        "sensors": 6,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9999275207519531,
+        "steps_per_sec": 100007.24845016691,
+        "position_change": 0.2436473660053429,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0019",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0019\\gd_20260128_0019.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 11,
+        "joints": 9,
+        "actuators": 3,
+        "sensors": 6,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.5004405975341797,
+        "steps_per_sec": 199823.91615054788,
+        "position_change": 0.9211646012391073,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0020",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0020\\gd_20260128_0020.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 14,
+        "joints": 12,
+        "actuators": 3,
+        "sensors": 6,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.5002021789550781,
+        "steps_per_sec": 199919.16110581506,
+        "position_change": 0.695544146100492,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0021",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0021\\gd_20260128_0021.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 17,
+        "joints": 15,
+        "actuators": 3,
+        "sensors": 6,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 1.0004043579101562,
+        "steps_per_sec": 99959.58055290753,
+        "position_change": 0.5354767787235478,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0022",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0022\\gd_20260128_0022.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 11,
+        "joints": 9,
+        "actuators": 3,
+        "sensors": 6,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9987354278564453,
+        "steps_per_sec": 100126.61733110527,
+        "position_change": 0.16730929772436487,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0023",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0023\\gd_20260128_0023.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 14,
+        "joints": 12,
+        "actuators": 3,
+        "sensors": 6,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9999275207519531,
+        "steps_per_sec": 100007.24845016691,
+        "position_change": 0.1026089308616191,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0024",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0024\\gd_20260128_0024.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 17,
+        "joints": 15,
+        "actuators": 3,
+        "sensors": 6,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9999275207519531,
+        "steps_per_sec": 100007.24845016691,
+        "position_change": 0.06973883315904265,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0025",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0025\\gd_20260128_0025.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 11,
+        "joints": 9,
+        "actuators": 3,
+        "sensors": 6,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9999275207519531,
+        "steps_per_sec": 100007.24845016691,
+        "position_change": 0.47921399945427723,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0026",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0026\\gd_20260128_0026.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 14,
+        "joints": 12,
+        "actuators": 3,
+        "sensors": 6,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.49996376037597656,
+        "steps_per_sec": 200014.49690033382,
+        "position_change": 0.33316479125769743,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0027",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0027\\gd_20260128_0027.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 17,
+        "joints": 15,
+        "actuators": 3,
+        "sensors": 6,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9999275207519531,
+        "steps_per_sec": 100007.24845016691,
+        "position_change": 0.2436473660053429,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0028",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0028\\gd_20260128_0028.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 11,
+        "joints": 9,
+        "actuators": 6,
+        "sensors": 12,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 1.0004043579101562,
+        "steps_per_sec": 99959.58055290753,
+        "position_change": 2.207285196060906e-13
+      }
+    },
+    {
+      "design_id": "gd_20260128_0029",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0029\\gd_20260128_0029.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 14,
+        "joints": 12,
+        "actuators": 6,
+        "sensors": 12,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 1.0004043579101562,
+        "steps_per_sec": 99959.58055290753,
+        "position_change": 1.6194222808378838e-13
+      }
+    },
+    {
+      "design_id": "gd_20260128_0030",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0030\\gd_20260128_0030.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 17,
+        "joints": 15,
+        "actuators": 6,
+        "sensors": 12,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 1.0004043579101562,
+        "steps_per_sec": 99959.58055290753,
+        "position_change": 6.864972043327337e-15
+      }
+    },
+    {
+      "design_id": "gd_20260128_0031",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0031\\gd_20260128_0031.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 11,
+        "joints": 9,
+        "actuators": 6,
+        "sensors": 12,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 1.0001659393310547,
+        "steps_per_sec": 99983.40882002383,
+        "position_change": 2.2137204513897505e-13
+      }
+    },
+    {
+      "design_id": "gd_20260128_0032",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0032\\gd_20260128_0032.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 14,
+        "joints": 12,
+        "actuators": 6,
+        "sensors": 12,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 1.0004043579101562,
+        "steps_per_sec": 99959.58055290753,
+        "position_change": 1.7918472539634194e-10
+      }
+    },
+    {
+      "design_id": "gd_20260128_0033",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0033\\gd_20260128_0033.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 17,
+        "joints": 15,
+        "actuators": 6,
+        "sensors": 12,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.99945068359375,
+        "steps_per_sec": 100054.96183206108,
+        "position_change": 6.261264790036035e-15
+      }
+    },
+    {
+      "design_id": "gd_20260128_0034",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0034\\gd_20260128_0034.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 11,
+        "joints": 9,
+        "actuators": 6,
+        "sensors": 12,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 1.0013580322265625,
+        "steps_per_sec": 99864.38095238095,
+        "position_change": 2.438255834557994e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0035",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0035\\gd_20260128_0035.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 14,
+        "joints": 12,
+        "actuators": 6,
+        "sensors": 12,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 1.0001659393310547,
+        "steps_per_sec": 99983.40882002383,
+        "position_change": 1.8293912659487604e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0036",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0036\\gd_20260128_0036.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 17,
+        "joints": 15,
+        "actuators": 6,
+        "sensors": 12,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 1.0006427764892578,
+        "steps_per_sec": 99935.76364069573,
+        "position_change": 1.7893453563251888e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0037",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0037\\gd_20260128_0037.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 8,
+        "joints": 6,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.49996376037597656,
+        "steps_per_sec": 200014.49690033382,
+        "position_change": 3.4447217373743447e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0038",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0038\\gd_20260128_0038.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 10,
+        "joints": 8,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9992122650146484,
+        "steps_per_sec": 100078.83560009544,
+        "position_change": 2.5865090249651592e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0039",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0039\\gd_20260128_0039.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 12,
+        "joints": 10,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.99945068359375,
+        "steps_per_sec": 100054.96183206108,
+        "position_change": 2.52965493694827e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0040",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0040\\gd_20260128_0040.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 8,
+        "joints": 6,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.49996376037597656,
+        "steps_per_sec": 200014.49690033382,
+        "position_change": 3.4506623038020865e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0041",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0041\\gd_20260128_0041.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 10,
+        "joints": 8,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 1.0004043579101562,
+        "steps_per_sec": 99959.58055290753,
+        "position_change": 2.5875961032433033e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0042",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0042\\gd_20260128_0042.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 12,
+        "joints": 10,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.4973411560058594,
+        "steps_per_sec": 201069.22339405562,
+        "position_change": 2.531119520638718e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0043",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0043\\gd_20260128_0043.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 8,
+        "joints": 6,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.99945068359375,
+        "steps_per_sec": 100054.96183206108,
+        "position_change": 3.44821456971932e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0044",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0044\\gd_20260128_0044.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 10,
+        "joints": 8,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.5004405975341797,
+        "steps_per_sec": 199823.91615054788,
+        "position_change": 2.5871491461289563e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0045",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0045\\gd_20260128_0045.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 12,
+        "joints": 10,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9999275207519531,
+        "steps_per_sec": 100007.24845016691,
+        "position_change": 2.530516215225411e-09
+      }
+    },
+    {
+      "design_id": "gd_20260128_0046",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0046\\gd_20260128_0046.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 12,
+        "joints": 10,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.499725341796875,
+        "steps_per_sec": 200109.92366412215,
+        "position_change": 3.9962254595378e-12
+      }
+    },
+    {
+      "design_id": "gd_20260128_0047",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0047\\gd_20260128_0047.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 17,
+        "joints": 15,
+        "actuators": 3,
+        "sensors": 6,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9992122650146484,
+        "steps_per_sec": 100078.83560009544,
+        "position_change": 0.08173214823641423,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0048",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0048\\gd_20260128_0048.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 18,
+        "joints": 16,
+        "actuators": 4,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.4990100860595703,
+        "steps_per_sec": 200396.75107501194,
+        "position_change": 0.9374869121511287,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0049",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0049\\gd_20260128_0049.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "bodies": 22,
+        "joints": 20,
+        "actuators": 20,
+        "sensors": 8,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 1.0006427764892578,
+        "steps_per_sec": 99935.76364069573,
+        "position_change": 4.3765198110342425,
+        "actuators_responsive": true
+      }
+    },
+    {
+      "design_id": "gd_20260128_0050",
+      "mjcf_path": "C:\\Users\\Warren\\OmegaStack\\products\\soft_robotics_lab\\gripper_zoo\\designs\\gd_20260128_0050\\gd_20260128_0050.mjcf",
+      "valid": true,
+      "loads": true,
+      "simulates": true,
+      "errors": [],
+      "warnings": [
+        "Actuators had no effect - check actuator setup"
+      ],
+      "stats": {
+        "bodies": 14,
+        "joints": 12,
+        "actuators": 6,
+        "sensors": 12,
+        "timestep": 0.002,
+        "sim_steps": 100,
+        "sim_time_ms": 0.9996891021728516,
+        "steps_per_sec": 100031.09945146673,
+        "position_change": 6.752376683963358e-10
+      }
+    }
+  ]
+}

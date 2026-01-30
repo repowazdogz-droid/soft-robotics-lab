@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<robot name="Pinch_Gripper_-_Wet_-_Medium_Objects">
+
+    <link name="palm_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.0150" length="0.0100"/>
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="0.0150" length="0.0100"/>
+            </geometry>
+        </collision>
+    </link>
+
+    
+    <link name="finger_0_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.0034" length="0.0450"/>
+            </geometry>
+            <origin xyz="0 0 0.0225"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="0.0034" length="0.0450"/>
+            </geometry>
+            <origin xyz="0 0 0.0225"/>
+        </collision>
+    </link>
+
+    <joint name="finger_0_joint" type="revolute">
+        <parent link="palm_link"/>
+        <child link="finger_0_link"/>
+        <origin xyz="0.0150 0.0000 0.0100" rpy="0 0 0.0000"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-1.57" upper="1.57" effort="10" velocity="1"/>
+    </joint>
+
+    <link name="finger_1_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.0034" length="0.0450"/>
+            </geometry>
+            <origin xyz="0 0 0.0225"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="0.0034" length="0.0450"/>
+            </geometry>
+            <origin xyz="0 0 0.0225"/>
+        </collision>
+    </link>
+
+    <joint name="finger_1_joint" type="revolute">
+        <parent link="palm_link"/>
+        <child link="finger_1_link"/>
+        <origin xyz="-0.0150 0.0000 0.0100" rpy="0 0 3.1416"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-1.57" upper="1.57" effort="10" velocity="1"/>
+    </joint>
+
+</robot>

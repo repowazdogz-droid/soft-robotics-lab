@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<robot name="OF_E_20260129_0001">
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.06 0.06 0.036"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.6 0.6 0.65 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.06 0.06 0.036"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.5"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+    </inertial>
+  </link>
+</robot>

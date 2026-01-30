@@ -1,0 +1,50 @@
+[
+  {
+    "test_id": "test_001",
+    "query": "spine surgery L4-L5 fusion 45 degree cobb angle",
+    "passed": true,
+    "actual_confidence": 0.6,
+    "actual_recommendation": "Target correction: 27.0\u00b0 (36.0\u00b0 desired, but 27.0\u00b0 is within safe biomechanical range)",
+    "failure_reasons": [],
+    "run_time_ms": 15940.635442733765,
+    "timestamp": "2026-01-29T17:28:16.373807",
+    "query_hash": "0fbbeed6a0dc",
+    "result_hash": "a4a162c27259"
+  },
+  {
+    "test_id": "test_002",
+    "query": "drug discovery for rare genetic disorder affecting 1 in 100000",
+    "passed": true,
+    "actual_confidence": 0.6,
+    "actual_recommendation": "Consider target validation studies before full pipeline",
+    "failure_reasons": [],
+    "run_time_ms": 16250.743865966797,
+    "timestamp": "2026-01-29T17:28:32.625054",
+    "query_hash": "7d8e5a9de293",
+    "result_hash": "faf871f4653f"
+  },
+  {
+    "test_id": "test_003",
+    "query": "epidemic spread model R0=2.5 urban population",
+    "passed": true,
+    "actual_confidence": 0.8,
+    "actual_recommendation": "High-level conceptual recommendation: Vaccinate >60% to reach herd immunity (conditional on objective: if minimizing deaths or maximizing long-term outcomes)",
+    "failure_reasons": [],
+    "run_time_ms": 111645.50185203552,
+    "timestamp": "2026-01-29T17:30:24.270556",
+    "query_hash": "2f49507569dc",
+    "result_hash": "bca04e40c7dd"
+  },
+  {
+    "test_id": "test_004",
+    "query": "economic impact of 10% tariff on imported electronics",
+    "passed": true,
+    "actual_confidence": 0.4,
+    "actual_recommendation": "Specify policy_change (fiscal_stimulus, austerity, neutral) for policy comparison.",
+    "failure_reasons": [],
+    "run_time_ms": 106671.80562019348,
+    "timestamp": "2026-01-29T17:32:10.942362",
+    "query_hash": "806b741709ab",
+    "result_hash": "e162117570f3"
+  }
+]

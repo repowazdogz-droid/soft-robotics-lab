@@ -1,0 +1,59 @@
+{
+  "id": "OF-20260129-0001",
+  "name": "Pinch Gripper for egg",
+  "domain": "gripper",
+  "spec": {
+    "domain": "gripper",
+    "scale": "small",
+    "material": null,
+    "params": {
+      "gesture": "pinch",
+      "num_fingers": 2
+    },
+    "target_object": "egg",
+    "raw_intent": "\"small pinch gripper for eggs\""
+  },
+  "design_dict": {
+    "id": "OF-20260129-0001",
+    "name": "Pinch Gripper for egg",
+    "created_at": "2026-01-29T14:28:25.936245",
+    "source_gesture": "pinch",
+    "source_parameters": {
+      "aperture": 0.03,
+      "force_requirement": 3.0,
+      "object_compliance": 0.3,
+      "environment": "dry"
+    },
+    "num_fingers": 2,
+    "finger_designs": [
+      {
+        "length_mm": 31.499999999999996,
+        "width_mm": 6.3,
+        "thickness_mm": 3.78,
+        "num_segments": 4,
+        "taper_ratio": 0.6,
+        "material": "dragonskin_10",
+        "actuator": "tendon",
+        "stiffness_gradient": [
+          1.0,
+          0.85,
+          0.7,
+          0.55
+        ],
+        "damping_gradient": [
+          1.0,
+          0.8,
+          0.6,
+          0.3999999999999999
+        ]
+      }
+    ],
+    "palm_radius_mm": 10.5,
+    "palm_thickness_mm": 10.0,
+    "primary_actuator": "tendon",
+    "max_force_n": 5.0,
+    "max_aperture_mm": 30.0,
+    "source_intent": "\"small pinch gripper for eggs\""
+  },
+  "errors": []
+}

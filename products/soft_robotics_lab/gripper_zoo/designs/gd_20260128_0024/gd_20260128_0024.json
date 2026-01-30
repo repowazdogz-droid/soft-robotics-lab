@@ -1,0 +1,114 @@
+{
+  "id": "GD-20260128-0024",
+  "name": "Wrap Gripper - Wet - Soft Objects",
+  "created_at": "2026-01-28T22:58:56.469548",
+  "source_gesture": "wrap",
+  "source_parameters": {
+    "aperture": 0.06,
+    "force_requirement": 5.0,
+    "object_compliance": 0.8,
+    "environment": "wet"
+  },
+  "num_fingers": 3,
+  "finger_designs": [
+    {
+      "length_mm": 90.0,
+      "width_mm": 13.5,
+      "thickness_mm": 8.1,
+      "num_segments": 5,
+      "taper_ratio": 0.7,
+      "material": "ecoflex_0030",
+      "actuator": "pneumatic",
+      "stiffness_gradient": [
+        1.0,
+        0.85,
+        0.7,
+        0.55,
+        0.4
+      ],
+      "tendon_routing": null
+    },
+    {
+      "length_mm": 90.0,
+      "width_mm": 13.5,
+      "thickness_mm": 8.1,
+      "num_segments": 5,
+      "taper_ratio": 0.7,
+      "material": "ecoflex_0030",
+      "actuator": "pneumatic",
+      "stiffness_gradient": [
+        1.0,
+        0.85,
+        0.7,
+        0.55,
+        0.4
+      ],
+      "tendon_routing": null
+    },
+    {
+      "length_mm": 90.0,
+      "width_mm": 13.5,
+      "thickness_mm": 8.1,
+      "num_segments": 5,
+      "taper_ratio": 0.7,
+      "material": "ecoflex_0030",
+      "actuator": "pneumatic",
+      "stiffness_gradient": [
+        1.0,
+        0.85,
+        0.7,
+        0.55,
+        0.4
+      ],
+      "tendon_routing": null
+    }
+  ],
+  "palm_radius_mm": 30.0,
+  "palm_thickness_mm": 10.0,
+  "primary_actuator": "pneumatic",
+  "actuation_pressure_kpa": null,
+  "actuation_voltage_v": null,
+  "max_aperture_mm": 60.0,
+  "max_force_n": 7.5,
+  "grasp_speed_mm_per_s": 30.0,
+  "confidence": 0.5499999999999999,
+  "uncertainty_factors": [
+    "Less common grasp type - limited validation data",
+    "Extreme compliance - material selection uncertain (-10%)",
+    "Wet environment - friction modeling uncertain (-5%)"
+  ],
+  "failure_modes": [
+    {
+      "mode": "Slip on smooth surfaces",
+      "probability": 0.5,
+      "mitigation": "Add textured surface or increase normal force"
+    },
+    {
+      "mode": "Air leak at seal",
+      "probability": 0.2,
+      "mitigation": "Redundant seals, pressure monitoring"
+    },
+    {
+      "mode": "Slow response time",
+      "probability": 0.25,
+      "mitigation": "Smaller chambers, higher flow valves"
+    },
+    {
+      "mode": "Object deformation/damage",
+      "probability": 0.35,
+      "mitigation": "Force limiting, compliance sensing"
+    },
+    {
+      "mode": "Reduced friction in wet conditions",
+      "probability": 0.4,
+      "mitigation": "Hydrophilic surface treatment"
+    }
+  ],
+  "tags": [
+    "wrap",
+    "pneumatic",
+    "wet",
+    "soft"
+  ],
+  "notes": ""
+}

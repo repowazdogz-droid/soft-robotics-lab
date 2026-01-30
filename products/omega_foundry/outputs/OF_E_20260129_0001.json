@@ -1,0 +1,30 @@
+{
+  "id": "OF-E-20260129-0001",
+  "name": "Box Enclosure",
+  "domain": "enclosure",
+  "spec": {
+    "domain": "enclosure",
+    "scale": "medium",
+    "material": null,
+    "params": {
+      "type": "box"
+    },
+    "target_object": null,
+    "raw_intent": "\"waterproof electronics box 10cm\""
+  },
+  "design_dict": {
+    "id": "OF-E-20260129-0001",
+    "name": "Box Enclosure",
+    "domain": "enclosure",
+    "type": "box",
+    "size_mm": {
+      "x": 60,
+      "y": 60,
+      "z": 36.0
+    },
+    "wall_thickness_mm": 3.0,
+    "created_at": "2026-01-29T14:30:03.642876",
+    "source_intent": "\"waterproof electronics box 10cm\""
+  },
+  "errors": []
+}
