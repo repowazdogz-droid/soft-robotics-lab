@@ -45,6 +45,14 @@ if "view_hyp_id" not in st.session_state:
 if "show_create" not in st.session_state:
     st.session_state["show_create"] = False
 
+# ----- Sidebar: Hypothesis Health -----
+st.sidebar.divider()
+st.sidebar.subheader("📊 Hypothesis Health")
+if st.sidebar.button("Run Health Check"):
+    report = ledger.get_health_report()
+    st.session_state["health_report"] = report
+    st.rerun()
+
 # ----- Dashboard -----
 st.title("BREAKTHROUGH ENGINE")
 st.caption("Hypothesis ledger with OMEGA-MAX alignment and substrate integration.")
@@ -66,6 +74,67 @@ with col4:
         st.session_state["show_create"] = True
         st.session_state["view_hyp_id"] = None
         st.rerun()
+
+# ----- Hypothesis Health Report -----
+if "health_report" in st.session_state:
+    report = st.session_state["health_report"]
+    summary = report["summary"]
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total", summary["total"])
+    col2.metric("Healthy", summary["healthy"], delta_color="normal")
+    col3.metric("Stale", summary["stale"], delta=summary["stale"] if summary["stale"] > 0 else None, delta_color="inverse")
+    col4.metric("Zombies", summary["zombies"], delta=summary["zombies"] if summary["zombies"] > 0 else None, delta_color="inverse")
+    if summary["action_required"] > 0:
+        st.warning(f"⚠️ {summary['action_required']} hypotheses need attention")
+        for result in report["results"]:
+            if result.is_zombie or result.is_stale:
+                with st.expander(f"{'🧟' if result.is_zombie else '⏰'} {result.hypothesis_id}"):
+                    st.write(f"**Original confidence:** {result.original_confidence:.0%}")
+                    st.write(f"**Decayed confidence:** {result.decayed_confidence:.0%}")
+                    st.write(f"**Days since evidence:** {result.days_since_evidence}")
+                    st.info(result.recommendation)
+                    c1, c2 = st.columns(2)
+                    with c1:
+                        if st.button("Kill", key=f"kill_{result.hypothesis_id}"):
+                            ledger.kill(result.hypothesis_id, "Killed due to decay")
+                            st.session_state.pop("health_report", None)
+                            st.rerun()
+                    with c2:
+                        if st.button("Review", key=f"review_{result.hypothesis_id}"):
+                            st.session_state["view_hyp_id"] = result.hypothesis_id
+                            st.rerun()
+    st.divider()
+
+# ----- Breakthrough detection -----
+st.subheader("🎯 Breakthroughs")
+breakthroughs = ledger.get_breakthroughs()
+near = ledger.get_near_breakthroughs()
+if breakthroughs:
+    st.success(f"🎯 {len(breakthroughs)} BREAKTHROUGH(S) DETECTED!")
+    for bt in breakthroughs:
+        h = bt["hypothesis"]
+        claim_preview = (h.claim[:50] + "...") if len(h.claim) > 50 else h.claim
+        with st.expander(f"🎯 {h.id}: {claim_preview}"):
+            st.write(f"**Confidence:** {h.confidence:.0%}")
+            st.write("**Why it's a breakthrough:**")
+            for reason in bt["reasons"]:
+                st.write(f"✅ {reason}")
+            st.info("**Recommended:** Proceed to prototype, publication, or patent application")
+else:
+    st.info("No breakthroughs yet. Keep testing hypotheses!")
+if near:
+    st.warning(f"📍 {len(near)} hypothesis(es) close to breakthrough")
+    for n in near:
+        h = n["hypothesis"]
+        claim_preview = (h.claim[:50] + "...") if len(h.claim) > 50 else h.claim
+        with st.expander(f"📍 {h.id}: {claim_preview}"):
+            st.write("**Already achieved:**")
+            for reason in n["reasons"]:
+                st.write(f"✅ {reason}")
+            st.write("**Still needed:**")
+            for m in n["missing"]:
+                st.write(f"❌ {m}")
+st.divider()
 
 # ----- Create form -----
 if st.session_state.get("show_create"):
@@ -126,6 +195,32 @@ if st.session_state.get("view_hyp_id"):
         st.caption(f"Domain: {h.domain} | Status: {h.status.value} | SRFC: {h.srfc_status} | VRFC: {h.vrfc_status} | Falsification: {h.falsification_cost}")
         st.caption("SRFC = Can it work? | VRFC = Will it survive reality? (See shared/docs/GLOSSARY.md)")
         st.markdown(f"**Next step:** {h.next_step or '—'}")
+
+        # Falsification cost estimate
+        if "falsification_estimate" not in st.session_state or st.session_state.get("falsification_estimate_hyp_id") != h.id:
+            st.session_state["falsification_estimate"] = None
+            st.session_state["falsification_estimate_hyp_id"] = h.id
+        if st.button("Estimate Falsification Cost", key="est_falsify"):
+            est = ledger.get_falsification_estimate(h.id)
+            st.session_state["falsification_estimate"] = est
+            st.session_state["falsification_estimate_hyp_id"] = h.id
+            st.rerun()
+        if st.session_state.get("falsification_estimate") and st.session_state.get("falsification_estimate_hyp_id") == h.id:
+            estimate = st.session_state["falsification_estimate"]
+            st.subheader("Falsification Paths")
+            if estimate["worth_testing"]:
+                st.success(f"✅ Worth testing: {estimate['reason']}")
+            else:
+                st.warning(f"⚠️ May not be worth testing: {estimate['reason']}")
+            st.write(f"**Recommended:** {estimate['recommended']}")
+            for path in estimate["paths"]:
+                icon = "⭐" if path["recommended"] else ""
+                with st.expander(f"{icon} {path['type'].replace('_', ' ').title()}"):
+                    st.write(path["description"])
+                    st.write(f"**Cost:** {path['cost'][0]:,} - {path['cost'][1]:,} USD")
+                    st.write(f"**Time:** {path['time'][0]} - {path['time'][1]} days")
+                    st.write(f"**Resolution probability:** {path['resolution_prob']:.0%}")
+                    st.write(f"**Resources:** {', '.join(path['resources'])}")
         st.markdown(f"**Confidence:** {h.confidence:.0%} ({h.confidence_low:.0%}–{h.confidence_high:.0%})")
         st.markdown("**Who benefits:** " + ", ".join(h.who_benefits or []) or "—")
         st.markdown("**Who loses:** " + ", ".join(h.who_loses or []) or "—")

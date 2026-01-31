@@ -78,6 +78,146 @@ with col3:
     st.metric("Failed", f"{failed:,}", help="Failed count")
 st.caption(f"Today: {today.get('count', 0)} validations ({100*(today.get('pass_rate') or 0):.0f}% pass) | This week: {week.get('count', 0)} | Avg response: {avg_ms or '—'} ms")
 
+# --- Validate design ---
+st.markdown("---")
+st.subheader("Validate design")
+design_file = st.file_uploader("Upload MJCF/XML", type=["xml", "mjcf"], key="validate_upload")
+if st.button("Validate", key="btn_validate"):
+    if design_file:
+        try:
+            raw = design_file.read()
+            content = raw.decode("utf-8", errors="replace")
+            r = requests.post(
+                f"{API_BASE}/validate",
+                files={"file": (design_file.name, raw, "application/xml")},
+                timeout=30,
+            )
+            if r.status_code == 200:
+                data = r.json()
+                st.session_state["last_validation"] = data
+                st.session_state["design_id"] = design_file.name or "unknown"
+                if data.get("passed", False):
+                    st.success(f"Passed — score: {data.get('score', 0):.2f}")
+                else:
+                    st.error(f"Failed — score: {data.get('score', 0):.2f}")
+            else:
+                st.error(f"Validation request failed: {r.status_code}")
+        except Exception as e:
+            st.error(f"Validation error: {e}")
+    else:
+        st.warning("Upload a file first.")
+
+# Prescriptive Fixes (after validation)
+if "last_validation" in st.session_state:
+    result = st.session_state["last_validation"]
+    st.divider()
+    st.subheader("🔧 Prescriptive Fixes")
+    if st.button("Generate Fixes", key="btn_fixes"):
+        try:
+            from core.prescriptive_fixer import (
+                generate_prescriptive_fixes,
+                generate_mjcf_patch,
+            )
+            fix_report = generate_prescriptive_fixes(
+                result,
+                design_id=st.session_state.get("design_id", "unknown"),
+            )
+            st.session_state["fix_report"] = fix_report
+        except Exception as e:
+            st.error(str(e))
+    if "fix_report" in st.session_state:
+        report = st.session_state["fix_report"]
+        if report.fixes:
+            st.success(
+                f"Found {len(report.fixes)} fixes (est. improvement: {report.estimated_improvement:.0%})"
+            )
+            for fix in report.fixes:
+                priority_icon = "🔴" if fix.priority == 1 else "🟡" if fix.priority == 2 else "🟢"
+                with st.expander(f"{priority_icon} {fix.component}.{fix.parameter}"):
+                    st.write(f"**Type:** {fix.fix_type.value}")
+                    st.write(f"**Current:** {fix.current_value} {fix.unit}")
+                    st.write(f"**Suggested:** {fix.suggested_value} {fix.unit}")
+                    st.write(f"**Confidence:** {fix.confidence:.0%}")
+                    st.info(fix.reasoning)
+            with st.expander("📝 MJCF Modification Suggestions"):
+                patch = generate_mjcf_patch(report.fixes)
+                st.code(patch, language="xml")
+        else:
+            st.info("No specific fixes identified. Design may be valid or requires manual review.")
+        if report.warnings:
+            for warning in report.warnings:
+                st.warning(warning)
+
+# Design Comparison
+st.divider()
+st.subheader("⚖️ Design Comparison")
+col1, col2 = st.columns(2)
+with col1:
+    st.write("**Design A**")
+    design_a_file = st.file_uploader("Upload Design A (MJCF)", type=["xml", "mjcf"], key="design_a")
+with col2:
+    st.write("**Design B**")
+    design_b_file = st.file_uploader("Upload Design B (MJCF)", type=["xml", "mjcf"], key="design_b")
+task = st.selectbox(
+    "Task Context",
+    ["general", "pick_egg", "heavy_lift", "fast_pick", "precision_assembly", "surgical"],
+    key="task_compare",
+)
+if st.button("Compare Designs", key="btn_compare"):
+    if design_a_file and design_b_file:
+        with st.spinner("Validating and comparing designs..."):
+            try:
+                def validate_upload(f):
+                    raw = f.read()
+                    f.seek(0)
+                    r = requests.post(
+                        f"{API_BASE}/validate",
+                        files={"file": (f.name, raw, "application/xml")},
+                        timeout=30,
+                    )
+                    return r.json() if r.status_code == 200 else {}
+                result_a = validate_upload(design_a_file)
+                result_b = validate_upload(design_b_file)
+                if not result_a or not result_b:
+                    st.warning("One or both validations failed. Ensure Reality Bridge is running.")
+                else:
+                    from core.design_comparator import compare_designs, format_comparison_table
+                    comparison = compare_designs(
+                        design_a={"id": design_a_file.name, "mjcf": ""},
+                        design_b={"id": design_b_file.name, "mjcf": ""},
+                        validation_a=result_a,
+                        validation_b=result_b,
+                        task=task,
+                    )
+                    st.session_state["comparison"] = comparison
+            except Exception as e:
+                st.error(str(e))
+    else:
+        st.warning("Please upload both designs.")
+
+if "comparison" in st.session_state:
+    comp = st.session_state["comparison"]
+    if comp.overall_winner == "TIE":
+        st.info(f"**Result: TIE** — Both designs are comparable for {comp.task}")
+    elif comp.overall_winner == "A":
+        st.success(f"**Winner: {comp.design_a_id}** (confidence: {comp.confidence:.0%})")
+    else:
+        st.success(f"**Winner: {comp.design_b_id}** (confidence: {comp.confidence:.0%})")
+    st.markdown(format_comparison_table(comp.metric_comparisons))
+    c1, c2 = st.columns(2)
+    with c1:
+        st.write(f"**{comp.design_a_id} strengths:**")
+        for s in comp.design_a_strengths or ["None significant"]:
+            st.write(f"- {s}")
+    with c2:
+        st.write(f"**{comp.design_b_id} strengths:**")
+        for s in comp.design_b_strengths or ["None significant"]:
+            st.write(f"- {s}")
+    st.divider()
+    st.markdown(f"**Recommendation:** {comp.recommendation}")
+    with st.expander("📊 Detailed Analysis"):
+        st.markdown(comp.detailed_analysis)
+
 # Recent validations
 st.markdown("---")
 st.subheader("Recent Validations")

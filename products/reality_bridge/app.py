@@ -37,6 +37,8 @@ from core.analyzer import analyze, AnalysisResult, WeakPoint
 from core.reporter import to_dict, to_markdown, to_html
 from core import database
 from core.fix_suggestions import failure_from_validation_result
+from core.prescriptive_fixer import generate_prescriptive_fixes, FixReport
+from core.design_comparator import compare_designs, ComparisonReport
 from core import webhooks as webhooks_module
 
 _CONTRACTS_DIR = _PRODUCTS / "shared" / "contracts"
@@ -371,6 +373,137 @@ def get_validation_history(design_id: str, limit: int = 50):
 def get_recent_validations(limit: int = 20):
     """Recent validations for dashboard."""
     return database.get_recent_validations(limit=limit)
+
+
+def _fix_report_to_dict(report: FixReport) -> dict:
+    """Serialize FixReport to JSON-serializable dict."""
+    return {
+        "design_id": report.design_id,
+        "failure_codes": report.failure_codes,
+        "fixes": [
+            {
+                "fix_type": f.fix_type.value,
+                "component": f.component,
+                "parameter": f.parameter,
+                "current_value": f.current_value,
+                "suggested_value": f.suggested_value,
+                "unit": f.unit,
+                "confidence": f.confidence,
+                "reasoning": f.reasoning,
+                "priority": f.priority,
+            }
+            for f in report.fixes
+        ],
+        "estimated_improvement": report.estimated_improvement,
+        "warnings": report.warnings,
+    }
+
+
+def _comparison_report_to_dict(comp: ComparisonReport) -> dict:
+    """Serialize ComparisonReport to JSON-serializable dict."""
+    return {
+        "design_a_id": comp.design_a_id,
+        "design_b_id": comp.design_b_id,
+        "task": comp.task,
+        "overall_winner": comp.overall_winner,
+        "confidence": comp.confidence,
+        "metric_comparisons": [
+            {
+                "metric": c.metric.value,
+                "design_a_score": c.design_a_score,
+                "design_b_score": c.design_b_score,
+                "winner": c.winner,
+                "difference": c.difference,
+                "significance": c.significance,
+                "notes": c.notes,
+            }
+            for c in comp.metric_comparisons
+        ],
+        "design_a_strengths": comp.design_a_strengths,
+        "design_b_strengths": comp.design_b_strengths,
+        "recommendation": comp.recommendation,
+        "detailed_analysis": comp.detailed_analysis,
+    }
+
+
+@app.post("/fixes")
+async def prescriptive_fixes_endpoint(request: Request):
+    """
+    Generate prescriptive fixes from a validation result.
+    Body: {"validation_result": {...}, "design_id": "..."}.
+    validation_result: output from /validate or to_dict(ValidationResult).
+    Returns FixReport as JSON.
+    """
+    try:
+        body = await request.json()
+        validation_result = body.get("validation_result")
+        design_id = body.get("design_id", "unknown")
+    except Exception:
+        return JSONResponse(
+            status_code=400,
+            content={"success": False, "message": "JSON body with validation_result required"},
+        )
+    if not validation_result or not isinstance(validation_result, dict):
+        return JSONResponse(
+            status_code=400,
+            content={"success": False, "message": "validation_result must be a dict from /validate"},
+        )
+    try:
+        report = generate_prescriptive_fixes(validation_result, design_id=design_id)
+        return {"success": True, **_fix_report_to_dict(report)}
+    except Exception as e:
+        failure = handle_exception(e, context="fixes")
+        return JSONResponse(
+            status_code=500,
+            content={"success": False, "failure": failure.to_dict(), "message": failure.to_user_message()},
+        )
+
+
+@app.post("/compare")
+async def compare_designs_endpoint(request: Request):
+    """
+    Compare two designs for a task. Validates both then compares.
+    Body: {"design_a": {"mjcf": "...", "id": "..."}, "design_b": {"mjcf": "...", "id": "..."}, "task": "general"}.
+    Returns ComparisonReport as JSON.
+    """
+    try:
+        body = await request.json()
+        design_a = body.get("design_a") or {}
+        design_b = body.get("design_b") or {}
+        task = body.get("task", "general")
+    except Exception:
+        return JSONResponse(
+            status_code=400,
+            content={"success": False, "message": "JSON body with design_a, design_b required"},
+        )
+    mjcf_a = (design_a.get("mjcf") or design_a.get("xml_string") or "").strip()
+    mjcf_b = (design_b.get("mjcf") or design_b.get("xml_string") or "").strip()
+    if not mjcf_a or not mjcf_b:
+        return JSONResponse(
+            status_code=400,
+            content={"success": False, "message": "design_a and design_b must include mjcf or xml_string"},
+        )
+    id_a = design_a.get("id", "Design A")
+    id_b = design_b.get("id", "Design B")
+    try:
+        result_a = _validator.validate(xml_string=mjcf_a)
+        result_b = _validator.validate(xml_string=mjcf_b)
+    except Exception as e:
+        failure = handle_exception(e, context="compare")
+        return JSONResponse(
+            status_code=422,
+            content={"success": False, "failure": failure.to_dict(), "message": failure.to_user_message()},
+        )
+    validation_a = to_dict(result_a)
+    validation_b = to_dict(result_b)
+    comparison = compare_designs(
+        design_a={"id": id_a, "mjcf": mjcf_a},
+        design_b={"id": id_b, "mjcf": mjcf_b},
+        validation_a=validation_a,
+        validation_b=validation_b,
+        task=task,
+    )
+    return {"success": True, **_comparison_report_to_dict(comparison)}
 
 
 @app.post("/webhooks")

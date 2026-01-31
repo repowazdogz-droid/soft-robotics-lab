@@ -702,6 +702,168 @@ class HypothesisLedger:
 
         return h
 
+    def get_health_report(self) -> Dict:
+        """Get health report for all hypotheses with decay assessment."""
+        from hypothesis_decay import assess_all_hypotheses, get_decay_summary
+
+        hypotheses = self.list(status=HypothesisStatus.ACTIVE)
+        hyp_dicts = []
+        for h in hypotheses:
+            d = h.to_dict()
+            if d.get("evidence"):
+                d["last_evidence_date"] = max(
+                    (e["timestamp"] for e in d["evidence"]),
+                    default=d.get("updated_at"),
+                )
+            else:
+                d["last_evidence_date"] = d.get("updated_at")
+            hyp_dicts.append(d)
+        results = assess_all_hypotheses(hyp_dicts)
+        summary = get_decay_summary(results)
+        return {"summary": summary, "results": results}
+
+    def get_falsification_estimate(self, hypothesis_id: str) -> Optional[Dict]:
+        """Get falsification cost estimate for a hypothesis."""
+        from falsification_cost import estimate_falsification_cost
+
+        h = self.get(hypothesis_id)
+        if not h:
+            return None
+        estimate = estimate_falsification_cost(
+            hypothesis_id=h.id,
+            claim=h.claim,
+            domain=h.domain,
+            current_evidence_level="none",
+            confidence=h.confidence,
+            vrfc_status=getattr(h, "vrfc_status", "AMBER"),
+        )
+        return {
+            "hypothesis_id": estimate.hypothesis_id,
+            "paths": [
+                {
+                    "type": p.test_type.value,
+                    "description": p.description,
+                    "cost": p.estimated_cost_usd,
+                    "time": p.estimated_time_days,
+                    "resources": p.resources_needed,
+                    "resolution_prob": p.probability_of_resolution,
+                    "recommended": p.recommended,
+                }
+                for p in estimate.paths
+            ],
+            "cheapest": estimate.cheapest_path.test_type.value if estimate.cheapest_path else None,
+            "fastest": estimate.fastest_path.test_type.value if estimate.fastest_path else None,
+            "recommended": estimate.recommended_path.test_type.value if estimate.recommended_path else None,
+            "worth_testing": estimate.worth_testing,
+            "reason": estimate.worth_testing_reason,
+        }
+
+    BREAKTHROUGH_THRESHOLD = {
+        "min_confidence": 0.85,
+        "min_evidence": 3,
+        "required_srfc": "GREEN",
+        "required_vrfc": "GREEN",
+    }
+
+    def is_breakthrough(self, hypothesis_id: str) -> tuple:
+        """
+        Check if a hypothesis qualifies as a breakthrough.
+        Returns (is_breakthrough, reasons, missing).
+        """
+        h = self.get(hypothesis_id)
+        if not h:
+            return False, [], ["Hypothesis not found"]
+
+        reasons = []
+        missing = []
+
+        if h.status != HypothesisStatus.ACTIVE:
+            missing.append(f"Status is {h.status.value}, need ACTIVE")
+        else:
+            reasons.append("Status ACTIVE")
+
+        if h.confidence >= self.BREAKTHROUGH_THRESHOLD["min_confidence"]:
+            reasons.append(f"High confidence ({h.confidence:.0%})")
+        else:
+            missing.append(
+                f"Confidence {h.confidence:.0%} < {self.BREAKTHROUGH_THRESHOLD['min_confidence']:.0%}"
+            )
+
+        srfc = getattr(h, "srfc_status", "AMBER") or "AMBER"
+        if srfc == self.BREAKTHROUGH_THRESHOLD["required_srfc"]:
+            reasons.append("SRFC GREEN — physically feasible")
+        else:
+            missing.append(f"SRFC is {srfc}, need GREEN")
+
+        vrfc = getattr(h, "vrfc_status", "AMBER") or "AMBER"
+        if vrfc == self.BREAKTHROUGH_THRESHOLD["required_vrfc"]:
+            reasons.append("VRFC GREEN — translation path clear")
+        else:
+            missing.append(f"VRFC is {vrfc}, need GREEN")
+
+        evidence_count = len(h.evidence) if h.evidence else 0
+        if evidence_count >= self.BREAKTHROUGH_THRESHOLD["min_evidence"]:
+            reasons.append(f"Strong evidence ({evidence_count} items)")
+        else:
+            missing.append(
+                f"Evidence {evidence_count} < {self.BREAKTHROUGH_THRESHOLD['min_evidence']} required"
+            )
+
+        is_bt = len(missing) == 0
+        return is_bt, reasons, missing
+
+    def get_breakthroughs(self) -> List[Dict]:
+        """Get all hypotheses that qualify as breakthroughs."""
+        breakthroughs = []
+        for h in self.list(status=HypothesisStatus.ACTIVE):
+            is_bt, reasons, _ = self.is_breakthrough(h.id)
+            if is_bt:
+                breakthroughs.append({"hypothesis": h, "reasons": reasons})
+        return breakthroughs
+
+    def get_near_breakthroughs(self) -> List[Dict]:
+        """Get hypotheses close to breakthrough (missing 1–2 criteria)."""
+        near = []
+        for h in self.list(status=HypothesisStatus.ACTIVE):
+            is_bt, reasons, missing = self.is_breakthrough(h.id)
+            if not is_bt and len(missing) <= 2:
+                near.append({"hypothesis": h, "reasons": reasons, "missing": missing})
+        return near
+
+    def apply_decay(self, dry_run: bool = True) -> Dict:
+        """Apply decay to all hypotheses. Returns what would change."""
+        from hypothesis_decay import assess_all_hypotheses
+
+        hypotheses = self.list(status=HypothesisStatus.ACTIVE)
+        hyp_dicts = []
+        for h in hypotheses:
+            d = h.to_dict()
+            if d.get("evidence"):
+                d["last_evidence_date"] = max(
+                    (e["timestamp"] for e in d["evidence"]),
+                    default=d.get("updated_at"),
+                )
+            else:
+                d["last_evidence_date"] = d.get("updated_at")
+            hyp_dicts.append(d)
+        results = assess_all_hypotheses(hyp_dicts)
+        changes = []
+        for result in results:
+            if result.decayed_confidence < result.original_confidence * 0.99:
+                changes.append({
+                    "id": result.hypothesis_id,
+                    "original": result.original_confidence,
+                    "decayed": result.decayed_confidence,
+                    "recommendation": result.recommendation,
+                })
+                if not dry_run:
+                    self.update_confidence(
+                        result.hypothesis_id,
+                        result.decayed_confidence,
+                        reason="Automatic decay due to lack of evidence",
+                    )
+        return {"dry_run": dry_run, "hypotheses_affected": len(changes), "changes": changes}
+
     def _save_hypothesis(self, h: Hypothesis) -> None:
         """Save hypothesis to database. OMEGA-MAX fields included."""
         conn = sqlite3.connect(self.db_path)
@@ -833,6 +995,14 @@ if __name__ == "__main__":
     related_parser.add_argument("id", help="Hypothesis ID")
 
     migrate_parser = subparsers.add_parser("migrate", help="Migrate existing hypotheses to substrate (one-time)")
+
+    health_parser = subparsers.add_parser("health", help="Check hypothesis health")
+    health_parser.add_argument("--apply-decay", action="store_true", dest="apply_decay", help="Apply decay (not dry run)")
+
+    falsify_cost_parser = subparsers.add_parser("falsify-cost", help="Estimate falsification cost")
+    falsify_cost_parser.add_argument("id", help="Hypothesis ID")
+
+    bt_parser = subparsers.add_parser("breakthroughs", help="Show breakthroughs and near-breakthroughs")
 
     args = parser.parse_args()
 
@@ -1027,6 +1197,61 @@ if __name__ == "__main__":
             for h in all_hyps:
                 record_to_substrate(h)
             print(f"Migrated {len(all_hyps)} hypotheses to substrate.")
+
+    elif args.command == "health":
+        report = ledger.get_health_report()
+        summary = report["summary"]
+        print("\n=== Hypothesis Health Report ===")
+        print(f"Total: {summary['total']}")
+        print(f"Healthy: {summary['healthy']}")
+        print(f"Stale: {summary['stale']}")
+        print(f"Zombies: {summary['zombies']}")
+        print(f"Action required: {summary['action_required']}")
+        if getattr(args, "apply_decay", False):
+            result = ledger.apply_decay(dry_run=False)
+            print(f"\nApplied decay to {result['hypotheses_affected']} hypotheses")
+        else:
+            result = ledger.apply_decay(dry_run=True)
+            if result["hypotheses_affected"] > 0:
+                print(f"\nWould decay {result['hypotheses_affected']} hypotheses (use --apply-decay to apply)")
+
+    elif args.command == "falsify-cost":
+        estimate = ledger.get_falsification_estimate(args.id)
+        if estimate:
+            print("\n=== Falsification Cost Estimate ===")
+            print(f"Hypothesis: {args.id}")
+            print(f"Worth testing: {'Yes' if estimate['worth_testing'] else 'No'}")
+            print(f"Reason: {estimate['reason']}")
+            print(f"\nRecommended path: {estimate['recommended']}")
+            print("\nAll paths:")
+            for p in estimate["paths"]:
+                star = "⭐ " if p["recommended"] else "  "
+                print(f"{star}{p['type']}: ${p['cost'][0]:,}-${p['cost'][1]:,}, {p['time'][0]}-{p['time'][1]} days, {p['resolution_prob']:.0%} resolution")
+        else:
+            print(f"Hypothesis {args.id} not found")
+
+    elif args.command == "breakthroughs":
+        breakthroughs = ledger.get_breakthroughs()
+        near = ledger.get_near_breakthroughs()
+        print("\n=== BREAKTHROUGHS ===")
+        if breakthroughs:
+            for bt in breakthroughs:
+                h = bt["hypothesis"]
+                print(f"\n🎯 {h.id}: {h.claim[:60]}...")
+                print(f"   Confidence: {h.confidence:.0%}")
+                for reason in bt["reasons"]:
+                    print(f"   ✅ {reason}")
+        else:
+            print("No breakthroughs yet.")
+        print("\n=== NEAR BREAKTHROUGHS ===")
+        if near:
+            for n in near:
+                h = n["hypothesis"]
+                print(f"\n📍 {h.id}: {h.claim[:60]}...")
+                print(f"   Achieved: {', '.join(n['reasons'])}")
+                print(f"   Missing: {', '.join(n['missing'])}")
+        else:
+            print("No near-breakthroughs.")
 
     else:
         hypotheses = ledger.list(status=HypothesisStatus.ACTIVE)
