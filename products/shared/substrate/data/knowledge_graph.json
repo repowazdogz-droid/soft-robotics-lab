@@ -90,6 +90,18 @@
       "confidence": 1.0,
       "node_type": "Concept",
       "id": "what_is_22_20260130"
+    },
+    {
+      "claim": "Tendon-driven actuators outperform pneumatic for precision tasks",
+      "domain": "soft_robotics",
+      "node_type": "Hypothesis",
+      "id": "H-1FFFAB58"
+    },
+    {
+      "claim": "Soft gripper compliance improves grasp success on deformable objects",
+      "domain": "soft_robotics",
+      "node_type": "Hypothesis",
+      "id": "H-F9C2C3CF"
     }
   ],
   "links": [

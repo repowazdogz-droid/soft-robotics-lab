@@ -68,6 +68,30 @@ except ImportError:
     should_show_quiz = None
     should_show_dashboard = None
     is_overwhelmed = None
+try:
+    from core.learning_fingerprint import (
+        record_learning_event,
+        get_learning_recommendations,
+        get_fingerprint_summary,
+        load_fingerprint,
+    )
+except ImportError:
+    record_learning_event = None
+    get_learning_recommendations = None
+    get_fingerprint_summary = None
+    load_fingerprint = None
+try:
+    from core.misconception_detector import (
+        detect_misconceptions,
+        check_explanation_for_misconceptions,
+        generate_preemptive_warning,
+        get_topic_misconceptions,
+    )
+except ImportError:
+    detect_misconceptions = None
+    check_explanation_for_misconceptions = None
+    generate_preemptive_warning = None
+    get_topic_misconceptions = None
 
 st.set_page_config(page_title="OMEGA Tutor", page_icon="🎓", layout="wide")
 
@@ -105,6 +129,8 @@ def _clear_chat():
     st.session_state.pop("re_explain", None)
     st.session_state.pop("pending_starter_question", None)
     st.session_state.pop("pending_starter_curriculum_id", None)
+    st.session_state.pop("misconception_warned_topics", None)
+    st.session_state.pop("pending_misconception_warning", None)
 
 
 def _save_persona(persona: str):
@@ -279,9 +305,29 @@ if len(_messages) == 0:
     if st.session_state.get("pending_starter_question"):
         _q = st.session_state["pending_starter_question"]
         st.session_state["messages"].append({"role": "user", "content": _q})
+        _topic_for_fp = st.session_state.get("pending_starter_curriculum_id", "").replace("-", "_") or "general"
         if _engine:
             _resp = _engine.teach(_q, level=level)
-            st.session_state["messages"].append({"role": "assistant", "content": _resp.to_markdown(), "level": level})
+            _content_md = _resp.to_markdown()
+            st.session_state["messages"].append({"role": "assistant", "content": _content_md, "level": level})
+            if record_learning_event:
+                try:
+                    record_learning_event(
+                        topic=_topic_for_fp or "general",
+                        level=level,
+                        event_type="explanation",
+                        content=_content_md[:200] if _content_md else _q[:200],
+                        outcome="understood",
+                    )
+                except Exception:
+                    pass
+            if generate_preemptive_warning and _topic_for_fp:
+                _warn = generate_preemptive_warning(_topic_for_fp)
+                if _warn:
+                    _warned = st.session_state.get("misconception_warned_topics") or set()
+                    if _topic_for_fp not in _warned:
+                        st.session_state["pending_misconception_warning"] = _warn
+                        st.session_state["misconception_warned_topics"] = _warned | {_topic_for_fp}
         else:
             st.session_state["messages"].append({"role": "assistant", "content": "**No backend available.** Start LM Studio with a model, or set GEMINI_API_KEY.", "level": level})
         st.session_state.pop("pending_starter_question", None)
@@ -395,7 +441,36 @@ if progress_tracker:
             st.sidebar.metric("Streak", f"{streak} days 🔥" if streak else "0 days")
         except Exception:
             pass
-    _show_quiz_btn = should_show_quiz(st.session_state) if should_show_quiz else True
+
+# Learning Fingerprint section
+if get_fingerprint_summary:
+    st.sidebar.divider()
+    st.sidebar.subheader("🧠 Learning Profile")
+    if st.sidebar.button("View My Profile", key="btn_show_fingerprint"):
+        st.session_state["show_fingerprint"] = not st.session_state.get("show_fingerprint", False)
+    if st.session_state.get("show_fingerprint"):
+        try:
+            summary = get_fingerprint_summary()
+            st.sidebar.write(f"**Topics studied:** {summary.get('topics_studied', 0)}")
+            st.sidebar.write(f"**Total events:** {summary.get('total_events', 0)}")
+            if summary.get("best_topics"):
+                st.sidebar.write(f"**Strong areas:** {', '.join(summary['best_topics'][:3])}")
+            if summary.get("struggling_topics"):
+                st.sidebar.write(f"**Areas to work on:** {', '.join(summary['struggling_topics'][:3])}")
+            style = summary.get("learning_style", {})
+            prefs = []
+            if style.get("prefers_analogies"):
+                prefs.append("analogies")
+            if style.get("prefers_examples"):
+                prefs.append("examples")
+            if style.get("prefers_formal"):
+                prefs.append("formal definitions")
+            if prefs:
+                st.sidebar.write(f"**You learn best with:** {', '.join(prefs)}")
+        except Exception:
+            st.sidebar.caption("Profile unavailable.")
+
+_show_quiz_btn = should_show_quiz(st.session_state) if should_show_quiz else True
     if _show_quiz_btn and st.sidebar.button("🧠 Test Yourself"):
         st.session_state["quiz_mode"] = True
         st.session_state.pop("quiz_questions", None)
@@ -672,6 +747,17 @@ if st.session_state.get("quiz_mode") and progress_tracker and (generate_quiz or 
             }
             st.session_state["quiz_answers"] = st.session_state.get("quiz_answers", []) + [result]
             st.session_state["quiz_show_feedback"] = True
+            if record_learning_event:
+                try:
+                    record_learning_event(
+                        topic=(q_topic or "general").replace(" ", "_").replace("-", "_"),
+                        level=level,
+                        event_type="quiz",
+                        content=(q.get("question", "") or "")[:200],
+                        outcome="correct" if correct else "incorrect",
+                    )
+                except Exception:
+                    pass
             st.rerun()
         st.stop()
     # Results: all questions answered
@@ -940,7 +1026,31 @@ if topic:
         st.session_state.messages.append({"role": "user", "content": _topic_q})
         _eng = _engine if _engine is not None else TutorEngine(api_key=api_key or None)
         _resp = _eng.teach(_topic_q, level=level)
-        st.session_state.messages.append({"role": "assistant", "content": _resp.to_markdown(), "level": level})
+        _resp_md = _resp.to_markdown()
+        st.session_state.messages.append({"role": "assistant", "content": _resp_md, "level": level})
+        if record_learning_event:
+            try:
+                _topic_fp = (topic or "general").replace(" ", "_").replace("-", "_")
+                record_learning_event(
+                    topic=_topic_fp or "general",
+                    level=level,
+                    event_type="explanation",
+                    content=_resp_md[:200] if _resp_md else _topic_q[:200],
+                    outcome="understood",
+                )
+            except Exception:
+                pass
+        if generate_preemptive_warning and topic:
+            try:
+                _warn = generate_preemptive_warning((topic or "").replace(" ", "_").replace("-", "_"))
+                if _warn:
+                    _warned = st.session_state.get("misconception_warned_topics") or set()
+                    _tkey = (topic or "general").replace(" ", "_")
+                    if _tkey not in _warned:
+                        st.session_state["pending_misconception_warning"] = _warn
+                        st.session_state["misconception_warned_topics"] = _warned | {_tkey}
+            except Exception:
+                pass
         if progress_tracker:
             try:
                 progress_tracker.record_topic(_topic_q.strip()[:80].replace("\n", " ") or "general")
@@ -978,6 +1088,9 @@ if st.session_state.get("voice_input") and voice_engine and voice_engine.whisper
                 pass
 
 messages = st.session_state.messages
+if st.session_state.get("pending_misconception_warning"):
+    st.warning(st.session_state["pending_misconception_warning"])
+    st.session_state.pop("pending_misconception_warning", None)
 for i, msg in enumerate(messages):
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
@@ -1012,6 +1125,36 @@ for i, msg in enumerate(messages):
                 user_exp = st.text_area("Explain in your own words:", key=f"explain_text_{i}", placeholder="What did you learn?")
                 if st.button("Submit", key=f"explain_submit_{i}") and user_exp.strip():
                     topic_name = st.session_state.get("explain_back_topic", "this topic")
+                    _topic_key = (topic_name or "general").replace(" ", "_").replace("-", "_")[:80]
+                    misconception_check = check_explanation_for_misconceptions(topic_name, user_exp) if check_explanation_for_misconceptions else {}
+                    if misconception_check.get("has_misconceptions"):
+                        st.warning(f"⚠️ I detected a possible misconception (severity: {misconception_check.get('severity', 'moderate')})")
+                        for correction in misconception_check.get("corrections", []):
+                            st.info(correction)
+                        if record_learning_event:
+                            try:
+                                record_learning_event(
+                                    topic=_topic_key,
+                                    level=msg_level,
+                                    event_type="explain_back",
+                                    content=user_exp[:200],
+                                    outcome="confused",
+                                    notes=f"Misconception: {misconception_check.get('detected', [{}])[0].get('misconception', '')}",
+                                )
+                            except Exception:
+                                pass
+                    else:
+                        if record_learning_event:
+                            try:
+                                record_learning_event(
+                                    topic=_topic_key,
+                                    level=msg_level,
+                                    event_type="explain_back",
+                                    content=user_exp[:200],
+                                    outcome="understood",
+                                )
+                            except Exception:
+                                pass
                     ev = evaluate_explanation(topic_name, user_exp, msg_level, api_key=os.environ.get("GEMINI_API_KEY") or st.session_state.get("api_key"))
                     st.metric("Score", f"{ev.get('score', 0)}/100")
                     if ev.get("correct_points"):
@@ -1075,6 +1218,28 @@ if prompt:
             response = engine.teach(prompt, level=level)
             st.markdown(response.to_markdown())
     _content = response.to_markdown()
+    _topic_fp = (prompt or "").strip()[:80].replace("\n", " ").strip() or "general"
+    if record_learning_event:
+        try:
+            record_learning_event(
+                topic=_topic_fp,
+                level=level,
+                event_type="explanation",
+                content=(getattr(response, "explanation", None) or _content)[:200],
+                outcome="understood",
+            )
+        except Exception:
+            pass
+    if generate_preemptive_warning:
+        try:
+            _warn = generate_preemptive_warning(_topic_fp.replace(" ", "_").replace("-", "_"))
+            if _warn:
+                _warned = st.session_state.get("misconception_warned_topics") or set()
+                if _topic_fp not in _warned:
+                    st.session_state["pending_misconception_warning"] = _warn
+                    st.session_state["misconception_warned_topics"] = _warned | {_topic_fp}
+        except Exception:
+            pass
     try:
         _bp = _ROOT.parent / "breakthrough_engine"
         if _bp.exists() and str(_bp) not in sys.path:
