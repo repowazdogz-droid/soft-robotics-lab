@@ -826,7 +826,7 @@ class HypothesisLedger:
         near = []
         for h in self.list(status=HypothesisStatus.ACTIVE):
             is_bt, reasons, missing = self.is_breakthrough(h.id)
-            if not is_bt and len(missing) <= 2:
+            if not is_bt and len(missing) <= 2 and len(reasons) >= 2:
                 near.append({"hypothesis": h, "reasons": reasons, "missing": missing})
         return near
 
@@ -1233,25 +1233,34 @@ if __name__ == "__main__":
     elif args.command == "breakthroughs":
         breakthroughs = ledger.get_breakthroughs()
         near = ledger.get_near_breakthroughs()
-        print("\n=== BREAKTHROUGHS ===")
+        print("\n" + "=" * 50)
+        print("🎯 BREAKTHROUGHS")
+        print("=" * 50)
         if breakthroughs:
             for bt in breakthroughs:
                 h = bt["hypothesis"]
-                print(f"\n🎯 {h.id}: {h.claim[:60]}...")
+                print(f"\n🎯 {h.id}")
+                print(f"   Claim: {h.claim[:60]}...")
                 print(f"   Confidence: {h.confidence:.0%}")
+                print(f"   Domain: {h.domain}")
                 for reason in bt["reasons"]:
                     print(f"   ✅ {reason}")
         else:
-            print("No breakthroughs yet.")
-        print("\n=== NEAR BREAKTHROUGHS ===")
+            print("\nNo breakthroughs yet.")
+        print("\n" + "=" * 50)
+        print("📍 NEAR BREAKTHROUGHS")
+        print("=" * 50)
         if near:
             for n in near:
                 h = n["hypothesis"]
-                print(f"\n📍 {h.id}: {h.claim[:60]}...")
-                print(f"   Achieved: {', '.join(n['reasons'])}")
-                print(f"   Missing: {', '.join(n['missing'])}")
+                print(f"\n📍 {h.id}")
+                print(f"   Claim: {h.claim[:60]}...")
+                print(f"   Achieved: {len(n['reasons'])} criteria")
+                print(f"   Missing: {len(n['missing'])} criteria")
+                for m in n["missing"]:
+                    print(f"   ❌ {m}")
         else:
-            print("No near-breakthroughs.")
+            print("\nNo near-breakthroughs.")
 
     else:
         hypotheses = ledger.list(status=HypothesisStatus.ACTIVE)

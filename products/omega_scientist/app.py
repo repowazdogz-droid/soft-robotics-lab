@@ -27,6 +27,23 @@ try:
 except ImportError:
     VALIDATION_TRINITY_AVAILABLE = False
 
+try:
+    from integration.ledger_integration import (
+        bulk_create_from_scientist_session,
+        create_hypothesis_from_contradiction,
+        create_hypothesis_from_cross_domain,
+        create_hypothesis_from_failure,
+        create_hypothesis_from_revival,
+        LEDGER_AVAILABLE,
+    )
+except ImportError:
+    LEDGER_AVAILABLE = False
+    bulk_create_from_scientist_session = None
+    create_hypothesis_from_contradiction = None
+    create_hypothesis_from_cross_domain = None
+    create_hypothesis_from_failure = None
+    create_hypothesis_from_revival = None
+
 st.set_page_config(page_title="OMEGA Scientist", page_icon="🔬", layout="wide")
 
 st.title("🔬 OMEGA Scientist")
@@ -887,6 +904,73 @@ with tab3:
                                 st.markdown("3. Consult domain experts before proceeding")
                         except Exception as e:
                             st.error(f"VRFC check failed: {e}")
+
+    # Send to Ledger section (always visible in Validate tab)
+    st.divider()
+    st.subheader("📤 Send to Hypothesis Ledger")
+
+    if not LEDGER_AVAILABLE:
+        st.warning("Hypothesis Ledger integration not available. Ensure breakthrough_engine is on PYTHONPATH.")
+    else:
+        _cr = st.session_state.get("contradiction_report")
+        _cl = st.session_state.get("collision_report")
+        _fr = st.session_state.get("failure_report")
+        _tr = st.session_state.get("translation_report")
+        counts = {
+            "contradictions": len(getattr(_cr, "contradictions", [])) if _cr else 0,
+            "cross_domain": len(getattr(_cl, "novel_connections", [])) if _cl else 0,
+            "failures": len(getattr(_fr, "fixable_opportunities", [])) if _fr else 0,
+            "revivals": len(getattr(_tr, "revival_candidates", [])) if _tr else 0,
+        }
+        total = sum(counts.values())
+
+        if total == 0:
+            st.info("No discoveries to send. Run discovery modes first (Discover tab).")
+        else:
+            st.write(f"**Available discoveries:** {total}")
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("Contradictions", counts["contradictions"])
+            col2.metric("Cross-Domain", counts["cross_domain"])
+            col3.metric("Failures", counts["failures"])
+            col4.metric("Revivals", counts["revivals"])
+            preview = st.checkbox("Preview before sending", value=True, key="ledger_preview_cb")
+
+            if st.button("🚀 Send All to Hypothesis Ledger", key="send_all_ledger") and bulk_create_from_scientist_session:
+                if preview:
+                    results = bulk_create_from_scientist_session(st.session_state, auto_add=False)
+                    st.session_state["ledger_preview_results"] = results
+                    st.rerun()
+                else:
+                    with st.spinner("Creating hypotheses..."):
+                        results = bulk_create_from_scientist_session(st.session_state, auto_add=True)
+                    st.success(f"✅ Created {results.get('total', 0)} hypotheses in Ledger!")
+                    if results.get("total", 0) > 0:
+                        st.write("**Created:**")
+                        for source in ("contradictions", "cross_domain", "failures", "revivals"):
+                            n = len(results.get(source, []))
+                            if n:
+                                st.write(f"- {source}: {n} hypotheses")
+                        st.info("View them in Breakthrough Engine → Hypothesis Ledger")
+                    st.balloons()
+
+            if st.session_state.get("ledger_preview_results") and preview:
+                results = st.session_state["ledger_preview_results"]
+                st.write(f"**Preview: {results.get('total', 0)} hypotheses to be created**")
+                for source in ("contradictions", "cross_domain", "failures", "revivals"):
+                    hyps = results.get(source, [])
+                    if hyps:
+                        st.write(f"**{source.replace('_', ' ').title()}:**")
+                        for h in hyps[:3]:
+                            claim = (h.get("claim") or "")[:80]
+                            st.write(f"- {claim}...")
+                        if len(hyps) > 3:
+                            st.write(f"  ... and {len(hyps) - 3} more")
+                if st.button("✅ Confirm and Send", key="confirm_send_ledger") and bulk_create_from_scientist_session:
+                    results = bulk_create_from_scientist_session(st.session_state, auto_add=True)
+                    st.session_state.pop("ledger_preview_results", None)
+                    st.success(f"Created {results.get('total', 0)} hypotheses in Ledger!")
+                    st.balloons()
+                    st.rerun()
 
     # Full Validation Trinity (always visible in Validate tab)
     st.divider()

@@ -106,9 +106,15 @@ if "health_report" in st.session_state:
     st.divider()
 
 # ----- Breakthrough detection -----
+st.divider()
 st.subheader("🎯 Breakthroughs")
 breakthroughs = ledger.get_breakthroughs()
 near = ledger.get_near_breakthroughs()
+
+col1, col2 = st.columns(2)
+col1.metric("Breakthroughs", len(breakthroughs))
+col2.metric("Near Breakthroughs", len(near))
+
 if breakthroughs:
     st.success(f"🎯 {len(breakthroughs)} BREAKTHROUGH(S) DETECTED!")
     for bt in breakthroughs:
@@ -116,12 +122,18 @@ if breakthroughs:
         claim_preview = (h.claim[:50] + "...") if len(h.claim) > 50 else h.claim
         with st.expander(f"🎯 {h.id}: {claim_preview}"):
             st.write(f"**Confidence:** {h.confidence:.0%}")
+            st.write(f"**Domain:** {h.domain}")
             st.write("**Why it's a breakthrough:**")
             for reason in bt["reasons"]:
                 st.write(f"✅ {reason}")
             st.info("**Recommended:** Proceed to prototype, publication, or patent application")
-else:
-    st.info("No breakthroughs yet. Keep testing hypotheses!")
+            c1, c2 = st.columns(2)
+            with c1:
+                if st.button("Export for Publication", key=f"pub_{h.id}"):
+                    st.session_state["export_hypothesis"] = h
+            with c2:
+                if st.button("Create Action Plan", key=f"action_{h.id}"):
+                    st.session_state["action_hypothesis"] = h
 if near:
     st.warning(f"📍 {len(near)} hypothesis(es) close to breakthrough")
     for n in near:
@@ -134,6 +146,16 @@ if near:
             st.write("**Still needed:**")
             for m in n["missing"]:
                 st.write(f"❌ {m}")
+            if any("Confidence" in m for m in n["missing"]):
+                st.info("💡 **Next step:** Gather more evidence to increase confidence")
+            if any("SRFC" in m for m in n["missing"]):
+                st.info("💡 **Next step:** Run Reality Bridge validation")
+            if any("VRFC" in m for m in n["missing"]):
+                st.info("💡 **Next step:** Assess translation pathway")
+            if any("Evidence" in m for m in n["missing"]):
+                st.info("💡 **Next step:** Add supporting evidence")
+if not breakthroughs and not near:
+    st.info("No breakthroughs or near-breakthroughs yet. Keep testing hypotheses!")
 st.divider()
 
 # ----- Create form -----
