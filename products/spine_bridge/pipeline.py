@@ -26,15 +26,15 @@ _SpineCaseInput = None
 _using_spine_runtime = False
 
 try:
-    from spine.runtime.analyzer import DecisionAnalyzer
-    from spine.runtime.schemas import CaseInput as SpineCaseInput
+    from spine.spine.runtime.analyzer import DecisionAnalyzer
+    from spine.spine.runtime.schemas import CaseInput as SpineCaseInput
     _analyzer = DecisionAnalyzer()
     _SpineCaseInput = SpineCaseInput
     _using_spine_runtime = True
 except ImportError as e:
     print(
-        "Spine Bridge: spine.runtime not available "
-        "(add repo root to PYTHONPATH or ensure spine/runtime/ exists). "
+        "Spine Bridge: spine.spine.runtime not available "
+        "(add repo root to PYTHONPATH or ensure spine/spine/runtime/ exists). "
         f"ImportError: {e}. Decision analysis will use stub."
     )
 
@@ -122,21 +122,18 @@ def analyze_design(
 
 
 def _to_spine_case_input(case: CaseInput):
-    """Convert local CaseInput to spine.runtime.schemas.CaseInput for the analyzer."""
+    """Convert local CaseInput to Spine CaseInput format."""
     if _SpineCaseInput is None:
         return case.to_dict()
-    d = case.to_dict()
-    # Spine CaseInput may use same or subset of fields; try dict unpacking first
-    try:
-        return _SpineCaseInput(**d)
-    except TypeError:
-        return _SpineCaseInput(
-            name=d.get("name", ""),
-            domain=d.get("domain", ""),
-            objectives=d.get("objectives", []),
-            constraints=d.get("constraints", []),
-            uncertainties=d.get("uncertainties", []),
-        )
+    return _SpineCaseInput(
+        problem={
+            "name": case.name,
+            "domain": case.domain,
+        },
+        constraints=case.constraints,
+        uncertainties=case.uncertainties,
+        objectives=case.objectives,
+    )
 
 
 def _analysis_to_dict(analysis: Any) -> Dict[str, Any]:

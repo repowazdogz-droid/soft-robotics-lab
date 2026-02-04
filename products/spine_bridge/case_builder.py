@@ -48,7 +48,7 @@ def build_case(
         for s in f.get("suggestions") or []:
             uncertainties.append(f"Suggestion: {s}")
 
-    return CaseInput(
+    case = CaseInput(
         name=name,
         domain=domain,
         objectives=objectives,
@@ -61,3 +61,18 @@ def build_case(
             **{k: v for k, v in problem_context.items() if k not in ("name", "domain", "objectives")},
         },
     )
+
+    # Domain-specific baseline constraints and uncertainties
+    if problem_context.get("domain") == "surgical_robotics":
+        case.constraints.extend([
+            "max_force: 2N",
+            "must_not_slip",
+            "biocompatible_materials_only",
+            "sterilization_compatible",
+        ])
+        case.uncertainties.extend([
+            "tissue_compliance: unknown_range",
+            "sterilization_degradation: untested",
+        ])
+
+    return case
