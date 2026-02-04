@@ -2,7 +2,7 @@
 
 Physics validation API for MJCF/URDF models. All endpoints return JSON. CORS enabled.
 
-**Base URL:** `http://localhost:8000` (default)
+**Base URL:** Set `REALITY_BRIDGE_URL` or use default `http://localhost:18000`
 
 ---
 
@@ -227,15 +227,15 @@ No built-in rate limit. For production, put a reverse proxy (e.g. nginx) in fron
 
 **Validate with curl:**
 ```bash
-curl -X POST http://localhost:8000/validate -F "xml_string=<mujoco model='test'>...</mujoco>" -F "artifact_id=ART-001"
+curl -X POST $REALITY_BRIDGE_URL/validate -F "xml_string=<mujoco model='test'>...</mujoco>" -F "artifact_id=ART-001"
 ```
 
 **Batch validate:**
 ```bash
-curl -X POST http://localhost:8000/validate/batch -H "Content-Type: application/json" -d '{"designs":[{"mjcf":"<mujoco>...</mujoco>","artifact_id":"ART-001"}]}'
+curl -X POST $REALITY_BRIDGE_URL/validate/batch -H "Content-Type: application/json" -d '{"designs":[{"mjcf":"<mujoco>...</mujoco>","artifact_id":"ART-001"}]}'
 ```
 
 **Register webhook:**
 ```bash
-curl -X POST http://localhost:8000/webhooks -H "Content-Type: application/json" -d '{"url":"https://example.com/hook","events":["validation_failed"]}'
+curl -X POST $REALITY_BRIDGE_URL/webhooks -H "Content-Type: application/json" -d '{"url":"https://example.com/hook","events":["validation_failed"]}'
 ```

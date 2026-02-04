@@ -8,6 +8,7 @@ Hypothesis → Isaac Sim → Evidence → Confidence Shift → Weekly Brief → 
 End-to-end. No gaps.
 """
 
+import os
 import sys
 import json
 import time
@@ -20,7 +21,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "runner"))
 
 import requests
 
-LAB_OS_URL = "http://localhost:8000"
+# Lab OS URL (env for cross-machine; default local 18002)
+LAB_OS_URL = os.environ.get("LAB_OS_URL", "http://localhost:18002")
 DEMO_DIR = Path(__file__).parent / "output"
 
 

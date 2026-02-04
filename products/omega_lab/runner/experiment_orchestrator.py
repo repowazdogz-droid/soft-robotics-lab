@@ -7,6 +7,7 @@ This is what turns a lab tool into a discovery engine.
 
 import itertools
 import json
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -21,7 +22,8 @@ if str(_runner_dir) not in sys.path:
 
 from isaac_runner import run_experiment, generate_run_id
 
-LAB_OS_URL = "http://localhost:8000"
+# Lab OS URL (env for cross-machine; default local 18002)
+LAB_OS_URL = os.environ.get("LAB_OS_URL", "http://localhost:18002")
 
 
 def generate_batch_id() -> str:

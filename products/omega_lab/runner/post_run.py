@@ -1,12 +1,14 @@
 """POST a run bundle JSON file to the OMEGA Lab Cognition Server."""
 
 import json
+import os
 import sys
 from pathlib import Path
 
 import requests
 
-SERVER = "http://localhost:8000"  # Change to mac-mini IP later
+# Lab OS URL (env for cross-machine; default local 18002)
+LAB_OS_URL = os.environ.get("LAB_OS_URL", "http://localhost:18002")
 
 
 def post_run(bundle_path: str):
@@ -18,7 +20,7 @@ def post_run(bundle_path: str):
     with open(path, encoding="utf-8") as f:
         bundle = json.load(f)
 
-    response = requests.post(f"{SERVER}/runs", json=bundle)
+    response = requests.post(f"{LAB_OS_URL.rstrip('/')}/runs", json=bundle)
     print(f"Status: {response.status_code}")
     print(f"Response: {response.json()}")
     return response

@@ -18,8 +18,10 @@ import streamlit as st
 import requests
 import pandas as pd
 from datetime import datetime
+import os
 
-API_BASE = "http://localhost:8000"
+# Reality Bridge API base URL (env for cross-machine; default local 18000)
+API_BASE = os.environ.get("REALITY_BRIDGE_URL", "http://localhost:18000")
 TUTOR_BASE = "http://localhost:8503"
 
 st.set_page_config(
@@ -55,7 +57,7 @@ status = fetch_json("/health")
 if status and status.get("status") == "ok":
     st.success("Status: 🟢 Online | MuJoCo: " + str(status.get("mujoco_version", "—")))
 else:
-    st.error("Status: 🔴 Offline — start Reality Bridge: uvicorn app:app --reload --port 8000")
+    st.error("Status: 🔴 Offline — start Reality Bridge: uvicorn app:app --reload --port 18000 (or set REALITY_BRIDGE_PORT)")
 
 # Stats
 stats = fetch_json("/stats") or {}

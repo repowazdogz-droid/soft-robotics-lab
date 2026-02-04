@@ -2,10 +2,14 @@
 OMEGA Console - Single Entry Point
 """
 import base64
+import os
 import streamlit as st
 import requests
 import sys
 from pathlib import Path
+
+# Reality Bridge URL (env for cross-machine; default local 18000)
+REALITY_BRIDGE_URL = os.environ.get("REALITY_BRIDGE_URL", "http://localhost:18000")
 
 # Add products to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -24,7 +28,7 @@ st.set_page_config(
 # Use "python -m streamlit" to bypass blocked streamlit.exe (e.g. Device Guard on Windows)
 PRODUCT_RUN = {
     "Foundry": ("omega_foundry", 8501, "python -m streamlit run app.py --server.port 8501"),
-    "Reality Bridge": ("reality_bridge", 8000, "uvicorn app:app --reload --port 8000"),
+    "Reality Bridge": ("reality_bridge", 18000, "uvicorn app:app --reload --port 18000"),
     "World Model": ("world_model_studio", 8502, "python -m streamlit run app.py --server.port 8502"),
     "Breakthrough": ("breakthrough_engine", None, "python hypothesis_ledger.py --help"),
     "Decision Brief": ("enterprise/decision_brief", None, "python decision_brief.py --help"),
@@ -34,9 +38,9 @@ PRODUCT_RUN = {
 
 # --- Health Checks ---
 def check_reality_bridge():
-    """Check if Reality Bridge API is running"""
+    """Check if Reality Bridge API is running (uses REALITY_BRIDGE_URL env)."""
     try:
-        r = requests.get("http://localhost:8000/health", timeout=2)
+        r = requests.get(f"{REALITY_BRIDGE_URL.rstrip('/')}/health", timeout=2)
         return r.status_code == 200
     except Exception:
         return False
@@ -51,10 +55,10 @@ def check_service(name: str, port: int = None, path: str = None):
 
 
 def _validate_demo(mjcf_content: str):
-    """POST MJCF to Reality Bridge /validate; return response dict or None."""
+    """POST MJCF to Reality Bridge /validate; return response dict or None (uses REALITY_BRIDGE_URL)."""
     try:
         r = requests.post(
-            "http://localhost:8000/validate",
+            f"{REALITY_BRIDGE_URL.rstrip('/')}/validate",
             data={"xml_string": mjcf_content},
             timeout=10,
         )
@@ -66,10 +70,10 @@ def _validate_demo(mjcf_content: str):
 
 
 def _fetch_audit_bundle(mjcf_content: str):
-    """POST MJCF to Reality Bridge /validate; return (zip_bytes, filename) or (None, None)."""
+    """POST MJCF to Reality Bridge /validate; return (zip_bytes, filename) or (None, None) (uses REALITY_BRIDGE_URL)."""
     try:
         r = requests.post(
-            "http://localhost:8000/validate",
+            f"{REALITY_BRIDGE_URL.rstrip('/')}/validate",
             data={"xml_string": mjcf_content},
             timeout=10,
         )
@@ -89,7 +93,7 @@ def get_product_status():
     """Get status of all products"""
     return {
         "Foundry": {"status": check_service("foundry", path="omega_foundry/app.py"), "port": 8501, "path": "omega_foundry", "hint": PRODUCT_RUN["Foundry"][2]},
-        "Reality Bridge": {"status": check_reality_bridge(), "port": 8000, "path": "reality_bridge", "hint": PRODUCT_RUN["Reality Bridge"][2]},
+        "Reality Bridge": {"status": check_reality_bridge(), "port": 18000, "path": "reality_bridge", "hint": PRODUCT_RUN["Reality Bridge"][2]},
         "World Model": {"status": check_service("world_model", path="world_model_studio/app.py"), "port": 8502, "path": "world_model_studio", "hint": PRODUCT_RUN["World Model"][2]},
         "Breakthrough": {"status": check_service("breakthrough", path="breakthrough_engine/hypothesis_ledger.py"), "port": None, "path": "breakthrough_engine", "hint": PRODUCT_RUN["Breakthrough"][2]},
         "Decision Brief": {"status": check_service("decision", path="enterprise/decision_brief/decision_brief.py"), "port": None, "path": "enterprise/decision_brief", "hint": PRODUCT_RUN["Decision Brief"][2]},
@@ -223,8 +227,8 @@ st.divider()
 st.subheader("Quick Commands")
 
 st.code("""
-# Start Reality Bridge API
-cd products/reality_bridge && uvicorn app:app --reload --port 8000
+# Start Reality Bridge API (port 18000; or set REALITY_BRIDGE_PORT)
+cd products/reality_bridge && uvicorn app:app --reload --port 18000
 
 # Start Foundry
 cd products/omega_foundry && python -m streamlit run app.py --server.port 8501

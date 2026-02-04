@@ -4,11 +4,15 @@ Enhanced: Scene selector, Import from Foundry, Reality Bridge validation, traini
 """
 
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
+
+# Reality Bridge URL (env for cross-machine; default local 18000)
+REALITY_BRIDGE_URL = os.environ.get("REALITY_BRIDGE_URL", "http://localhost:18000")
 
 ROOT = Path(__file__).resolve().parent
 PRODUCTS = ROOT.parent
@@ -84,11 +88,11 @@ if "episode_total_count" not in st.session_state:
 
 
 def _validate_reality_bridge(mjcf: str) -> dict:
-    """POST MJCF to Reality Bridge /validate. Returns response dict or error dict."""
+    """POST MJCF to Reality Bridge /validate. Returns response dict or error dict (uses REALITY_BRIDGE_URL)."""
     try:
         import requests
         r = requests.post(
-            "http://localhost:8000/validate",
+            f"{REALITY_BRIDGE_URL.rstrip('/')}/validate",
             data={"xml_string": mjcf},
             timeout=10,
         )
@@ -645,7 +649,7 @@ def render_scene_builder():
             try:
                 import requests
                 mjcf = composer.compose()
-                r = requests.post("http://localhost:8000/validate", data={"xml_string": mjcf}, timeout=5)
+                r = requests.post(f"{REALITY_BRIDGE_URL.rstrip('/')}/validate", data={"xml_string": mjcf}, timeout=5)
                 if r.status_code == 200:
                     res = r.json()
                     st.json(res)

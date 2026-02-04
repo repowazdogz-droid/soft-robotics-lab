@@ -20,8 +20,8 @@ from typing import Optional, Dict, Any
 
 import requests
 
-# Configuration
-LAB_OS_URL = "http://localhost:8000"
+# Configuration: Lab OS URL (env for cross-machine; default local 18002)
+LAB_OS_URL = os.environ.get("LAB_OS_URL", "http://localhost:18002")
 ARTIFACTS_BASE = Path(__file__).parent.parent / "artifacts"
 
 # Check for Isaac Sim

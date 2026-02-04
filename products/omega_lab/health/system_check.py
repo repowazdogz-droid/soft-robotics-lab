@@ -5,6 +5,7 @@ Run this to verify Lab OS infrastructure is healthy.
 """
 
 import json
+import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
@@ -17,7 +18,8 @@ DB_PATH = BASE_DIR / "db" / "omega.db"
 ARTIFACTS_DIR = BASE_DIR / "artifacts"
 REGISTRY_PATH = BASE_DIR / "registry" / "experiment_index.json"
 SURFACE_PATH = BASE_DIR / "registry" / "discovery_surface.json"
-LAB_OS_URL = "http://localhost:8000"
+# Lab OS URL (env for cross-machine; default local 18002)
+LAB_OS_URL = os.environ.get("LAB_OS_URL", "http://localhost:18002")
 
 
 def check_lab_os() -> dict:

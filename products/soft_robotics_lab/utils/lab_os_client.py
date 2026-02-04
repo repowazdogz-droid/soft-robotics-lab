@@ -1,9 +1,11 @@
 """Client for OMEGA Lab OS (Cognition Server) API."""
 
+import os
 import requests
 from typing import Optional
 
-LAB_OS_URL = "http://localhost:8000"  # Will change to Mac Mini IP later
+# Lab OS URL (env for cross-machine; default local 18002)
+LAB_OS_URL = os.environ.get("LAB_OS_URL", "http://localhost:18002")
 
 
 def health_check() -> bool:

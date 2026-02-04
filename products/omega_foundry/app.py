@@ -3,9 +3,13 @@ Omega Foundry - Design from natural language intent.
 Streamlit app: 3D preview, voice-to-design, templates, similar designs, history, Reality Bridge validation, export.
 """
 
+import os
 import sys
 import requests
 from pathlib import Path
+
+# Reality Bridge URL (env for cross-machine; default local 18000)
+REALITY_BRIDGE_URL = os.environ.get("REALITY_BRIDGE_URL", "http://localhost:18000")
 
 _root = Path(__file__).resolve().parent
 if str(_root) not in sys.path:
@@ -317,7 +321,7 @@ if st.session_state.generated_design:
             else:
                 try:
                     r = requests.post(
-                        "http://localhost:8000/validate",
+                        f"{REALITY_BRIDGE_URL.rstrip('/')}/validate",
                         data={"xml_string": xml_to_send, "artifact_id": design.id},
                         timeout=10,
                     )
@@ -328,7 +332,7 @@ if st.session_state.generated_design:
                         st.session_state.reality_bridge_result = {"success": False, "message": r.text or f"HTTP {r.status_code}"}
                 except Exception as e:
                     st.session_state.reality_bridge_result = {"success": False, "message": str(e)}
-                    st.warning("Reality Bridge not reachable. Start it with: cd products/reality_bridge && uvicorn app:app --reload --port 8000")
+                    st.warning("Reality Bridge not reachable. Set REALITY_BRIDGE_URL or start: cd products/reality_bridge && uvicorn app:app --reload --port 18000")
 
     if st.session_state.validation_result:
         res = st.session_state.validation_result

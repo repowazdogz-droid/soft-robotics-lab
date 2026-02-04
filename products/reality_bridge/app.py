@@ -7,6 +7,7 @@ Uses shared contracts and failure taxonomy: no raw tracebacks to users.
 
 import asyncio
 import base64
+import os
 import sys
 import tempfile
 import time
@@ -538,4 +539,6 @@ def remove_webhook_endpoint(webhook_id: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Port from env for OMEGA port convention (18xxx); default 18000
+    port = int(os.environ.get("REALITY_BRIDGE_PORT", "18000"))
+    uvicorn.run(app, host="0.0.0.0", port=port)

@@ -12,14 +12,14 @@ Validate designs in MuJoCo before building. Prescriptive fixes when things fail.
 cd products/reality_bridge
 pip install -r requirements.txt
 
-# Run API server
-uvicorn app:app --host 0.0.0.0 --port 8000
+# Run API server (port from REALITY_BRIDGE_PORT env; default 18000)
+uvicorn app:app --host 0.0.0.0 --port 18000
 
 # Run dashboard
 streamlit run dashboard.py --server.port 8501
 ```
 
-API: http://localhost:8000/docs
+API: http://localhost:18000/docs (or set REALITY_BRIDGE_URL)
 Dashboard: http://localhost:8501
 
 ---

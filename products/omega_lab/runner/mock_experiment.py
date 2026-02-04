@@ -4,11 +4,13 @@ without requiring Isaac Sim
 """
 
 import json
+import os
 import random
 from datetime import datetime
 import requests
 
-SERVER = "http://localhost:8000"
+# Lab OS URL (env for cross-machine; default local 18002)
+LAB_OS_URL = os.environ.get("LAB_OS_URL", "http://localhost:18002")
 
 
 def mock_run(design_id: str, hypothesis_id: str, environment: str = "dry"):
@@ -60,7 +62,7 @@ def mock_run(design_id: str, hypothesis_id: str, environment: str = "dry"):
 
     # POST to Lab OS
     try:
-        r = requests.post(f"{SERVER}/runs", json=bundle)
+        r = requests.post(f"{LAB_OS_URL.rstrip('/')}/runs", json=bundle)
         if r.status_code == 200:
             result = r.json()
             print(f"Posted to Lab OS")
