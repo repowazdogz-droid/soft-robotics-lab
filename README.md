@@ -161,6 +161,10 @@ streamlit run dashboard.py --server.port 8501
 
 ---
 
+## 🛠️ Operations
+
+**Single source of truth for running the Omega ecosystem** (all machines, ports, start/stop, backups, health checks): **[docs/OMEGA_SYSTEM_CONTROL_PANEL.md](docs/OMEGA_SYSTEM_CONTROL_PANEL.md)**
+
 ---
 
 ## 🏗️ Architecture
