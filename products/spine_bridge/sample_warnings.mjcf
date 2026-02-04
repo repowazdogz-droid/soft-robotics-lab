@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Heavier object: total mass near upper bound for grippers; may trigger mass-property attention -->
+<mujoco model="spine_bridge_warnings">
+  <compiler angle="radian"/>
+  <option timestep="0.002" iterations="50"/>
+  <worldbody>
+    <geom name="ground" type="plane" size="0.5 0.5 0.1"/>
+    <light pos="0 0 1" dir="0 0 -1" directional="true"/>
+    <body name="heavy_link" pos="0 0 0.15">
+      <freejoint name="obj_free"/>
+      <geom name="link_geom" type="cylinder" size="0.03 0.04" mass="3.0"/>
+    </body>
+  </worldbody>
+</mujoco>

@@ -63,7 +63,8 @@ def build_case(
     )
 
     # Domain-specific baseline constraints and uncertainties
-    if problem_context.get("domain") == "surgical_robotics":
+    domain = problem_context.get("domain") or "robotics"
+    if domain == "surgical_robotics":
         case.constraints.extend([
             "max_force: 2N",
             "must_not_slip",
@@ -73,6 +74,28 @@ def build_case(
         case.uncertainties.extend([
             "tissue_compliance: unknown_range",
             "sterilization_degradation: untested",
+        ])
+    elif domain == "industrial_manipulation":
+        case.constraints.extend([
+            "payload_capacity: 5kg",
+            "repeatability: 0.1mm",
+            "cycle_time: under_30s",
+            "safety_rated_stop",
+        ])
+        case.uncertainties.extend([
+            "part_tolerance: batch_variation",
+            "environment_occlusion: untested",
+        ])
+    elif domain == "delicate_assembly":
+        case.constraints.extend([
+            "max_force: 0.5N",
+            "no_scratch_surfaces",
+            "ESD_safe",
+            "sub_mm_alignment",
+        ])
+        case.uncertainties.extend([
+            "part_compliance: unknown",
+            "fixture_thermal_drift: unmeasured",
         ])
 
     return case

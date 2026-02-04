@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Invalid: total mass 50 kg exceeds MAX_TOTAL_MASS (10 kg) - validation failure -->
+<mujoco model="spine_bridge_failing">
+  <compiler angle="radian"/>
+  <option timestep="0.002" iterations="50"/>
+  <worldbody>
+    <geom name="ground" type="plane" size="0.5 0.5 0.1"/>
+    <light pos="0 0 1" dir="0 0 -1" directional="true"/>
+    <body name="box" pos="0 0 0.1">
+      <freejoint name="box_free"/>
+      <geom name="box_geom" type="box" size="0.1 0.1 0.1" mass="50.0"/>
+    </body>
+  </worldbody>
+</mujoco>
