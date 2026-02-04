@@ -51,6 +51,14 @@ st.markdown("""
     .demo-step { background: #1e293b; border-radius: 8px; padding: 1rem; margin: 0.5rem 0; border: 1px solid #475569; }
     .pass-badge { color: #22c55e; font-weight: 600; }
     .fail-badge { color: #ef4444; font-weight: 600; }
+    .confidence-high { color: #22c55e; font-weight: 600; }
+    .confidence-medium { color: #eab308; font-weight: 600; }
+    .confidence-low { color: #ef4444; font-weight: 600; }
+    .evidence-physics { background: #14532d; color: #86efac; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.75rem; margin-left: 0.25rem; }
+    .evidence-rule { background: #422006; color: #fcd34d; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.75rem; margin-left: 0.25rem; }
+    .evidence-heuristic { background: #431407; color: #fdba74; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.75rem; margin-left: 0.25rem; }
+    .requires-validation { color: #f59e0b; font-size: 0.85rem; margin-left: 0.5rem; }
+    .provenance-block { font-family: monospace; font-size: 0.8rem; color: #94a3b8; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -214,9 +222,9 @@ if analyze_clicked:
             st.markdown("**Failure modes**")
             for i, fm in enumerate(failure_modes_list):
                 if isinstance(fm, dict):
-                    sev = (fm.get("severity") or fm.get("level") or "medium").lower()
                     def _esc(s):
                         return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                    sev = (fm.get("severity") or fm.get("level") or "medium").lower()
                     mode = fm.get("mode") or fm.get("message") or fm.get("description") or ""
                     if mode:
                         mode_label = _esc(mode).replace("_", " ").strip().title()
@@ -228,8 +236,35 @@ if analyze_clicked:
                         msg = f"<strong>{mode_label}</strong> ({sev}) — Mitigation: {mitigation_label}"
                     else:
                         msg = f"<strong>{mode_label}</strong> ({sev})"
+                    # Epistemic: confidence level with color
+                    confidence = (fm.get("confidence") or fm.get("confidence_level") or "").lower()
+                    if confidence:
+                        conf_cls = "confidence-high" if confidence in ("high", "strong") else "confidence-medium" if confidence in ("medium", "moderate") else "confidence-low"
+                        msg += f' <span class="{conf_cls}">[{confidence}]</span>'
+                    # Evidence type badge
+                    evidence_type = (fm.get("evidence_type") or fm.get("evidence") or "").lower()
+                    if evidence_type:
+                        if evidence_type == "physics_derived":
+                            msg += ' <span class="evidence-physics">physics_derived</span>'
+                        elif evidence_type == "rule_derived":
+                            msg += ' <span class="evidence-rule">rule_derived</span>'
+                        elif evidence_type == "heuristic":
+                            msg += ' <span class="evidence-heuristic">heuristic</span>'
+                        else:
+                            msg += f' <span class="evidence-rule">{_esc(evidence_type)}</span>'
+                    # Requires validation warning
+                    if fm.get("requires_validation") in (True, "true", 1):
+                        msg += ' <span class="requires-validation">⚠ requires validation</span>'
                     cls = "card-high" if sev in ("high", "critical") else "card-medium" if sev == "medium" else "card-low"
                     st.markdown(f'<div class="{cls}">{msg}</div>', unsafe_allow_html=True)
+                    # Provenance in expandable section
+                    provenance = fm.get("provenance")
+                    if provenance is not None and provenance != "":
+                        with st.expander(f"Provenance — {mode_label}", expanded=False):
+                            if isinstance(provenance, dict):
+                                st.json(provenance)
+                            else:
+                                st.markdown(f'<pre class="provenance-block">{_esc(str(provenance))}</pre>', unsafe_allow_html=True)
                 else:
                     st.markdown(f'<div class="card-medium" style="color:#f1f5f9;">{fm}</div>', unsafe_allow_html=True)
         constraints_list = da.get("constraints") or case.get("constraints") or []
