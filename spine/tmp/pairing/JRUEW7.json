@@ -1,0 +1,15 @@
+{
+  "pairCode": "JRUEW7",
+  "expiresAtIso": "2025-12-18T15:41:15.243Z",
+  "bootstrap": {
+    "sessionId": "session_1766071875243",
+    "learnerId": "learner_1766071875243",
+    "thoughtObjectsUrl": "http://127.0.0.1:3001/api/learning/thoughtObjects?learnerId=learner_1766071875243&sessionId=session_1766071875243",
+    "recapBaseUrl": "http://127.0.0.1:3001/learning/recap",
+    "mode": "demo",
+    "reduceMotion": true,
+    "ageBand": "10-12",
+    "missionId": "understand",
+    "topicId": "math-basics"
+  }
+}
