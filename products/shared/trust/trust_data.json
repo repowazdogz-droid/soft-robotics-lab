@@ -1,6 +1,6 @@
 {
   "first_run_success": 75.0,
-  "zero_traceback_rate": 97.8,
+  "zero_traceback_rate": 98.0,
   "reproducibility_rate": 85.0,
   "failure_clarity_rate": 80.0,
   "uptime_rate": 95.0,
