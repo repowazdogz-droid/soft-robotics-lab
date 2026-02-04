@@ -6,7 +6,7 @@ from pathlib import Path
 
 from .parser import parse_case_file
 from .analyzer import DecisionAnalyzer
-from .output import print_analysis
+from .output import print_analysis, export_trace_json, explain_output
 
 
 @click.group()
@@ -18,7 +18,9 @@ def cli():
 @cli.command()
 @click.argument('case_file', type=click.Path(exists=True))
 @click.option('--contracts-dir', type=click.Path(exists=True), help='Path to contracts directory')
-def analyze(case_file: str, contracts_dir: str = None):
+@click.option('--trace', is_flag=True, help='Output full trace graph as JSON')
+@click.option('--explain', type=str, help='Show reasoning chain for specific output node ID')
+def analyze(case_file: str, contracts_dir: str = None, trace: bool = False, explain: str = None):
     """
     Analyze a case file and output decision analysis.
     
@@ -33,6 +35,18 @@ def analyze(case_file: str, contracts_dir: str = None):
         
         # Analyze
         analysis = analyzer.analyze(case)
+        
+        # Handle explain flag
+        if explain:
+            explanation = explain_output(analysis, explain)
+            click.echo(explanation)
+            return
+        
+        # Handle trace flag
+        if trace:
+            trace_json = export_trace_json(analysis)
+            click.echo(trace_json)
+            return
         
         # Output results
         print_analysis(analysis)
