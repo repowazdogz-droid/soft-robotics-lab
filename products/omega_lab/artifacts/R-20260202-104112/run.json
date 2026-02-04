@@ -1,0 +1,22 @@
+{
+  "run_id": "R-20260202-104112",
+  "timestamp": "2026-02-02T10:41:12.707648Z",
+  "engine": "mock",
+  "design_id": "GD-0002",
+  "hypothesis_id": "H-TEST",
+  "experiment_id": "E-GD-0002-surgical",
+  "environment": "surgical",
+  "metrics": {
+    "slip_rate": 0.074,
+    "contact_area": 0.039,
+    "grasp_force": 4.84,
+    "grasp_success": true
+  },
+  "outcome": {
+    "direction": "supports",
+    "strength": 0.82,
+    "rationale": "Slip: 0.074, Contact: 0.039"
+  },
+  "artifact_manifest": [],
+  "notes": "Mock experiment for testing"
+}

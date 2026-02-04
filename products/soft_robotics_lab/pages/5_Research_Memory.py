@@ -67,7 +67,8 @@ st.markdown("---")
 def get_memory(lab_name):
     return ResearchMemory(lab_name)
 
-lab_name = st.sidebar.text_input("Lab Name", value="rossiter_lab")
+lab_name = st.sidebar.text_input("Lab Name", value=st.session_state.get("lab_name", "demo_lab"))
+st.session_state["lab_name"] = lab_name
 memory = get_memory(lab_name)
 
 # Reset notes
@@ -119,7 +120,44 @@ with col4:
 st.markdown("---")
 
 # Tabs
-tab1, tab2, tab3, tab4 = st.tabs(["📝 Notes", "💡 Hypotheses", "📊 Dashboard", "📋 Brief"])
+tab_search, tab1, tab2, tab3, tab4 = st.tabs(["🔍 Search", "📝 Notes", "💡 Hypotheses", "📊 Dashboard", "📋 Brief"])
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TAB: SEARCH (Keyword vs Semantic)
+# ══════════════════════════════════════════════════════════════════════════════
+with tab_search:
+    st.markdown("### 🔍 Search Research Memory")
+    search_mode = st.radio("Mode", ["Keyword", "Semantic"], horizontal=True, key="search_mode")
+    use_semantic = search_mode == "Semantic"
+    if use_semantic:
+        st.caption("Semantic search uses embeddings (requires ingested documents and sentence-transformers).")
+    query = st.text_input("Query", placeholder="e.g., variable stiffness grippers", key="mem_search_query")
+    if st.button("Search", type="primary", key="mem_search_btn") and query:
+        with st.spinner("Searching…"):
+            chunks = memory.search(query, use_semantic=use_semantic, limit=15)
+        st.session_state["search_results"] = chunks
+        st.session_state["search_ran"] = True
+    if st.session_state.get("search_ran") and st.session_state.get("search_results") is not None:
+        chunks = st.session_state["search_results"]
+        if not chunks:
+            st.info("No results.")
+        else:
+            hypotheses = memory.get_hypotheses()
+            hyp_options = {f"{h.id}: {h.claim[:40]}...": h.id for h in hypotheses}
+            for i, c in enumerate(chunks):
+                with st.expander(f"📄 {Path(c.doc_path).name} — {c.section}", expanded=False):
+                    st.caption(f"Chunk: {c.id}")
+                    st.text(c.text[:500] + ("..." if len(c.text) > 500 else ""))
+                    if hypotheses and hyp_options:
+                        sel_hyp = st.selectbox("Add to hypothesis", list(hyp_options.keys()), key=f"ev_{i}_hyp")
+                        direction = st.radio("Direction", ["supports", "weakens"], key=f"ev_{i}_dir")
+                        if st.button("Add as evidence", key=f"ev_{i}_btn"):
+                            memory.add_evidence(hyp_options[sel_hyp], c.id, direction)
+                            get_memory.clear()
+                            st.success("Evidence added.")
+                            st.rerun()
+                    else:
+                        st.caption("Create hypotheses in the Hypotheses tab to link evidence.")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # TAB 1: NOTES
@@ -567,6 +605,7 @@ with tab3:
 with tab4:
     st.markdown("### 📋 Weekly Research Brief")
     st.markdown("*AI-generated summary for your lab meeting*")
+    st.info("💡 Weekly briefs are generated from your hypotheses. Add more hypotheses to see richer analysis.")
 
     col_gen, col_clear, col_options = st.columns([2, 1, 1])
 

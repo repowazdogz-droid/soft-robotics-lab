@@ -1,0 +1,24 @@
+{
+  "run_id": "R-20260202-105351-612",
+  "timestamp": "2026-02-02T10:53:51.613605Z",
+  "engine": "mock",
+  "design_id": "GD-0001",
+  "hypothesis_id": "H-TEST",
+  "experiment_id": "E-GD-0001-surgical",
+  "environment": "surgical",
+  "metrics": {
+    "slip_rate": 0.0957,
+    "contact_area": 0.0311,
+    "grasp_force": 1.12,
+    "grasp_success": true,
+    "sim_steps": 1000,
+    "contact_frames": 761
+  },
+  "outcome": {
+    "direction": "supports",
+    "strength": 0.803,
+    "rationale": "Slip: 0.096 (baseline 0.15), Contact: 0.0311 (baseline 0.025). Both improved."
+  },
+  "artifact_manifest": [],
+  "notes": "Automated experiment for GD-0001"
+}

@@ -470,59 +470,60 @@ if get_fingerprint_summary:
         except Exception:
             st.sidebar.caption("Profile unavailable.")
 
+# Quiz button and Due for review (always show; not tied to fingerprint)
 _show_quiz_btn = should_show_quiz(st.session_state) if should_show_quiz else True
-    if _show_quiz_btn and st.sidebar.button("🧠 Test Yourself"):
-        st.session_state["quiz_mode"] = True
-        st.session_state.pop("quiz_questions", None)
-        st.session_state.pop("quiz_index", None)
-        st.session_state.pop("quiz_answers", None)
-        st.session_state.pop("quiz_topic", None)
-        st.session_state.pop("quiz_topic_list", None)
-        st.session_state.pop("quiz_source_type", None)
-        st.session_state.pop("quiz_n_questions", None)
-        st.rerun()
-    if st.session_state.get("show_review"):
-        st.sidebar.markdown("---")
-        st.sidebar.markdown("**Due for review**")
-        st.sidebar.markdown("─────────────")
-        try:
-            sm2_due = progress_tracker.get_due_reviews()
-            due = progress_tracker.get_due_for_review()
-            combined = list({d.get("name", ""): d for d in (sm2_due + due) if d.get("name")}.values())[:10]
-            review_selected = st.session_state.get("review_selected_topic")
-            for i, d in enumerate(combined):
-                name = d.get("name", "")
-                if st.sidebar.button(f"📌 {name}", key=f"review_btn_{i}_{name[:25]}", type="secondary"):
-                    st.session_state["review_selected_topic"] = name if review_selected != name else None
-                    st.rerun()
-                if review_selected == name:
-                    c1, c2 = st.sidebar.columns(2)
-                    with c1:
-                        if c1.button("Quiz me", key=f"review_quiz_{i}_{name[:20]}"):
-                            st.session_state["quiz_mode"] = True
-                            st.session_state["quiz_topic_list"] = [name]
-                            st.session_state["quiz_n_questions"] = 5
-                            st.session_state.pop("quiz_questions", None)
-                            st.session_state.pop("quiz_index", None)
-                            st.session_state.pop("quiz_answers", None)
-                            st.session_state["review_selected_topic"] = None
-                            st.session_state["show_review"] = False
-                            st.rerun()
-                    with c2:
-                        if c2.button("Re-learn", key=f"review_teach_{i}_{name[:20]}"):
-                            st.session_state["pending_starter_question"] = f"Explain {name} again in simple terms."
-                            st.session_state["messages"] = []
-                            st.session_state["review_selected_topic"] = None
-                            st.session_state["show_review"] = False
-                            st.rerun()
-            if not combined:
-                st.sidebar.caption("Nothing due. Keep learning!")
-            if st.sidebar.button("Close", key="close_review"):
-                st.session_state["show_review"] = False
-                st.session_state.pop("review_selected_topic", None)
+if _show_quiz_btn and st.sidebar.button("🧠 Test Yourself"):
+    st.session_state["quiz_mode"] = True
+    st.session_state.pop("quiz_questions", None)
+    st.session_state.pop("quiz_index", None)
+    st.session_state.pop("quiz_answers", None)
+    st.session_state.pop("quiz_topic", None)
+    st.session_state.pop("quiz_topic_list", None)
+    st.session_state.pop("quiz_source_type", None)
+    st.session_state.pop("quiz_n_questions", None)
+    st.rerun()
+if st.session_state.get("show_review"):
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("**Due for review**")
+    st.sidebar.markdown("─────────────")
+    try:
+        sm2_due = progress_tracker.get_due_reviews() if progress_tracker else []
+        due = progress_tracker.get_due_for_review() if progress_tracker else []
+        combined = list({d.get("name", ""): d for d in (sm2_due + due) if d.get("name")}.values())[:10]
+        review_selected = st.session_state.get("review_selected_topic")
+        for i, d in enumerate(combined):
+            name = d.get("name", "")
+            if st.sidebar.button(f"📌 {name}", key=f"review_btn_{i}_{name[:25]}", type="secondary"):
+                st.session_state["review_selected_topic"] = name if review_selected != name else None
                 st.rerun()
-        except Exception:
-            st.sidebar.caption("Review list unavailable.")
+            if review_selected == name:
+                c1, c2 = st.sidebar.columns(2)
+                with c1:
+                    if c1.button("Quiz me", key=f"review_quiz_{i}_{name[:20]}"):
+                        st.session_state["quiz_mode"] = True
+                        st.session_state["quiz_topic_list"] = [name]
+                        st.session_state["quiz_n_questions"] = 5
+                        st.session_state.pop("quiz_questions", None)
+                        st.session_state.pop("quiz_index", None)
+                        st.session_state.pop("quiz_answers", None)
+                        st.session_state["review_selected_topic"] = None
+                        st.session_state["show_review"] = False
+                        st.rerun()
+                with c2:
+                    if c2.button("Re-learn", key=f"review_teach_{i}_{name[:20]}"):
+                        st.session_state["pending_starter_question"] = f"Explain {name} again in simple terms."
+                        st.session_state["messages"] = []
+                        st.session_state["review_selected_topic"] = None
+                        st.session_state["show_review"] = False
+                        st.rerun()
+        if not combined:
+            st.sidebar.caption("Nothing due. Keep learning!")
+        if st.sidebar.button("Close", key="close_review"):
+            st.session_state["show_review"] = False
+            st.session_state.pop("review_selected_topic", None)
+            st.rerun()
+    except Exception:
+        st.sidebar.caption("Review list unavailable.")
 
 # ----- Learning Paths (Curriculum) -----
 if curriculum_engine:

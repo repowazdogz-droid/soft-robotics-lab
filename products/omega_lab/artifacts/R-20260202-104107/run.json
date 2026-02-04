@@ -1,0 +1,22 @@
+{
+  "run_id": "R-20260202-104107",
+  "timestamp": "2026-02-02T10:41:07.507829Z",
+  "engine": "mock",
+  "design_id": "GD-0001",
+  "hypothesis_id": "H-TEST",
+  "experiment_id": "E-GD-0001-wet",
+  "environment": "wet",
+  "metrics": {
+    "slip_rate": 0.089,
+    "contact_area": 0.035,
+    "grasp_force": 4.52,
+    "grasp_success": true
+  },
+  "outcome": {
+    "direction": "supports",
+    "strength": 0.74,
+    "rationale": "Slip: 0.089, Contact: 0.035"
+  },
+  "artifact_manifest": [],
+  "notes": "Mock experiment for testing"
+}

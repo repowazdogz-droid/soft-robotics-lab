@@ -287,6 +287,276 @@ class DecisionBrief:
         return md
 
 
+# ---------------------------------------------------------------------------
+# Go/No-Go Brief (binary decisions)
+# ---------------------------------------------------------------------------
+
+@dataclass
+class GoNoGoCriterion:
+    """Single criterion for Go/No-Go decision."""
+    name: str
+    description: str
+    weight: float  # 0-1, importance
+    score: float   # 0-1, how well met
+    threshold: float  # minimum to pass
+    passed: bool
+    evidence: str
+
+    @property
+    def weighted_score(self) -> float:
+        return self.weight * self.score
+
+
+@dataclass
+class GoNoGoBrief:
+    """Simplified brief for binary Go/No-Go decisions."""
+    title: str
+    question: str
+    criteria: List[GoNoGoCriterion]
+    recommendation: str  # "GO" or "NO-GO"
+    confidence: float
+    overall_score: float
+    threshold: float
+    key_risks: List[str]
+    conditions: List[str]  # Conditions for GO (if applicable)
+    created_at: str
+
+    @property
+    def criteria_passed(self) -> int:
+        return sum(1 for c in self.criteria if c.passed)
+
+    @property
+    def criteria_total(self) -> int:
+        return len(self.criteria)
+
+    def to_markdown(self) -> str:
+        """Export as markdown."""
+        lines = [
+            f"# Go/No-Go Decision: {self.title}",
+            "",
+            f"**Question:** {self.question}",
+            "",
+            f"## Recommendation: {self.recommendation}",
+            f"**Confidence:** {self.confidence:.0%}",
+            f"**Overall Score:** {self.overall_score:.0%} (threshold: {self.threshold:.0%})",
+            f"**Criteria Passed:** {self.criteria_passed}/{self.criteria_total}",
+            "",
+            "## Criteria Assessment",
+            "",
+            "| Criterion | Weight | Score | Threshold | Status |",
+            "|-----------|--------|-------|-----------|--------|"
+        ]
+
+        for c in self.criteria:
+            status = "✅ PASS" if c.passed else "❌ FAIL"
+            lines.append(f"| {c.name} | {c.weight:.0%} | {c.score:.0%} | {c.threshold:.0%} | {status} |")
+
+        lines.extend([
+            "",
+            "## Detailed Assessment",
+            ""
+        ])
+
+        for c in self.criteria:
+            status = "✅" if c.passed else "❌"
+            lines.extend([
+                f"### {status} {c.name}",
+                f"**Score:** {c.score:.0%} | **Threshold:** {c.threshold:.0%} | **Weight:** {c.weight:.0%}",
+                "",
+                c.description,
+                "",
+                f"**Evidence:** {c.evidence}",
+                ""
+            ])
+
+        if self.key_risks:
+            lines.extend([
+                "## Key Risks",
+                ""
+            ])
+            for risk in self.key_risks:
+                lines.append(f"- {risk}")
+            lines.append("")
+
+        if self.recommendation == "GO" and self.conditions:
+            lines.extend([
+                "## Conditions for GO",
+                ""
+            ])
+            for cond in self.conditions:
+                lines.append(f"- {cond}")
+            lines.append("")
+
+        lines.extend([
+            "---",
+            f"*Generated: {self.created_at}*"
+        ])
+
+        return "\n".join(lines)
+
+    def to_dict(self) -> dict:
+        return {
+            "title": self.title,
+            "question": self.question,
+            "recommendation": self.recommendation,
+            "confidence": self.confidence,
+            "overall_score": self.overall_score,
+            "threshold": self.threshold,
+            "criteria_passed": self.criteria_passed,
+            "criteria_total": self.criteria_total,
+            "criteria": [
+                {
+                    "name": c.name,
+                    "description": c.description,
+                    "weight": c.weight,
+                    "score": c.score,
+                    "threshold": c.threshold,
+                    "passed": c.passed,
+                    "evidence": c.evidence
+                }
+                for c in self.criteria
+            ],
+            "key_risks": self.key_risks,
+            "conditions": self.conditions,
+            "created_at": self.created_at
+        }
+
+
+# Standard criteria templates
+GO_NO_GO_CRITERIA_TEMPLATES = {
+    "research_project": [
+        {"name": "Technical Feasibility", "weight": 0.25, "threshold": 0.6, "description": "Can we build it with known methods?"},
+        {"name": "Scientific Merit", "weight": 0.20, "threshold": 0.7, "description": "Does it advance knowledge significantly?"},
+        {"name": "Resource Availability", "weight": 0.15, "threshold": 0.5, "description": "Do we have people, equipment, budget?"},
+        {"name": "Timeline Realism", "weight": 0.15, "threshold": 0.6, "description": "Can it be done in proposed timeframe?"},
+        {"name": "Risk Manageability", "weight": 0.15, "threshold": 0.5, "description": "Are risks identified and mitigable?"},
+        {"name": "Strategic Alignment", "weight": 0.10, "threshold": 0.5, "description": "Does it fit lab/org priorities?"},
+    ],
+    "product_launch": [
+        {"name": "Market Validation", "weight": 0.25, "threshold": 0.7, "description": "Is there proven customer demand?"},
+        {"name": "Technical Readiness", "weight": 0.20, "threshold": 0.8, "description": "Is the product ready for users?"},
+        {"name": "Regulatory Compliance", "weight": 0.20, "threshold": 0.9, "description": "Are all approvals in place?"},
+        {"name": "Go-to-Market Plan", "weight": 0.15, "threshold": 0.6, "description": "Is distribution/sales ready?"},
+        {"name": "Support Readiness", "weight": 0.10, "threshold": 0.7, "description": "Can we support customers?"},
+        {"name": "Financial Viability", "weight": 0.10, "threshold": 0.6, "description": "Does the unit economics work?"},
+    ],
+    "investment": [
+        {"name": "SRFC (Technical)", "weight": 0.25, "threshold": 0.7, "description": "Can it work physically?"},
+        {"name": "VRFC (Translation)", "weight": 0.25, "threshold": 0.6, "description": "Will it survive reality?"},
+        {"name": "Team Capability", "weight": 0.20, "threshold": 0.7, "description": "Can this team execute?"},
+        {"name": "Market Opportunity", "weight": 0.15, "threshold": 0.6, "description": "Is the market large enough?"},
+        {"name": "Competitive Position", "weight": 0.10, "threshold": 0.5, "description": "Is there defensible advantage?"},
+        {"name": "Terms Acceptable", "weight": 0.05, "threshold": 0.7, "description": "Are deal terms reasonable?"},
+    ],
+    "phase_gate": [
+        {"name": "Milestones Met", "weight": 0.30, "threshold": 0.8, "description": "Were phase objectives achieved?"},
+        {"name": "Budget Adherence", "weight": 0.15, "threshold": 0.7, "description": "Is spending on track?"},
+        {"name": "Timeline Adherence", "weight": 0.15, "threshold": 0.7, "description": "Is schedule on track?"},
+        {"name": "Quality Standards", "weight": 0.20, "threshold": 0.8, "description": "Does output meet quality bar?"},
+        {"name": "Risk Status", "weight": 0.10, "threshold": 0.6, "description": "Are risks under control?"},
+        {"name": "Next Phase Readiness", "weight": 0.10, "threshold": 0.7, "description": "Is next phase planned?"},
+    ]
+}
+
+
+def generate_go_no_go_brief(
+    title: str,
+    question: str,
+    template: str = "research_project",
+    scores: Dict[str, float] = None,
+    evidence: Dict[str, str] = None,
+    overall_threshold: float = 0.65,
+    srfc_status: str = None,
+    vrfc_status: str = None
+) -> GoNoGoBrief:
+    """
+    Generate a Go/No-Go brief from template and scores.
+
+    Args:
+        title: Brief title
+        question: The decision question
+        template: One of GO_NO_GO_CRITERIA_TEMPLATES keys
+        scores: Dict mapping criterion name to score (0-1)
+        evidence: Dict mapping criterion name to evidence string
+        overall_threshold: Minimum weighted score for GO
+        srfc_status: Override for SRFC criterion if present
+        vrfc_status: Override for VRFC criterion if present
+
+    Returns:
+        GoNoGoBrief with recommendation
+    """
+    scores = scores or {}
+    evidence = evidence or {}
+
+    # Get template criteria
+    template_criteria = GO_NO_GO_CRITERIA_TEMPLATES.get(template, GO_NO_GO_CRITERIA_TEMPLATES["research_project"])
+
+    criteria = []
+    for tc in template_criteria:
+        name = tc["name"]
+
+        # Get score (default to 0.5 if not provided)
+        score = scores.get(name, 0.5)
+
+        # Override SRFC/VRFC if provided
+        if "SRFC" in name and srfc_status:
+            score = {"GREEN": 0.9, "AMBER": 0.6, "RED": 0.2}.get(srfc_status, 0.5)
+        if "VRFC" in name and vrfc_status:
+            score = {"GREEN": 0.9, "AMBER": 0.6, "RED": 0.2}.get(vrfc_status, 0.5)
+
+        criterion = GoNoGoCriterion(
+            name=name,
+            description=tc["description"],
+            weight=tc["weight"],
+            score=score,
+            threshold=tc["threshold"],
+            passed=score >= tc["threshold"],
+            evidence=evidence.get(name, "No evidence provided")
+        )
+        criteria.append(criterion)
+
+    # Calculate overall score
+    overall_score = sum(c.weighted_score for c in criteria)
+
+    # Determine recommendation
+    critical_failures = [c for c in criteria if not c.passed and c.weight >= 0.2]
+
+    if overall_score >= overall_threshold and not critical_failures:
+        recommendation = "GO"
+        confidence = min(0.95, overall_score + 0.1)
+    elif overall_score >= overall_threshold * 0.9 and len(critical_failures) <= 1:
+        recommendation = "GO"  # Conditional GO
+        confidence = overall_score
+    else:
+        recommendation = "NO-GO"
+        confidence = min(0.95, 1 - overall_score + 0.1)
+
+    # Identify key risks
+    key_risks = []
+    for c in criteria:
+        if not c.passed:
+            key_risks.append(f"{c.name}: Score {c.score:.0%} below threshold {c.threshold:.0%}")
+
+    # Conditions for GO
+    conditions = []
+    if recommendation == "GO" and critical_failures:
+        for c in critical_failures:
+            conditions.append(f"Address {c.name} before proceeding (currently {c.score:.0%})")
+
+    return GoNoGoBrief(
+        title=title,
+        question=question,
+        criteria=criteria,
+        recommendation=recommendation,
+        confidence=confidence,
+        overall_score=overall_score,
+        threshold=overall_threshold,
+        key_risks=key_risks,
+        conditions=conditions,
+        created_at=datetime.now().isoformat()
+    )
+
+
 def _detect_domains(query: str) -> List[str]:
     """Detect domains from query. Comparison -> strategy or multiple domains."""
     q = query.lower()

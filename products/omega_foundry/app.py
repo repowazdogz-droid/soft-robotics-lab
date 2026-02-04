@@ -23,6 +23,10 @@ from core.preview import mjcf_to_geometry, generate_preview_html
 from core.template_loader import list_templates, load_template
 from core.voice_design import voice_to_intent, intent_to_design
 from core.history import save_version, list_versions, restore_version
+from core.constraint_solver import (
+    ConstraintSolver, ConstraintSet, ConstraintType, Constraint
+)
+from core.design_evolver import DesignEvolver, EvolutionResult
 
 try:
     from substrate_integration import record_design_to_substrate, find_similar_designs, get_design_lineage
@@ -338,6 +342,182 @@ if st.session_state.generated_design:
             st.caption("Learn why: use OMEGA Tutor to study validation and physics.")
         if rb.get("message"):
             st.caption(rb["message"])
+
+# Constraint-Based Design
+st.divider()
+st.header("🔒 Constraint-Based Design")
+
+solver = ConstraintSolver()
+
+st.subheader("Define Constraints")
+
+constraint_set = ConstraintSet(name="user_constraints")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.write("**Size Constraints**")
+    max_length = st.number_input("Max finger length (mm)", 10, 300, 100, key="c_max_length")
+    constraint_set.add_max("Max Length", "finger_length", max_length / 1000, "m")
+
+    max_width = st.number_input("Max palm size (mm)", 20, 200, 80, key="c_max_palm")
+    constraint_set.add_max("Max Palm", "palm_size", max_width / 1000, "m")
+
+    max_mass = st.number_input("Max mass (g)", 10, 2000, 200, key="c_max_mass")
+    constraint_set.add_max("Max Mass", "mass", max_mass / 1000, "kg")
+
+with col2:
+    st.write("**Performance Constraints**")
+    min_force = st.number_input("Min grip force (N)", 0.5, 100.0, 5.0, key="c_min_force")
+    constraint_set.add_min("Min Force", "max_force", min_force, "N")
+
+    num_fingers = st.slider("Number of fingers", 2, 6, 3, key="c_fingers")
+    constraint_set.add(Constraint("Fingers", "finger_count", ConstraintType.EXACT, num_fingers))
+
+st.write("**Environment Constraints**")
+env_col1, env_col2 = st.columns(2)
+with env_col1:
+    food_safe = st.checkbox("Food safe required", key="c_food_safe")
+    if food_safe:
+        constraint_set.add_bool("Food Safe", "food_safe", True)
+with env_col2:
+    sterilizable = st.checkbox("Sterilizable required", key="c_sterile")
+    if sterilizable:
+        constraint_set.add_bool("Sterilizable", "sterilizable", True)
+
+if st.button("Check Feasibility", key="check_feasibility"):
+    impossibility = solver.check_impossibility(constraint_set)
+
+    if impossibility.is_impossible:
+        st.error("❌ **Constraints are impossible to satisfy**")
+        for conflict in impossibility.conflicts:
+            st.write(f"- {conflict.get('explanation', str(conflict))}")
+        st.subheader("Suggestions")
+        for suggestion in impossibility.suggestions:
+            st.info(suggestion)
+    else:
+        st.success("✅ **Constraints are feasible**")
+
+        design, result = solver.solve_for_feasible_design(constraint_set)
+
+        if design:
+            st.subheader("Feasible Design Parameters")
+            for param, value in design.items():
+                if isinstance(value, float):
+                    st.write(f"- **{param}**: {value:.4f}")
+                else:
+                    st.write(f"- **{param}**: {value}")
+
+            st.session_state["constrained_design"] = design
+
+        st.subheader("Feasible Ranges")
+        for param, range_val in result.feasible_ranges.items():
+            if range_val:
+                low, high = range_val
+                st.write(f"- **{param}**: [{low:.4f}, {high:.4f}]")
+
+        st.subheader("Recommended Materials")
+        materials = solver.suggest_material(constraint_set)
+        for name, score in materials[:3]:
+            st.write(f"- **{name}**: {score:.0%} compatibility")
+
+# Design Evolution
+st.divider()
+st.header("🧬 Design Evolution")
+
+evolver = DesignEvolver()
+
+evo_col1, evo_col2 = st.columns(2)
+
+with evo_col1:
+    design_name = st.text_input("Design name", placeholder="e.g., egg_gripper", key="evo_name")
+
+with evo_col2:
+    if design_name:
+        summary = evolver.get_evolution_summary(design_name)
+        if summary["versions"] > 0:
+            st.metric("Versions", summary["versions"])
+            st.write(f"Passed: {summary['passed']} | Failed: {summary['failed']}")
+
+if design_name:
+    lineage = evolver.get_design_lineage(design_name)
+
+    if lineage:
+        st.subheader("Design Lineage")
+        for v in lineage:
+            status = "✅" if v.validation_passed else "❌" if v.validation_result else "⏳"
+            with st.expander(f"{status} {v.version_id} ({v.created_at[:10]})"):
+                st.write(f"**Parent:** {v.parent_id or 'None (initial)'}")
+
+                if v.changes_from_parent:
+                    st.write("**Changes:**")
+                    for change in v.changes_from_parent:
+                        st.write(f"- {change['parameter']}: {change['old_value']:.4f} → {change['new_value']:.4f}")
+                        st.caption(change.get("reasoning", ""))
+
+                if v.validation_result:
+                    st.write(f"**Validation:** {'Passed' if v.validation_passed else 'Failed'}")
+
+    st.subheader("Actions")
+
+    action = st.radio("Action", ["Create Initial", "Evolve from Failure"], key="evo_action")
+
+    if action == "Create Initial":
+        if "constrained_design" in st.session_state:
+            st.write("Using design from constraint solver")
+            init_params = st.session_state["constrained_design"]
+        else:
+            st.write("Enter initial parameters:")
+            init_params = {
+                "finger_length": st.number_input("Finger length (m)", 0.01, 0.3, 0.08, key="init_fl"),
+                "finger_width": st.number_input("Finger width (m)", 0.005, 0.05, 0.015, key="init_fw"),
+                "finger_count": st.number_input("Finger count", 2, 8, 3, key="init_fc"),
+                "palm_size": st.number_input("Palm size (m)", 0.02, 0.2, 0.06, key="init_ps"),
+                "actuator_force": st.number_input("Actuator force (N)", 1.0, 50.0, 10.0, key="init_af"),
+                "damping": st.number_input("Damping", 0.01, 1.0, 0.1, key="init_d"),
+            }
+
+        if st.button("Create Initial Version", key="create_init"):
+            version = evolver.create_initial_version(design_name, init_params)
+            st.success(f"Created version: {version.version_id}")
+            st.rerun()
+
+    else:
+        if lineage:
+            latest = lineage[-1]
+            st.write(f"Latest version: **{latest.version_id}**")
+
+            failure_messages = st.text_area(
+                "Paste failure messages from Reality Bridge",
+                placeholder="e.g., 'stability test failed: tip over detected'\n'grip force insufficient'",
+                key="failure_msgs"
+            )
+
+            if st.button("Evolve Design", key="evolve"):
+                if not failure_messages:
+                    st.warning("Please enter failure messages")
+                else:
+                    messages = [m.strip() for m in failure_messages.split("\n") if m.strip()]
+                    new_version, result = evolver.evolve_from_failure(
+                        design_name,
+                        latest.version_id,
+                        messages
+                    )
+
+                    if new_version:
+                        st.success(f"Created evolved version: {new_version.version_id}")
+
+                        st.subheader("Changes Made")
+                        for change in result.changes_made:
+                            st.write(f"- **{change['parameter']}**: {change['old_value']:.4f} → {change['new_value']:.4f}")
+                            st.caption(change["reasoning"])
+
+                        st.info(f"Expected improvement: {result.expected_improvement}")
+                        st.rerun()
+                    else:
+                        st.warning(result.expected_improvement)
+        else:
+            st.info("No versions yet. Create an initial version first.")
 
 clear_btn = st.sidebar.button("Clear / New Design")
 if clear_btn:

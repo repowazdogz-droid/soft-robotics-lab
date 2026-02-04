@@ -9,6 +9,14 @@ Run: streamlit run app.py
 """
 
 import streamlit as st
+import sys
+from pathlib import Path
+
+_soft_lab = Path(__file__).resolve().parent
+if str(_soft_lab) not in sys.path:
+    sys.path.insert(0, str(_soft_lab))
+
+from utils.status import get_system_status, render_status_banner
 
 st.set_page_config(
     page_title="OMEGA Soft Robotics Lab",
@@ -66,6 +74,11 @@ with st.sidebar:
     st.markdown("*Built with OMEGA*")
     st.markdown("*Physical AI Decision Support*")
 
+# Status banner (Zoo | Embeddings | MuJoCo)
+st.markdown("---")
+render_status_banner(st)
+st.markdown("---")
+
 # Main content
 st.markdown('<p class="main-header">🦾 OMEGA Soft Robotics Lab</p>', unsafe_allow_html=True)
 st.markdown(
@@ -79,7 +92,7 @@ st.markdown("---")
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    st.metric("Gripper Zoo", "50 designs", "Ready to use")
+    st.metric("Gripper Zoo", "50+ designs", "Ready to use")
 with col2:
     st.metric("Export Formats", "4", "MJCF, URDF, USD, JSON")
 with col3:

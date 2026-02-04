@@ -4,6 +4,7 @@ Gripper Design Page - World Class Edition
 
 import streamlit as st
 import sys
+import json
 import numpy as np
 import plotly.graph_objects as go
 from pathlib import Path
@@ -26,6 +27,19 @@ try:
     CAD_AVAILABLE = True
 except ImportError:
     CAD_AVAILABLE = False
+
+try:
+    from workbench.mujoco_validator import MuJoCoValidator
+    MUJOCO_AVAILABLE = True
+except Exception:
+    MUJOCO_AVAILABLE = False
+
+from utils.lab_os_client import (
+    health_check,
+    get_hypotheses,
+    create_hypothesis,
+    get_hypothesis_evidence,
+)
 
 st.set_page_config(
     page_title="Gripper Design", page_icon="🎯", layout="wide"
@@ -382,6 +396,10 @@ with col_output:
             del st.session_state["exports"]
         if "stl_path" in st.session_state:
             del st.session_state["stl_path"]
+        if "mjcf_validation" in st.session_state:
+            del st.session_state["mjcf_validation"]
+        if "bundle_path" in st.session_state:
+            del st.session_state["bundle_path"]
 
     if "current_design" in st.session_state:
         design = st.session_state["current_design"]
@@ -395,6 +413,88 @@ with col_output:
         """,
             unsafe_allow_html=True,
         )
+
+        # Link to Hypothesis
+        st.subheader("Link to Hypothesis")
+
+        lab_os_online = health_check()
+
+        if lab_os_online:
+            st.success("🔗 Connected to OMEGA Lab OS")
+
+            hypotheses = get_hypotheses()
+
+            if hypotheses:
+                hyp_options = {h["id"]: f"{h['id']}: {h['claim'][:50]}..." for h in hypotheses}
+                selected_hyp = st.selectbox(
+                    "Select hypothesis",
+                    options=list(hyp_options.keys()),
+                    format_func=lambda x: hyp_options[x],
+                    key="design_link_hyp_lab",
+                )
+
+                if selected_hyp:
+                    evidence = get_hypothesis_evidence(selected_hyp)
+                    if evidence:
+                        st.write(f"**Evidence count:** {len(evidence)}")
+                        for e in evidence[-3:]:
+                            direction_icon = (
+                                "✅" if e["direction"] == "supports"
+                                else "❌" if e["direction"] == "refutes"
+                                else "❓"
+                            )
+                            st.write(f"{direction_icon} {e['rationale'][:50]}...")
+
+            with st.expander("Create new hypothesis"):
+                new_id = st.text_input(
+                    "Hypothesis ID",
+                    value=f"H-{st.session_state.get('design_id', design.id)}",
+                    key="new_hyp_id",
+                )
+                new_claim = st.text_area("Claim", key="new_hyp_claim")
+                if st.button("Create Hypothesis", key="create_hyp_btn") and new_claim:
+                    result = create_hypothesis(new_id, new_claim)
+                    if result:
+                        st.success(f"Created: {new_id}")
+                        st.rerun()
+                    else:
+                        st.error("Failed to create hypothesis")
+        else:
+            st.warning(
+                "⚠️ OMEGA Lab OS not connected. Run: uvicorn app.main:app --port 8000",
+            )
+            st.info(
+                "Hypothesis linking requires Lab OS. Using local Research Memory as fallback.",
+            )
+
+            # Fallback: local Research Memory
+            _lab = st.session_state.get("lab_name", "demo_lab")
+            _res_path = _soft_lab / "research_system"
+            if str(_res_path) not in sys.path:
+                sys.path.insert(0, str(_res_path))
+            try:
+                from research_memory import ResearchMemory
+                _mem = ResearchMemory(_lab)
+                _hyps = _mem.get_hypotheses()
+                if _hyps:
+                    _links_path = _mem.base_path / "design_hypothesis_links.json"
+                    _links = json.loads(_links_path.read_text()) if _links_path.exists() else {}
+                    _sel = st.selectbox(
+                        "Link this design to a hypothesis (tests hypothesis X)",
+                        ["(none)"] + [f"{h.id}: {h.claim[:50]}..." for h in _hyps],
+                        key="design_link_hyp",
+                    )
+                    if _sel != "(none)" and st.button("Save link", key="design_save_link"):
+                        _hyp_id = _hyps[[f"{h.id}: {h.claim[:50]}..." for h in _hyps].index(_sel)].id
+                        _links[design.id] = _hyp_id
+                        _mem.base_path.mkdir(parents=True, exist_ok=True)
+                        _links_path.write_text(json.dumps(_links, indent=2))
+                        st.success("Design linked to hypothesis.")
+                        st.rerun()
+                    if design.id in _links:
+                        st.caption(f"Linked to hypothesis: {_links[design.id]}")
+            except Exception:
+                pass
 
         col_3d, col_conf = st.columns([2, 1])
 
@@ -455,6 +555,27 @@ with col_output:
             )
         with spec_col8:
             st.metric("Aperture", f"{design.max_aperture_mm:.0f}mm")
+
+        st.markdown("---")
+        st.markdown("### Assumptions / Operating Envelope")
+        with st.expander("Show assumptions and operating envelope", expanded=False):
+            st.markdown(
+                "**Confidence is rule-based** (not from physical simulation or experiments). "
+                "Key assumptions for this design:"
+            )
+            st.markdown(
+                f"- **Gesture:** {design.source_gesture.value}; **Environment:** {design.source_parameters.get('environment', 'dry')}; "
+                f"**Object compliance:** {design.source_parameters.get('object_compliance', 0.5):.2f}"
+            )
+            st.markdown(
+                "- Material and actuator mappings are heuristic; no real physics validation."
+            )
+            st.markdown(
+                "- Failure modes and confidence are from rule-based predictors, not MuJoCo or hardware tests."
+            )
+            st.markdown(
+                "Validate exported MJCF in MuJoCo (button below) for simulation sanity; prototype testing required for real performance."
+            )
 
         st.markdown("---")
         st.markdown("### Top Failure Risks")
@@ -615,6 +736,85 @@ with col_output:
                             file_name=path.name,
                             key=f"dl_{fmt}",
                         )
+
+            # Validate in MuJoCo
+            mjcf_path = exports.get("mjcf")
+            if mjcf_path and Path(mjcf_path).exists() and MUJOCO_AVAILABLE:
+                st.markdown("---")
+                st.markdown("### MuJoCo Validation")
+                if st.button("Validate in MuJoCo", type="secondary", key="validate_mjcf_btn"):
+                    with st.spinner("Validating MJCF…"):
+                        validator = MuJoCoValidator()
+                        result = validator.validate_mjcf(mjcf_path, design_id=design.id)
+                        st.session_state["mjcf_validation"] = result
+                    st.rerun()
+                if "mjcf_validation" in st.session_state:
+                    res = st.session_state["mjcf_validation"]
+                    if res.valid and res.loads and res.simulates:
+                        st.success("Pass: loads and simulates.")
+                    elif res.loads and not res.simulates:
+                        st.warning("Loads but simulation failed.")
+                    else:
+                        st.error("Validation failed.")
+                    if res.errors:
+                        for e in res.errors:
+                            st.error(e)
+                    if res.warnings:
+                        for w in res.warnings:
+                            st.warning(w)
+                    if res.stats:
+                        st.caption(f"Stats: {res.stats}")
+            elif mjcf_path and Path(mjcf_path).exists() and not MUJOCO_AVAILABLE:
+                st.caption("MuJoCo validator unavailable (install mujoco).")
+
+            # Export Bundle (.zip)
+            st.markdown("---")
+            st.markdown("### Export Bundle (.zip)")
+            st.caption("ZIP with design JSON, sim exports, README (assumptions + parameters + version), optional STL.")
+            if st.button("Export Bundle (.zip)", type="secondary", key="export_bundle_btn"):
+                import zipfile
+                from datetime import datetime
+                output_dir = Path(__file__).resolve().parent.parent / "outputs" / design.id.lower().replace("-", "_")
+                output_dir.mkdir(parents=True, exist_ok=True)
+                zip_path = output_dir / f"{design.id.lower().replace('-', '_')}_bundle.zip"
+                with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+                    for fmt, path in exports.items():
+                        p = Path(path)
+                        if p.exists():
+                            zf.write(p, p.name)
+                    # README
+                    readme = f"""# {design.name}
+ID: {design.id}
+Generated: {datetime.now().isoformat()}
+App: OMEGA Soft Robotics Lab
+
+## Parameters
+- Gesture: {design.source_gesture.value}
+- Environment: {design.source_parameters.get('environment', 'dry')}
+- Object compliance: {design.source_parameters.get('object_compliance', 0.5)}
+- Fingers: {design.num_fingers}
+- Actuator: {design.primary_actuator.value}
+- Confidence (rule-based): {design.confidence:.0%}
+
+## Assumptions
+- Confidence is rule-based; no physical simulation or hardware validation.
+- Validate MJCF in MuJoCo for simulation sanity.
+"""
+                    zf.writestr("README.txt", readme)
+                    if "stl_path" in st.session_state and Path(st.session_state["stl_path"]).exists():
+                        zf.write(st.session_state["stl_path"], Path(st.session_state["stl_path"]).name)
+                st.session_state["bundle_path"] = str(zip_path)
+                st.success(f"Bundle saved: {zip_path.name}")
+                st.rerun()
+            if "bundle_path" in st.session_state and Path(st.session_state["bundle_path"]).exists():
+                bundle_path = Path(st.session_state["bundle_path"])
+                st.download_button(
+                    "Download Bundle (.zip)",
+                    bundle_path.read_bytes(),
+                    file_name=bundle_path.name,
+                    mime="application/zip",
+                    key="dl_bundle",
+                )
 
     else:
         st.markdown(

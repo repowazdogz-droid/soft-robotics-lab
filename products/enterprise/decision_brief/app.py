@@ -16,7 +16,13 @@ if str(_DECISION_BRIEF_DIR) not in sys.path:
     sys.path.insert(0, str(_DECISION_BRIEF_DIR))
 
 import streamlit as st
-from decision_brief import generate_brief, TEMPORAL_LABELS
+from decision_brief import (
+    generate_brief,
+    TEMPORAL_LABELS,
+    generate_go_no_go_brief,
+    GO_NO_GO_CRITERIA_TEMPLATES,
+    GoNoGoBrief,
+)
 from domains import load_domain_model, list_domains
 try:
     from substrate_integration import search_past_decisions
@@ -136,3 +142,124 @@ else:
             st.caption("No past decisions in store yet. Generate a brief to populate history.")
     except Exception:
         st.caption("History unavailable (substrate not configured).")
+
+# ----- Go/No-Go Decision (always visible) -----
+st.divider()
+st.header("⚡ Go/No-Go Decision")
+
+go_nogo_title = st.text_input("Decision Title", placeholder="e.g., Soft Gripper Project Phase 2", key="gonogo_title")
+go_nogo_question = st.text_input("Decision Question", placeholder="e.g., Should we proceed to prototype phase?", key="gonogo_question")
+
+template = st.selectbox(
+    "Template",
+    list(GO_NO_GO_CRITERIA_TEMPLATES.keys()),
+    format_func=lambda x: x.replace("_", " ").title(),
+    key="gonogo_template",
+)
+
+st.subheader("Score Each Criterion")
+st.caption("Rate each criterion from 0% (not met) to 100% (fully met)")
+
+template_criteria = GO_NO_GO_CRITERIA_TEMPLATES[template]
+scores = {}
+evidence = {}
+
+for tc in template_criteria:
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        scores[tc["name"]] = st.slider(
+            tc["name"],
+            min_value=0.0,
+            max_value=1.0,
+            value=0.5,
+            format="%.0f%%",
+            help=tc["description"],
+            key=f"gonogo_slider_{tc['name']}",
+        )
+    with col2:
+        evidence[tc["name"]] = st.text_input(
+            f"Evidence for {tc['name']}",
+            placeholder="Brief evidence or rationale",
+            key=f"gonogo_evidence_{tc['name']}",
+        )
+
+# SRFC/VRFC override if available
+col1, col2 = st.columns(2)
+with col1:
+    srfc_override = st.selectbox("SRFC Status (optional)", [None, "GREEN", "AMBER", "RED"], key="gonogo_srfc")
+with col2:
+    vrfc_override = st.selectbox("VRFC Status (optional)", [None, "GREEN", "AMBER", "RED"], key="gonogo_vrfc")
+
+threshold = st.slider("GO Threshold", min_value=0.5, max_value=0.9, value=0.65, format="%.0f%%", key="gonogo_threshold")
+
+if st.button("Generate Go/No-Go Brief", key="generate_gonogo"):
+    if not go_nogo_title or not go_nogo_question:
+        st.warning("Please provide title and question")
+    else:
+        brief = generate_go_no_go_brief(
+            title=go_nogo_title,
+            question=go_nogo_question,
+            template=template,
+            scores=scores,
+            evidence=evidence,
+            overall_threshold=threshold,
+            srfc_status=srfc_override,
+            vrfc_status=vrfc_override,
+        )
+        st.session_state["go_no_go_brief"] = brief
+
+if "go_no_go_brief" in st.session_state:
+    brief = st.session_state["go_no_go_brief"]
+
+    # Display recommendation prominently
+    if brief.recommendation == "GO":
+        st.success(f"## ✅ Recommendation: GO\n**Confidence:** {brief.confidence:.0%}")
+    else:
+        st.error(f"## ❌ Recommendation: NO-GO\n**Confidence:** {brief.confidence:.0%}")
+
+    # Score summary
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Overall Score", f"{brief.overall_score:.0%}")
+    col2.metric("Threshold", f"{brief.threshold:.0%}")
+    col3.metric("Criteria Passed", f"{brief.criteria_passed}/{brief.criteria_total}")
+
+    # Criteria table
+    st.subheader("Criteria Assessment")
+    for c in brief.criteria:
+        status = "✅" if c.passed else "❌"
+        with st.expander(f"{status} {c.name} — {c.score:.0%}"):
+            st.write(f"**Threshold:** {c.threshold:.0%} | **Weight:** {c.weight:.0%}")
+            st.write(c.description)
+            st.write(f"**Evidence:** {c.evidence}")
+
+    # Risks and conditions
+    if brief.key_risks:
+        st.subheader("⚠️ Key Risks")
+        for risk in brief.key_risks:
+            st.write(f"- {risk}")
+
+    if brief.conditions:
+        st.subheader("📋 Conditions for GO")
+        for cond in brief.conditions:
+            st.write(f"- {cond}")
+
+    # Export
+    st.divider()
+    col1, col2 = st.columns(2)
+    with col1:
+        st.download_button(
+            "📄 Download Markdown",
+            brief.to_markdown(),
+            file_name=f"go_no_go_{brief.title.lower().replace(' ', '_')}.md",
+            mime="text/markdown",
+            key="dl_gonogo_md",
+        )
+    with col2:
+        import json
+        st.download_button(
+            "📊 Download JSON",
+            json.dumps(brief.to_dict(), indent=2),
+            file_name=f"go_no_go_{brief.title.lower().replace(' ', '_')}.json",
+            mime="application/json",
+            key="dl_gonogo_json",
+        )

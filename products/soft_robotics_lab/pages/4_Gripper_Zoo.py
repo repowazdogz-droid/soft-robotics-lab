@@ -4,28 +4,40 @@ Gripper Zoo Page
 
 import streamlit as st
 import json
+import sys
+import importlib.util
 from pathlib import Path
+
+_soft_lab = Path(__file__).resolve().parent.parent
+if str(_soft_lab) not in sys.path:
+    sys.path.insert(0, str(_soft_lab))
 
 st.set_page_config(
     page_title="Gripper Zoo", page_icon="🦾", layout="wide"
 )
 
 st.markdown("# 🦾 Gripper Zoo")
-st.markdown("Browse 50 pre-generated gripper designs")
+st.markdown("Browse 50+ pre-generated gripper designs")
 
 st.markdown("---")
 
-zoo_path = (
-    Path(__file__).resolve().parent.parent
-    / "gripper_zoo"
-    / "designs"
-    / "index.json"
-)
+zoo_path = _soft_lab / "gripper_zoo" / "designs" / "index.json"
 
 if not zoo_path.exists():
-    st.error(
-        "Gripper zoo not generated. Run `python gripper_zoo/generate_zoo.py` first."
-    )
+    st.warning("Gripper zoo not generated yet. Generate it below to browse designs.")
+    if st.button("Generate Gripper Zoo", type="primary", key="zoo_gen_btn"):
+        with st.spinner("Generating 50 designs…"):
+            try:
+                spec = importlib.util.spec_from_file_location(
+                    "generate_zoo", _soft_lab / "gripper_zoo" / "generate_zoo.py"
+                )
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                designs = mod.generate_zoo()
+                st.success(f"Generated {len(designs)} designs. Reloading…")
+                st.rerun()
+            except Exception as e:
+                st.error(str(e))
     st.stop()
 
 zoo = json.loads(zoo_path.read_text())

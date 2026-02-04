@@ -406,6 +406,41 @@ with col_output:
                 st.info("No low-severity failures identified")
 
         st.markdown("---")
+        st.markdown("### Record as evidence (hypothesis spine)")
+
+        _soft_lab = Path(__file__).resolve().parent.parent
+        _res_path = _soft_lab / "research_system"
+        if str(_res_path) not in sys.path:
+            sys.path.insert(0, str(_res_path))
+        try:
+            from research_memory import ResearchMemory
+            _lab = st.session_state.get("lab_name", "demo_lab")
+            _mem = ResearchMemory(_lab)
+            _hyps = _mem.get_hypotheses()
+            if _hyps:
+                _sel_hyp = st.selectbox(
+                    "Hypothesis",
+                    [f"{h.id}: {h.claim[:50]}..." for h in _hyps],
+                    key="fa_evidence_hyp",
+                )
+                _dir = st.radio("Direction", ["supports", "weakens"], key="fa_evidence_dir")
+                _note = st.text_area(
+                    "Summary (optional)",
+                    placeholder="e.g., Failure analysis shows slip risk; supports hypothesis that tendon grippers need higher friction.",
+                    key="fa_evidence_note",
+                )
+                if st.button("Record as evidence", key="fa_evidence_btn"):
+                    _hyp_id = _hyps[[f"{h.id}: {h.claim[:50]}..." for h in _hyps].index(_sel_hyp)].id
+                    _summary = _note or f"Failure analysis for {design_to_analyze.get('name', 'Design')}: {len(failures)} modes. Conclusion: {_dir}."
+                    _mem.add_evidence_note(_hyp_id, _summary, _dir, source_label="failure_analysis")
+                    st.success("Evidence recorded.")
+                    st.rerun()
+            else:
+                st.caption("Create hypotheses in Research Memory to record evidence.")
+        except Exception as e:
+            st.caption(f"Research Memory unavailable: {e}")
+
+        st.markdown("---")
         st.markdown("### Recommendations")
 
         rec_cols = st.columns(3)

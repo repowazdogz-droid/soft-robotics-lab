@@ -80,6 +80,7 @@ def generate_zoo():
                     design_dir.mkdir(exist_ok=True)
                     exports = export_design(design, str(design_dir))
 
+                    base = design.id.lower().replace("-", "_")
                     designs.append({
                         "id": design.id,
                         "name": design.name,
@@ -90,7 +91,12 @@ def generate_zoo():
                         "num_fingers": design.num_fingers,
                         "actuator": design.primary_actuator.value,
                         "max_force_n": design.max_force_n,
-                        "exports": {k: str(v) for k, v in exports.items()},
+                        "exports": {
+                            "json": f"{base}/{base}.json",
+                            "mjcf": f"{base}/{base}.mjcf",
+                            "urdf": f"{base}/{base}.urdf",
+                            "usd": f"{base}/{base}_usd.json",
+                        },
                     })
 
                     design_count += 1
@@ -137,6 +143,7 @@ def generate_zoo():
                 if compliance < 0.7
                 else "soft"
             )
+            base = design.id.lower().replace("-", "_")
             designs.append({
                 "id": design.id,
                 "name": design.name,
@@ -147,7 +154,12 @@ def generate_zoo():
                 "num_fingers": design.num_fingers,
                 "actuator": design.primary_actuator.value,
                 "max_force_n": design.max_force_n,
-                "exports": {k: str(v) for k, v in exports.items()},
+                "exports": {
+                    "json": f"{base}/{base}.json",
+                    "mjcf": f"{base}/{base}.mjcf",
+                    "urdf": f"{base}/{base}.urdf",
+                    "usd": f"{base}/{base}_usd.json",
+                },
             })
 
             design_count += 1
@@ -168,8 +180,8 @@ def generate_zoo():
         )
     )
 
-    print(f"\n✓ Generated {len(designs)} gripper designs")
-    print(f"✓ Index saved to: {index_path}")
+    print(f"\nGenerated {len(designs)} gripper designs")
+    print(f"Index saved to: {index_path}")
 
     return designs
 

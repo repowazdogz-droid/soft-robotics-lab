@@ -1,0 +1,27 @@
+{
+  "run_id": "R-20260202-112601-427",
+  "parent_run_id": "R-20260202-112557-322",
+  "batch_id": "B-20260202-112553",
+  "schema_version": "1.0",
+  "timestamp": "2026-02-02T11:26:01.428382+00:00",
+  "engine": "mock",
+  "design_id": "GD-0001",
+  "hypothesis_id": "H-TEST",
+  "experiment_id": "E-GD-0001-wet",
+  "environment": "wet",
+  "metrics": {
+    "slip_rate": 0.2572,
+    "contact_area": 0.0239,
+    "grasp_force": 3.77,
+    "grasp_success": false,
+    "sim_steps": 1000,
+    "contact_frames": 683
+  },
+  "outcome": {
+    "direction": "refutes",
+    "strength": 0.879,
+    "rationale": "Slip: 0.257 (baseline 0.15), Contact: 0.0239 (baseline 0.025). Both worsened."
+  },
+  "artifact_manifest": [],
+  "notes": "Automated experiment for GD-0001"
+}

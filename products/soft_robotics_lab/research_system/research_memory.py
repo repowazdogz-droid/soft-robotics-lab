@@ -972,6 +972,46 @@ class ResearchMemory:
 
         return True
 
+    def add_evidence_note(
+        self, hyp_id: str, note_text: str, direction: str, source_label: str = "evidence"
+    ) -> Optional[str]:
+        """
+        Create a one-chunk evidence note and link it to a hypothesis.
+        Returns chunk_id if successful, else None.
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.execute("SELECT data FROM hypotheses WHERE id = ?", (hyp_id,))
+        if not cursor.fetchone():
+            conn.close()
+            return None
+
+        doc_id = f"ev_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        chunk_id = f"{doc_id}_chunk_0"
+        doc_path = str(self.base_path / "evidence" / f"{doc_id}.md")
+        self.base_path.mkdir(parents=True, exist_ok=True)
+        (self.base_path / "evidence").mkdir(parents=True, exist_ok=True)
+        Path(doc_path).write_text(note_text, encoding="utf-8")
+
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO documents (id, path, doc_type, project, authors, date, hash, ingested_at)
+            VALUES (?, ?, 'note', 'evidence', '', '', ?, ?)
+            """,
+            (doc_id, doc_path, hashlib.md5(note_text.encode()).hexdigest(), datetime.now().isoformat()),
+        )
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO chunks (id, doc_id, text, section, page, entities)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (chunk_id, doc_id, note_text[:2000], source_label, None, json.dumps([])),
+        )
+        conn.commit()
+        conn.close()
+
+        self.add_evidence(hyp_id, chunk_id, direction)
+        return chunk_id
+
     # ═══════════════════════════════════════════════════════════════════════
     # INSIGHT ENGINES
     # ═══════════════════════════════════════════════════════════════════════

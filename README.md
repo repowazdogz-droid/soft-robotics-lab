@@ -65,12 +65,48 @@ Every hypothesis, design, and decision runs through this filter.
 | [Decision Brief](products/enterprise/decision_brief/) | Strategic assessment | 8507 |
 | [OMEGA Tutor](products/omega_tutor/) | Adaptive teaching | 8503 |
 
-### Infrastructure
+### Infrastructure & Governance
 
 | Product | Purpose |
 |---------|---------|
-| [Substrate](shared/substrate/) | Memory & knowledge layer |
+| [Guardian Runtime](products/guardian_runtime/) | Policy enforcement & audit bundles for all agents |
+| [Substrate](products/shared/substrate/) | Memory & knowledge layer |
 | Shared Components | Audit bundles, contracts, trust scores |
+
+### Planned
+
+| Product | Purpose |
+|---------|---------|
+| Frontline | TBD |
+| Audit Bundle (shared) | Portable trust artifacts |
+| Additional products | Per roadmap |
+
+### R&D: omega-lab (repo root)
+
+omega-lab is the R&D and testing sibling at **repo root** (not under products/). Pipelines, agents, world models, memory, runs, and experiments.
+
+- **[CODEBASE_MAP.md](CODEBASE_MAP.md)** — Full map of lab + products, entrypoints, capabilities.
+- **[docs/omega-lab/README.md](docs/omega-lab/README.md)** — Quick start: run pipeline, shell, experiments.
+- **[docs/omega-lab/PRODUCT.md](docs/omega-lab/PRODUCT.md)** — omega-lab product overview (Guardian not required yet).
+- **[docs/omega-lab-integration.md](docs/omega-lab-integration.md)** — Integration with OMEGA Stack products (Substrate, Guardian when ready).
+
+---
+
+## 📐 Development Standards
+
+All products build consistently under OMEGA Stack standards:
+
+- **[.cursor/rules](.cursor/)** — Naming, Guardian wrapper, Pydantic, pytest, local-first, human-in-the-loop.
+- **[AGENTS.md template](products/templates/AGENTS.md)** — Purpose, Guardian integration, policies, audit events, dependencies.
+- **[PRODUCT.md template](products/templates/PRODUCT.md)** — Overview, components, Guardian policies, API, testing, deployment.
+- **[pytest.ini](pytest.ini)** — Shared pytest config at repo root.
+
+**Quick start for a new product:**
+
+1. Copy [products/templates/PRODUCT.md](products/templates/PRODUCT.md) into your product folder; fill Overview, Components, Guardian Policies, API, Testing, Deployment.
+2. If the product has an agent, copy [products/templates/AGENTS.md](products/templates/AGENTS.md); fill Purpose, Guardian Integration, Policies, Audit Events, Dependencies.
+3. Add `core/`, `tests/`, `README.md`, `requirements.txt`. Use [Guardian Runtime](products/guardian_runtime/) for any agent that performs tool/API actions.
+4. Run tests: from product root `PYTHONPATH=.. pytest tests/ -v`, or from repo root `pytest` (uses root [pytest.ini](pytest.ini)).
 
 ---
 
@@ -131,7 +167,9 @@ streamlit run dashboard.py --server.port 8501
 
 ```
 OmegaStack/
+├── .cursor/                    # Cursor rules (OMEGA standards)
 ├── products/
+│   ├── guardian_runtime/        # Governance layer (Guardian wrapper, audit bundles)
 │   ├── omega_scientist/        # Discovery engine
 │   ├── breakthrough_engine/    # Hypothesis ledger
 │   ├── reality_bridge/         # Physics validation
@@ -139,14 +177,16 @@ OmegaStack/
 │   ├── world_model_studio/     # Policy training
 │   ├── omega_tutor/            # Adaptive teaching
 │   ├── soft_robotics_lab/      # Domain tools
+│   ├── templates/              # AGENTS.md, PRODUCT.md
 │   └── enterprise/
 │       └── decision_brief/     # Strategic assessment
-├── shared/
+├── products/shared/
 │   ├── substrate/              # Memory layer
-│   ├── audit_bundle/           # Provenance
+│   ├── audit/                  # Provenance
 │   ├── contracts/              # Validation contracts
 │   └── docs/
 │       └── GLOSSARY.md         # SRFC/TSRFC/VRFC definitions
+├── pytest.ini                  # Shared test config
 └── requirements.txt
 ```
 

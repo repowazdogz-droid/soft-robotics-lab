@@ -1,0 +1,27 @@
+{
+  "run_id": "R-20260202-112848-359",
+  "parent_run_id": null,
+  "batch_id": "B-20260202-112620",
+  "schema_version": "1.0",
+  "timestamp": "2026-02-02T11:28:48.360239+00:00",
+  "engine": "mock",
+  "design_id": "GD-STRESS-0036",
+  "hypothesis_id": "H-TEST",
+  "experiment_id": "E-GD-STRESS-0036-dry",
+  "environment": "dry",
+  "metrics": {
+    "slip_rate": 0.0843,
+    "contact_area": 0.0342,
+    "grasp_force": 2.73,
+    "grasp_success": true,
+    "sim_steps": 1000,
+    "contact_frames": 625
+  },
+  "outcome": {
+    "direction": "supports",
+    "strength": 0.903,
+    "rationale": "Slip: 0.084 (baseline 0.15), Contact: 0.0342 (baseline 0.025). Both improved."
+  },
+  "artifact_manifest": [],
+  "notes": "Automated experiment for GD-STRESS-0036"
+}

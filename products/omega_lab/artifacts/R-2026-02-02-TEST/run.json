@@ -1,0 +1,20 @@
+{
+  "run_id": "R-2026-02-02-TEST",
+  "timestamp": "2026-02-02T19:30:12Z",
+  "engine": "isaac_sim",
+  "design_id": "GD-0001",
+  "hypothesis_id": "H-TEST",
+  "experiment_id": "E-001",
+  "environment": "dry",
+  "metrics": {
+    "slip_rate": 0.15,
+    "contact_area": 0.028
+  },
+  "outcome": {
+    "direction": "supports",
+    "strength": 0.6,
+    "rationale": "Grip held under test conditions."
+  },
+  "artifact_manifest": [],
+  "notes": "Initial test run."
+}

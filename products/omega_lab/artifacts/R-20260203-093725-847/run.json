@@ -1,0 +1,29 @@
+{
+  "run_id": "R-20260203-093725-847",
+  "parent_run_id": null,
+  "batch_id": null,
+  "schema_version": "1.0",
+  "created_at": "2026-02-03T09:37:27.921243Z",
+  "origin": "runner",
+  "timestamp": "2026-02-03T09:37:25.847819Z",
+  "engine": "mock",
+  "design_id": "GD-DEMO-0001",
+  "hypothesis_id": "H-DEMO-093722",
+  "experiment_id": "E-GD-DEMO-0001-dry",
+  "environment": "dry",
+  "metrics": {
+    "slip_rate": 0.0864,
+    "contact_area": 0.0348,
+    "grasp_force": 4.1,
+    "grasp_success": true,
+    "sim_steps": 1000,
+    "contact_frames": 569
+  },
+  "outcome": {
+    "direction": "supports",
+    "strength": 0.908,
+    "rationale": "Slip: 0.086 (baseline 0.15), Contact: 0.0348 (baseline 0.025). Both improved."
+  },
+  "artifact_manifest": [],
+  "notes": "Automated experiment for GD-DEMO-0001"
+}

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mujoco model="Pinch_Gripper">
+    <option timestep="0.002" gravity="0 0 -9.81"/>
+
+    <default>
+        <joint damping="0.5" armature="0.01"/>
+        <geom condim="4" friction="0.8 0.005 0.0001" rgba="0.8 0.4 0.3 1"/>
+    </default>
+
+    <worldbody>
+        <light diffuse=".5 .5 .5" pos="0 0 3" dir="0 0 -1"/>
+        <geom type="plane" size="1 1 0.1" rgba=".9 .9 .9 1"/>
+
+        <!-- Palm -->
+        <body name="palm" pos="0 0 0.1">
+            <joint name="palm_free" type="free"/>
+            <geom type="cylinder" size="0.0250 0.0050" rgba="0.5 0.5 0.6 1"/>
+
+            <!-- Fingers -->
+            
+        <body name="finger_0" pos="0.0250 0.0000 0.0100">
+            <joint name="finger_0_base" type="hinge" axis="0 1 0" range="-1.57 1.57"/>
+            <geom type="capsule" size="0.0056" fromto="0 0 0 0 0 0.0750"/>
+
+            <body name="finger_0_seg_1" pos="0 0 0.0188">
+                <joint name="finger_0_joint_1" type="hinge" axis="0 1 0" range="-1.0 1.0"/>
+                <geom type="capsule" size="0.0052" fromto="0 0 0 0 0 0.0188"/>
+
+            <body name="finger_0_seg_2" pos="0 0 0.0188">
+                <joint name="finger_0_joint_2" type="hinge" axis="0 1 0" range="-1.0 1.0"/>
+                <geom type="capsule" size="0.0048" fromto="0 0 0 0 0 0.0188"/>
+
+            <body name="finger_0_seg_3" pos="0 0 0.0188">
+                <joint name="finger_0_joint_3" type="hinge" axis="0 1 0" range="-1.0 1.0"/>
+                <geom type="capsule" size="0.0044" fromto="0 0 0 0 0 0.0188"/>
+            </body>
+            </body>
+            </body>
+        </body>
+
+        <body name="finger_1" pos="-0.0250 0.0000 0.0100">
+            <joint name="finger_1_base" type="hinge" axis="0 1 0" range="-1.57 1.57"/>
+            <geom type="capsule" size="0.0056" fromto="0 0 0 0 0 0.0750"/>
+
+            <body name="finger_1_seg_1" pos="0 0 0.0188">
+                <joint name="finger_1_joint_1" type="hinge" axis="0 1 0" range="-1.0 1.0"/>
+                <geom type="capsule" size="0.0052" fromto="0 0 0 0 0 0.0188"/>
+
+            <body name="finger_1_seg_2" pos="0 0 0.0188">
+                <joint name="finger_1_joint_2" type="hinge" axis="0 1 0" range="-1.0 1.0"/>
+                <geom type="capsule" size="0.0048" fromto="0 0 0 0 0 0.0188"/>
+
+            <body name="finger_1_seg_3" pos="0 0 0.0188">
+                <joint name="finger_1_joint_3" type="hinge" axis="0 1 0" range="-1.0 1.0"/>
+                <geom type="capsule" size="0.0044" fromto="0 0 0 0 0 0.0188"/>
+            </body>
+            </body>
+            </body>
+        </body>
+
+        </body>
+    </worldbody>
+
+    <actuator>
+        <motor name="finger_0_motor" joint="finger_0_base" gear="1"/>
+        <motor name="finger_1_motor" joint="finger_1_base" gear="1"/>
+        
+    </actuator>
+</mujoco>

@@ -1,0 +1,814 @@
+{
+  "version": "1.0",
+  "description": "Discovery surface - maps the research terrain",
+  "created_at": "2026-02-02T11:00:00Z",
+  "points": [
+    {
+      "run_id": "R-20260202-144008-564",
+      "hypothesis_id": "H-DEMO-144005",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "dry"
+      },
+      "environment": "dry",
+      "result_score": 0.8644000000000001,
+      "confidence_delta": 0,
+      "novelty_flag": false,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-02T14:40:10.627706Z"
+    },
+    {
+      "run_id": "R-20260202-144010-628",
+      "hypothesis_id": "H-DEMO-144005",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "wet"
+      },
+      "environment": "wet",
+      "result_score": 0.8291,
+      "confidence_delta": 0,
+      "novelty_flag": false,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-02T14:40:12.692046Z"
+    },
+    {
+      "run_id": "R-20260202-144012-692",
+      "hypothesis_id": "H-DEMO-144005",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "surgical"
+      },
+      "environment": "surgical",
+      "result_score": 0.897,
+      "confidence_delta": 0,
+      "novelty_flag": false,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-02T14:40:14.751324Z"
+    },
+    {
+      "run_id": "R-20260202-144254-306",
+      "hypothesis_id": "H-DEMO-144251",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "dry",
+        "slip_rate": 0.1411,
+        "contact_area": 0.0424
+      },
+      "environment": "dry",
+      "result_score": 0.8589,
+      "confidence_delta": 0.04390000000000005,
+      "novelty_flag": false,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-02T14:42:56.370500Z"
+    },
+    {
+      "run_id": "R-20260202-144254-306",
+      "hypothesis_id": "H-DEMO-144251",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "dry"
+      },
+      "environment": "dry",
+      "result_score": 0.8589,
+      "confidence_delta": 0,
+      "novelty_flag": false,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-02T14:42:56.373232Z"
+    },
+    {
+      "run_id": "R-20260202-144256-373",
+      "hypothesis_id": "H-DEMO-144251",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "wet",
+        "slip_rate": 0.1726,
+        "contact_area": 0.0217
+      },
+      "environment": "wet",
+      "result_score": 0.8274,
+      "confidence_delta": -0.03205000000000002,
+      "novelty_flag": true,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-02T14:42:58.442751Z"
+    },
+    {
+      "run_id": "R-20260202-144256-373",
+      "hypothesis_id": "H-DEMO-144251",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "wet"
+      },
+      "environment": "wet",
+      "result_score": 0.8274,
+      "confidence_delta": 0,
+      "novelty_flag": true,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-02T14:42:58.444722Z"
+    },
+    {
+      "run_id": "R-20260202-144258-445",
+      "hypothesis_id": "H-DEMO-144251",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "surgical",
+        "slip_rate": 0.0893,
+        "contact_area": 0.0217
+      },
+      "environment": "surgical",
+      "result_score": 0.9107,
+      "confidence_delta": 0.010000000000000009,
+      "novelty_flag": false,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-02T14:43:00.504478Z"
+    },
+    {
+      "run_id": "R-20260202-144258-445",
+      "hypothesis_id": "H-DEMO-144251",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "surgical"
+      },
+      "environment": "surgical",
+      "result_score": 0.9107,
+      "confidence_delta": 0,
+      "novelty_flag": false,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-02T14:43:00.506760Z"
+    },
+    {
+      "run_id": "R-20260202-144357-187",
+      "hypothesis_id": "H-DEMO-144354",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "dry",
+        "slip_rate": 0.1505,
+        "contact_area": 0.0247
+      },
+      "environment": "dry",
+      "result_score": 0.8495,
+      "confidence_delta": -0.025399999999999978,
+      "novelty_flag": true,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-02T14:43:59.266907Z"
+    },
+    {
+      "run_id": "R-20260202-144357-187",
+      "hypothesis_id": "H-DEMO-144354",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "dry"
+      },
+      "environment": "dry",
+      "result_score": 0.8495,
+      "confidence_delta": 0,
+      "novelty_flag": true,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-02T14:43:59.269950Z"
+    },
+    {
+      "run_id": "R-20260202-144359-270",
+      "hypothesis_id": "H-DEMO-144354",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "wet",
+        "slip_rate": 0.2177,
+        "contact_area": 0.0185
+      },
+      "environment": "wet",
+      "result_score": 0.7823,
+      "confidence_delta": -0.042800000000000005,
+      "novelty_flag": true,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-02T14:44:01.341065Z"
+    },
+    {
+      "run_id": "R-20260202-144359-270",
+      "hypothesis_id": "H-DEMO-144354",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "wet"
+      },
+      "environment": "wet",
+      "result_score": 0.7823,
+      "confidence_delta": 0,
+      "novelty_flag": true,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-02T14:44:01.343220Z"
+    },
+    {
+      "run_id": "R-20260202-144401-344",
+      "hypothesis_id": "H-DEMO-144354",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "surgical",
+        "slip_rate": 0.0911,
+        "contact_area": 0.0373
+      },
+      "environment": "surgical",
+      "result_score": 0.9089,
+      "confidence_delta": 0.047099999999999975,
+      "novelty_flag": true,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-02T14:44:03.402677Z"
+    },
+    {
+      "run_id": "R-20260202-144401-344",
+      "hypothesis_id": "H-DEMO-144354",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "surgical"
+      },
+      "environment": "surgical",
+      "result_score": 0.9089,
+      "confidence_delta": 0,
+      "novelty_flag": true,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-02T14:44:03.405066Z"
+    },
+    {
+      "run_id": "R-20260203-093642-810",
+      "hypothesis_id": "H-DEMO-093639",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "dry",
+        "slip_rate": 0.1041,
+        "contact_area": 0.0417
+      },
+      "environment": "dry",
+      "result_score": 0.8959,
+      "confidence_delta": 0.04749999999999999,
+      "novelty_flag": true,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:36:44.876641Z"
+    },
+    {
+      "run_id": "R-20260203-093642-810",
+      "hypothesis_id": "H-DEMO-093639",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "dry"
+      },
+      "environment": "dry",
+      "result_score": 0.8959,
+      "confidence_delta": 0,
+      "novelty_flag": true,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:36:44.879994Z"
+    },
+    {
+      "run_id": "R-20260203-093644-881",
+      "hypothesis_id": "H-DEMO-093639",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "wet",
+        "slip_rate": 0.2404,
+        "contact_area": 0.018
+      },
+      "environment": "wet",
+      "result_score": 0.7596,
+      "confidence_delta": -0.047050000000000036,
+      "novelty_flag": true,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:36:46.917458Z"
+    },
+    {
+      "run_id": "R-20260203-093644-881",
+      "hypothesis_id": "H-DEMO-093639",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "wet"
+      },
+      "environment": "wet",
+      "result_score": 0.7596,
+      "confidence_delta": 0,
+      "novelty_flag": true,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:36:46.919574Z"
+    },
+    {
+      "run_id": "R-20260203-093646-920",
+      "hypothesis_id": "H-DEMO-093639",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "surgical",
+        "slip_rate": 0.0532,
+        "contact_area": 0.0215
+      },
+      "environment": "surgical",
+      "result_score": 0.9468,
+      "confidence_delta": 0.010000000000000009,
+      "novelty_flag": false,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:36:49.005254Z"
+    },
+    {
+      "run_id": "R-20260203-093646-920",
+      "hypothesis_id": "H-DEMO-093639",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "surgical"
+      },
+      "environment": "surgical",
+      "result_score": 0.9468,
+      "confidence_delta": 0,
+      "novelty_flag": false,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:36:49.007335Z"
+    },
+    {
+      "run_id": "R-20260203-093725-847",
+      "hypothesis_id": "H-DEMO-093722",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "dry",
+        "slip_rate": 0.0864,
+        "contact_area": 0.0348
+      },
+      "environment": "dry",
+      "result_score": 0.9136,
+      "confidence_delta": 0.045399999999999996,
+      "novelty_flag": true,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:37:27.928325Z"
+    },
+    {
+      "run_id": "R-20260203-093725-847",
+      "hypothesis_id": "H-DEMO-093722",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "dry"
+      },
+      "environment": "dry",
+      "result_score": 0.9136,
+      "confidence_delta": 0,
+      "novelty_flag": true,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:37:27.931121Z"
+    },
+    {
+      "run_id": "R-20260203-093727-932",
+      "hypothesis_id": "H-DEMO-093722",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "wet",
+        "slip_rate": 0.281,
+        "contact_area": 0.0291
+      },
+      "environment": "wet",
+      "result_score": 0.719,
+      "confidence_delta": 0.010000000000000009,
+      "novelty_flag": false,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:37:29.992424Z"
+    },
+    {
+      "run_id": "R-20260203-093727-932",
+      "hypothesis_id": "H-DEMO-093722",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "wet"
+      },
+      "environment": "wet",
+      "result_score": 0.719,
+      "confidence_delta": 0,
+      "novelty_flag": false,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:37:29.994551Z"
+    },
+    {
+      "run_id": "R-20260203-093729-995",
+      "hypothesis_id": "H-DEMO-093722",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "surgical",
+        "slip_rate": 0.1494,
+        "contact_area": 0.0216
+      },
+      "environment": "surgical",
+      "result_score": 0.8506,
+      "confidence_delta": 0.010000000000000009,
+      "novelty_flag": false,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:37:32.047393Z"
+    },
+    {
+      "run_id": "R-20260203-093729-995",
+      "hypothesis_id": "H-DEMO-093722",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "surgical"
+      },
+      "environment": "surgical",
+      "result_score": 0.8506,
+      "confidence_delta": 0,
+      "novelty_flag": false,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:37:32.049780Z"
+    },
+    {
+      "run_id": "R-20260203-094141-198",
+      "hypothesis_id": "H-DEMO-094138",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "dry",
+        "slip_rate": 0.0905,
+        "contact_area": 0.035
+      },
+      "environment": "dry",
+      "result_score": 0.9095,
+      "confidence_delta": 0.04490000000000005,
+      "novelty_flag": false,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:41:43.245386Z"
+    },
+    {
+      "run_id": "R-20260203-094141-198",
+      "hypothesis_id": "H-DEMO-094138",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "dry"
+      },
+      "environment": "dry",
+      "result_score": 0.9095,
+      "confidence_delta": 0,
+      "novelty_flag": false,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:41:43.248500Z"
+    },
+    {
+      "run_id": "R-20260203-094143-249",
+      "hypothesis_id": "H-DEMO-094138",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "wet",
+        "slip_rate": 0.2955,
+        "contact_area": 0.0313
+      },
+      "environment": "wet",
+      "result_score": 0.7045,
+      "confidence_delta": 0.010000000000000009,
+      "novelty_flag": false,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:41:45.327575Z"
+    },
+    {
+      "run_id": "R-20260203-094143-249",
+      "hypothesis_id": "H-DEMO-094138",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "wet"
+      },
+      "environment": "wet",
+      "result_score": 0.7045,
+      "confidence_delta": 0,
+      "novelty_flag": false,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:41:45.329956Z"
+    },
+    {
+      "run_id": "R-20260203-094145-331",
+      "hypothesis_id": "H-DEMO-094138",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "surgical",
+        "slip_rate": 0.0831,
+        "contact_area": 0.0346
+      },
+      "environment": "surgical",
+      "result_score": 0.9169,
+      "confidence_delta": 0.04574999999999996,
+      "novelty_flag": true,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:41:47.392897Z"
+    },
+    {
+      "run_id": "R-20260203-094145-331",
+      "hypothesis_id": "H-DEMO-094138",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "surgical"
+      },
+      "environment": "surgical",
+      "result_score": 0.9169,
+      "confidence_delta": 0,
+      "novelty_flag": true,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:41:47.395627Z"
+    },
+    {
+      "run_id": "R-20260203-094847-212",
+      "hypothesis_id": "H-DEMO-094844",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "dry",
+        "slip_rate": 0.0428,
+        "contact_area": 0.0247
+      },
+      "environment": "dry",
+      "result_score": 0.9572,
+      "confidence_delta": 0.010000000000000009,
+      "novelty_flag": false,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:48:49.263733Z"
+    },
+    {
+      "run_id": "R-20260203-094847-212",
+      "hypothesis_id": "H-DEMO-094844",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "dry"
+      },
+      "environment": "dry",
+      "result_score": 0.9572,
+      "confidence_delta": 0,
+      "novelty_flag": false,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:48:49.267114Z"
+    },
+    {
+      "run_id": "R-20260203-094849-268",
+      "hypothesis_id": "H-DEMO-094844",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "wet",
+        "slip_rate": 0.2128,
+        "contact_area": 0.0295
+      },
+      "environment": "wet",
+      "result_score": 0.7872,
+      "confidence_delta": 0.010000000000000009,
+      "novelty_flag": false,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:48:51.337042Z"
+    },
+    {
+      "run_id": "R-20260203-094849-268",
+      "hypothesis_id": "H-DEMO-094844",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "wet"
+      },
+      "environment": "wet",
+      "result_score": 0.7872,
+      "confidence_delta": 0,
+      "novelty_flag": false,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:48:51.339518Z"
+    },
+    {
+      "run_id": "R-20260203-094851-341",
+      "hypothesis_id": "H-DEMO-094844",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "surgical",
+        "slip_rate": 0.1137,
+        "contact_area": 0.0288
+      },
+      "environment": "surgical",
+      "result_score": 0.8863,
+      "confidence_delta": 0.03485000000000005,
+      "novelty_flag": false,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:48:53.413170Z"
+    },
+    {
+      "run_id": "R-20260203-094851-341",
+      "hypothesis_id": "H-DEMO-094844",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "surgical"
+      },
+      "environment": "surgical",
+      "result_score": 0.8863,
+      "confidence_delta": 0,
+      "novelty_flag": false,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:48:53.415798Z"
+    },
+    {
+      "run_id": "R-20260203-095031-288",
+      "hypothesis_id": "H-DEMO-095028",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "dry",
+        "slip_rate": 0.1301,
+        "contact_area": 0.0438
+      },
+      "environment": "dry",
+      "result_score": 0.8699,
+      "confidence_delta": 0.04710000000000003,
+      "novelty_flag": true,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:50:33.374482Z"
+    },
+    {
+      "run_id": "R-20260203-095031-288",
+      "hypothesis_id": "H-DEMO-095028",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "dry"
+      },
+      "environment": "dry",
+      "result_score": 0.8699,
+      "confidence_delta": 0,
+      "novelty_flag": true,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:50:33.377835Z"
+    },
+    {
+      "run_id": "R-20260203-095033-379",
+      "hypothesis_id": "H-DEMO-095028",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "wet",
+        "slip_rate": 0.1662,
+        "contact_area": 0.018
+      },
+      "environment": "wet",
+      "result_score": 0.8338,
+      "confidence_delta": -0.03469999999999995,
+      "novelty_flag": true,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:50:35.463782Z"
+    },
+    {
+      "run_id": "R-20260203-095033-379",
+      "hypothesis_id": "H-DEMO-095028",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "wet"
+      },
+      "environment": "wet",
+      "result_score": 0.8338,
+      "confidence_delta": 0,
+      "novelty_flag": true,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:50:35.466561Z"
+    },
+    {
+      "run_id": "R-20260203-095035-468",
+      "hypothesis_id": "H-DEMO-095028",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "surgical",
+        "slip_rate": 0.0687,
+        "contact_area": 0.0387
+      },
+      "environment": "surgical",
+      "result_score": 0.9313,
+      "confidence_delta": 0.04749999999999999,
+      "novelty_flag": true,
+      "exploration_mode": "exploit",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:50:37.547938Z"
+    },
+    {
+      "run_id": "R-20260203-095035-468",
+      "hypothesis_id": "H-DEMO-095028",
+      "parameter_vector": {
+        "design_id": "GD-DEMO-0001",
+        "environment": "surgical"
+      },
+      "environment": "surgical",
+      "result_score": 0.9313,
+      "confidence_delta": 0,
+      "novelty_flag": true,
+      "exploration_mode": "explore",
+      "information_gain": null,
+      "elegance_score": null,
+      "surprise_score": null,
+      "timestamp": "2026-02-03T09:50:37.550853Z"
+    }
+  ]
+}

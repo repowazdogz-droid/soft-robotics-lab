@@ -49,6 +49,13 @@ from core.trainer import (
 )
 from core.policies import LinearPolicy, ConstantPolicy
 from core.batch import create_batch_job, run_batch_job, get_batch_results, find_best_parameters, list_jobs
+from core.reality_gap import (
+    RealityGapTracker,
+    SimMetrics,
+    RealMetrics,
+    compute_gap,
+    generate_calibration_recommendations,
+)
 
 try:
     from substrate_integration import (
@@ -425,6 +432,186 @@ def main():
                 if lineage:
                     with st.expander("Policy lineage"):
                         st.json(lineage)
+
+    # ----- Reality Gap Tracking -----
+    st.divider()
+    st.header("📊 Reality Gap Tracking")
+    st.caption("Measure and reduce the sim-to-real gap")
+
+    tracker = RealityGapTracker()
+
+    gap_tab1, gap_tab2, gap_tab3 = st.tabs(["Record Gap", "View History", "Recommendations"])
+
+    with gap_tab1:
+        st.subheader("Record Sim vs Real Comparison")
+
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            gripper_id = st.text_input("Gripper ID", placeholder="e.g., gripper_v3", key="gap_gripper_id")
+        with col2:
+            task_id = st.text_input("Task ID", placeholder="e.g., pick_cup", key="gap_task_id")
+        with col3:
+            policy_id = st.text_input("Policy ID", placeholder="e.g., policy_001", key="gap_policy_id")
+
+        st.subheader("Simulation Metrics")
+        sim_col1, sim_col2 = st.columns(2)
+        with sim_col1:
+            sim_success = st.number_input("Sim Success Rate", 0.0, 1.0, 0.9, 0.01, key="sim_success")
+            sim_time = st.number_input("Sim Avg Execution Time (s)", 0.0, 10.0, 2.0, 0.1, key="sim_time")
+        with sim_col2:
+            sim_force = st.number_input("Sim Avg Grip Force (N)", 0.0, 50.0, 10.0, 0.5, key="sim_force")
+            sim_error = st.number_input("Sim Avg Position Error (m)", 0.0, 0.1, 0.005, 0.001, format="%.3f", key="sim_error")
+        sim_episodes = st.number_input("Simulation Episodes", 1, 10000, 100, key="sim_episodes")
+
+        st.subheader("Real-World Metrics")
+        real_col1, real_col2 = st.columns(2)
+        with real_col1:
+            real_success = st.number_input("Real Success Rate", 0.0, 1.0, 0.75, 0.01, key="real_success")
+            real_time = st.number_input("Real Avg Execution Time (s)", 0.0, 10.0, 2.5, 0.1, key="real_time")
+        with real_col2:
+            real_force = st.number_input("Real Avg Grip Force (N)", 0.0, 50.0, 8.0, 0.5, key="real_force")
+            real_error = st.number_input("Real Avg Position Error (m)", 0.0, 0.1, 0.012, 0.001, format="%.3f", key="real_error")
+        real_trials = st.number_input("Real-World Trials", 1, 1000, 20, key="real_trials")
+        real_notes = st.text_area("Notes", placeholder="Any observations about the real-world testing", key="real_notes")
+
+        if st.button("Record Gap", key="record_gap"):
+            if not gripper_id or not task_id or not policy_id:
+                st.warning("Please fill in gripper, task, and policy IDs")
+            else:
+                sim_metrics = SimMetrics(
+                    success_rate=sim_success,
+                    avg_execution_time=sim_time,
+                    avg_grip_force=sim_force,
+                    avg_position_error=sim_error,
+                    episodes=int(sim_episodes)
+                )
+                real_metrics = RealMetrics(
+                    success_rate=real_success,
+                    avg_execution_time=real_time,
+                    avg_grip_force=real_force if real_force > 0 else None,
+                    avg_position_error=real_error if real_error > 0 else None,
+                    trials=int(real_trials),
+                    notes=real_notes
+                )
+
+                record = tracker.record_gap(
+                    gripper_id=gripper_id,
+                    task_id=task_id,
+                    policy_id=policy_id,
+                    sim_metrics=sim_metrics,
+                    real_metrics=real_metrics
+                )
+
+                st.success(f"Recorded gap: {record.id}")
+
+                # Show gap immediately
+                gap = record.gap_metrics
+                severity_colors = {"low": "🟢", "medium": "🟡", "high": "🟠", "critical": "🔴"}
+                st.info(f"{severity_colors.get(gap.severity, '⚪')} Gap Severity: **{gap.severity.upper()}** (Overall: {gap.overall_gap:.2f})")
+
+                col1, col2, col3, col4 = st.columns(4)
+                col1.metric("Success Rate Gap", f"{gap.success_rate_gap:+.0%}")
+                col2.metric("Time Gap", f"{gap.execution_time_gap:+.2f}s")
+                if gap.grip_force_gap is not None:
+                    col3.metric("Force Gap", f"{gap.grip_force_gap:+.1f}N")
+                if gap.position_error_gap is not None:
+                    col4.metric("Position Gap", f"{gap.position_error_gap*1000:+.1f}mm")
+
+    with gap_tab2:
+        st.subheader("Gap History")
+
+        summary = tracker.get_summary()
+
+        if summary["total_records"] == 0:
+            st.info("No gap records yet. Record your first sim vs real comparison.")
+        else:
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("Total Records", summary["total_records"])
+            col2.metric("Grippers Tracked", summary["grippers_tracked"])
+            col3.metric("Tasks Tracked", summary["tasks_tracked"])
+            col4.metric("Avg Gap", f"{summary['avg_gap']:.2f}" if summary["avg_gap"] is not None else "N/A")
+
+            # Severity distribution
+            st.subheader("Severity Distribution")
+            dist = summary["severity_distribution"]
+            cols = st.columns(4)
+            cols[0].metric("🟢 Low", dist["low"])
+            cols[1].metric("🟡 Medium", dist["medium"])
+            cols[2].metric("🟠 High", dist["high"])
+            cols[3].metric("🔴 Critical", dist["critical"])
+
+            # Filter options
+            st.subheader("Browse Records")
+            filter_gripper = st.text_input("Filter by Gripper ID", key="filter_gripper")
+            filter_task = st.text_input("Filter by Task ID", key="filter_task")
+
+            history = tracker.get_gap_history(
+                gripper_id=filter_gripper if filter_gripper else None,
+                task_id=filter_task if filter_task else None
+            )
+
+            for record in history[:20]:  # Show latest 20
+                severity_colors = {"low": "🟢", "medium": "🟡", "high": "🟠", "critical": "🔴"}
+                icon = severity_colors.get(record.gap_metrics.severity, "⚪")
+
+                with st.expander(f"{icon} {record.id} — {record.gripper_id} / {record.task_id}"):
+                    st.write(f"**Policy:** {record.policy_id}")
+                    st.write(f"**Date:** {record.created_at}")
+
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.write("**Simulation**")
+                        st.write(f"- Success: {record.sim_metrics.success_rate:.0%}")
+                        st.write(f"- Time: {record.sim_metrics.avg_execution_time:.2f}s")
+                        st.write(f"- Episodes: {record.sim_metrics.episodes}")
+                    with col2:
+                        st.write("**Real-World**")
+                        st.write(f"- Success: {record.real_metrics.success_rate:.0%}")
+                        st.write(f"- Time: {record.real_metrics.avg_execution_time:.2f}s")
+                        st.write(f"- Trials: {record.real_metrics.trials}")
+
+                    st.write(f"**Overall Gap:** {record.gap_metrics.overall_gap:.2f} ({record.gap_metrics.severity})")
+
+            # Trend analysis
+            if filter_gripper and filter_task:
+                trend = tracker.get_gap_trend(filter_gripper, filter_task)
+                if trend.get("trend") != "no_data":
+                    st.subheader("Gap Trend")
+                    if trend["trend"] == "improving":
+                        st.success(f"📈 Gap is **improving** ({trend.get('improvement', 0):.0%} reduction)")
+                    elif trend["trend"] == "degrading":
+                        st.error("📉 Gap is **degrading**")
+                    else:
+                        st.info("➡️ Gap is **stable**")
+
+    with gap_tab3:
+        st.subheader("Calibration Recommendations")
+
+        rec_gripper = st.text_input("Gripper ID for recommendations", key="rec_gripper")
+        rec_task = st.text_input("Task ID for recommendations", key="rec_task")
+
+        if st.button("Get Recommendations", key="get_recs"):
+            if not rec_gripper:
+                st.warning("Please enter a gripper ID")
+            else:
+                recommendations = tracker.get_recommendations(
+                    gripper_id=rec_gripper,
+                    task_id=rec_task if rec_task else None
+                )
+
+                if not recommendations:
+                    st.info("No specific recommendations. Gap may be acceptable or no data available.")
+                else:
+                    for rec in recommendations:
+                        priority_icons = {1: "🔴", 2: "🟡", 3: "🟢"}
+                        icon = priority_icons.get(rec.priority, "⚪")
+
+                        with st.expander(f"{icon} Priority {rec.priority}: {rec.parameter}"):
+                            st.write(f"**Current Value:** {rec.current_value}")
+                            st.write(f"**Recommended Value:** {rec.recommended_value}")
+                            st.write(f"**Expected Gap Reduction:** {rec.expected_gap_reduction:.2f}")
+                            st.write(f"**Confidence:** {rec.confidence:.0%}")
+                            st.info(rec.reasoning)
 
 
 def render_scene_builder():

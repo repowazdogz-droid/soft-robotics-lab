@@ -1,0 +1,29 @@
+{
+  "run_id": "R-20260203-093646-920",
+  "parent_run_id": null,
+  "batch_id": null,
+  "schema_version": "1.0",
+  "created_at": "2026-02-03T09:36:48.996458Z",
+  "origin": "runner",
+  "timestamp": "2026-02-03T09:36:46.921157Z",
+  "engine": "mock",
+  "design_id": "GD-DEMO-0001",
+  "hypothesis_id": "H-DEMO-093639",
+  "experiment_id": "E-GD-DEMO-0001-surgical",
+  "environment": "surgical",
+  "metrics": {
+    "slip_rate": 0.0532,
+    "contact_area": 0.0215,
+    "grasp_force": 2.37,
+    "grasp_success": true,
+    "sim_steps": 1000,
+    "contact_frames": 770
+  },
+  "outcome": {
+    "direction": "ambiguous",
+    "strength": 0.3,
+    "rationale": "Slip: 0.053 (baseline 0.15), Contact: 0.0215 (baseline 0.025). Mixed results."
+  },
+  "artifact_manifest": [],
+  "notes": "Automated experiment for GD-DEMO-0001"
+}

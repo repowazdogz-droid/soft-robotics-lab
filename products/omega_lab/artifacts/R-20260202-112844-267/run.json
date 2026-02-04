@@ -1,0 +1,27 @@
+{
+  "run_id": "R-20260202-112844-267",
+  "parent_run_id": null,
+  "batch_id": "B-20260202-112620",
+  "schema_version": "1.0",
+  "timestamp": "2026-02-02T11:28:44.268052+00:00",
+  "engine": "mock",
+  "design_id": "GD-STRESS-0035",
+  "hypothesis_id": "H-TEST",
+  "experiment_id": "E-GD-STRESS-0035-surgical",
+  "environment": "surgical",
+  "metrics": {
+    "slip_rate": 0.0936,
+    "contact_area": 0.0398,
+    "grasp_force": 1.53,
+    "grasp_success": true,
+    "sim_steps": 1000,
+    "contact_frames": 662
+  },
+  "outcome": {
+    "direction": "supports",
+    "strength": 0.95,
+    "rationale": "Slip: 0.094 (baseline 0.15), Contact: 0.0398 (baseline 0.025). Both improved."
+  },
+  "artifact_manifest": [],
+  "notes": "Automated experiment for GD-STRESS-0035"
+}
